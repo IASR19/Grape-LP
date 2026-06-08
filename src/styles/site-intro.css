@@ -1,0 +1,50 @@
+/*
+ * Preloader — oculta o shell da app ate a sequencia terminar.
+ * SiteIntro e renderizado via portal em document.body.
+ */
+
+html[data-site-intro-pending] {
+  overflow: hidden;
+}
+
+html[data-site-intro-pending]::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 79;
+  background: var(--background);
+}
+
+html[data-site-intro-pending] [data-app-shell] {
+  visibility: hidden !important;
+}
+
+html[data-site-intro-pending] [data-custom-cursor] {
+  opacity: 0 !important;
+  visibility: hidden;
+}
+
+html[data-site-intro-revealing] {
+  overflow: hidden;
+}
+
+html[data-site-intro-revealing] [data-site-intro-curtain] {
+  pointer-events: auto;
+}
+
+[data-site-intro-curtain][data-site-intro-revealing] {
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-site-intro-pending]::before {
+    display: none;
+  }
+
+  html[data-site-intro-pending] [data-app-shell] {
+    visibility: visible !important;
+  }
+}

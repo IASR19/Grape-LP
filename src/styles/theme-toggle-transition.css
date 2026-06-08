@@ -1,0 +1,46 @@
+/*
+ * View Transition API — escopo exclusivo do toggle de tema.
+ * Ativo apenas enquanto html[data-magicui-theme-vt="active"] estiver presente.
+ */
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+html[data-magicui-theme-vt="active"]::view-transition-group(root) {
+  animation-duration: var(--magicui-theme-toggle-vt-duration, 680ms);
+}
+
+/* Evita flash do tema novo antes da animação JS iniciar (especialmente Firefox). */
+html[data-magicui-theme-vt="active"]::view-transition-new(root) {
+  clip-path: var(--magicui-theme-vt-clip-from);
+  animation: none !important;
+}
+
+html[data-magicui-theme-vt="active"]::view-transition-old(root) {
+  animation: none !important;
+}
+
+/*
+ * Header tem view-transition-name próprio para rotas; durante troca de tema
+ * ele precisa entrar no snapshot do root para acompanhar o círculo.
+ */
+html[data-magicui-theme-vt="active"] header {
+  view-transition-name: none !important;
+}
+
+/*
+ * Suprime transition-colors paralelas (ex.: botão Menu) que competem com a VT.
+ */
+html[data-magicui-theme-vt="active"] *,
+html[data-magicui-theme-vt="active"] *::before,
+html[data-magicui-theme-vt="active"] *::after {
+  transition: none !important;
+}
+
+/* Ícones do toggle não competem com a transição de página. */
+html[data-magicui-theme-vt="active"] [data-theme-toggle-icon] {
+  transition: none !important;
+}

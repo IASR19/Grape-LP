@@ -1,0 +1,461 @@
+@import "../styles/theme-toggle-transition.css";
+@import "../styles/route-view-transition.css";
+@import "../styles/site-intro.css";
+@import "../styles/home-scroll-nav.css";
+
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: oklch(0.985 0.006 84);
+  --foreground: oklch(0.215 0.018 62);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.215 0.018 62);
+  --primary: oklch(0.43 0.05 65);
+  --primary-foreground: oklch(0.975 0.018 84);
+  --secondary: oklch(0.93 0.025 84);
+  --secondary-foreground: oklch(0.25 0.025 62);
+  --muted: oklch(0.94 0.011 84);
+  --muted-foreground: oklch(0.45 0.021 64);
+  --border: oklch(0.85 0.015 78);
+  --input: oklch(0.82 0.014 78);
+  --ring: oklch(0.5 0.05 65);
+  --logo-pattern-opacity: 0.04;
+  --logo-pattern-blend: multiply;
+  --logo-pattern-filter: none;
+}
+
+html {
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --font-sans: var(--font-montserrat);
+  --font-serif: var(--font-montserrat);
+  --font-mono: var(--font-geist-mono);
+}
+
+.dark {
+  --background: oklch(0.16 0.018 58);
+  --foreground: oklch(0.94 0.015 84);
+  --card: oklch(0.2 0.02 58);
+  --card-foreground: oklch(0.94 0.015 84);
+  --primary: oklch(0.79 0.035 84);
+  --primary-foreground: oklch(0.19 0.02 58);
+  --secondary: oklch(0.25 0.021 58);
+  --secondary-foreground: oklch(0.94 0.015 84);
+  --muted: oklch(0.24 0.018 58);
+  --muted-foreground: oklch(0.73 0.018 78);
+  --border: oklch(0.31 0.02 58);
+  --input: oklch(0.34 0.02 58);
+  --ring: oklch(0.79 0.035 84);
+  --logo-pattern-opacity: 0.24;
+  --logo-pattern-blend: soft-light;
+  --logo-pattern-filter: brightness(2.1) contrast(0.82);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-montserrat), system-ui, sans-serif;
+  font-weight: 400;
+  line-height: 1.6;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -ms-overflow-style: none;
+}
+
+[id="hero"],
+[id="metodo"],
+[id="cuidado"],
+[id="avaliacao"],
+[id="experiencia"],
+[id="fundadora"],
+[id="reels"],
+[id="historias"],
+[id="duvidas"],
+[id="contato"],
+[id="galeria"] {
+  scroll-margin-top: 5rem;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-montserrat), system-ui, sans-serif;
+  font-weight: 500;
+  line-height: 1.12;
+  letter-spacing: 0;
+  text-wrap: balance;
+}
+
+p,
+li,
+blockquote {
+  text-wrap: pretty;
+}
+
+* {
+  border-color: var(--border);
+}
+
+::selection {
+  background: color-mix(in oklch, var(--primary) 24%, transparent);
+}
+
+.skip-link {
+  position: fixed;
+  left: 1rem;
+  top: 1rem;
+  z-index: 100;
+  border-radius: 9999px;
+  border: 1px solid var(--border);
+  background: var(--background);
+  color: var(--foreground);
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1;
+  text-decoration: none;
+  transform: translateY(-200%);
+  transition: transform 0.18s ease;
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible,
+[role="tab"]:focus-visible,
+[role="option"]:focus-visible,
+[tabindex]:focus-visible:not([tabindex="-1"]) {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  html.has-custom-cursor-active,
+  html.has-custom-cursor-active * {
+    cursor: none !important;
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee-track {
+  animation: marquee 42s linear infinite;
+}
+
+.marquee-mask:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+}
+
+@keyframes whatsapp-ring-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1.75);
+    opacity: 0;
+  }
+}
+
+@keyframes whatsapp-float-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes header-cta-ring-pulse-primary {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in oklch, var(--primary) 44%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 5px color-mix(in oklch, var(--primary) 0%, transparent);
+  }
+}
+
+@keyframes header-cta-ring-pulse-light {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in oklch, var(--primary-foreground) 36%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 5px color-mix(in oklch, var(--primary-foreground) 0%, transparent);
+  }
+}
+
+.header-cta-ring {
+  z-index: 0;
+}
+
+.header-cta-pulse-hero::before,
+.header-cta-pulse-hero::after,
+.header-cta-pulse-solid::before,
+.header-cta-pulse-solid::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.header-cta-pulse-hero::before,
+.header-cta-pulse-hero::after {
+  animation: header-cta-ring-pulse-primary 3.1s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+.header-cta-pulse-solid::before,
+.header-cta-pulse-solid::after {
+  animation: header-cta-ring-pulse-light 3.1s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+.header-cta-pulse-hero::after,
+.header-cta-pulse-solid::after {
+  animation-delay: 1.55s;
+}
+
+.header-cta-ring-hero {
+  animation: header-cta-ring-pulse-primary 3.1s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+.header-cta-ring-solid {
+  animation: header-cta-ring-pulse-light 3.1s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+.header-cta-ring-delay {
+  animation-delay: 1.55s;
+}
+
+.whatsapp-float-ring {
+  animation: whatsapp-ring-pulse 2.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.whatsapp-float-ring-delay {
+  animation-delay: 1.4s;
+}
+
+.whatsapp-float-btn {
+  animation: whatsapp-float-breathe 3.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header-cta-pulse-hero::before,
+  .header-cta-pulse-hero::after,
+  .header-cta-pulse-solid::before,
+  .header-cta-pulse-solid::after,
+  .header-cta-ring,
+  .whatsapp-float-ring,
+  .whatsapp-float-btn {
+    animation: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .marquee-track,
+  .header-cta-pulse-hero::before,
+  .header-cta-pulse-hero::after,
+  .header-cta-pulse-solid::before,
+  .header-cta-pulse-solid::after,
+  .header-cta-ring,
+  .whatsapp-float-ring,
+  .whatsapp-float-btn {
+    animation: none !important;
+  }
+}
+
+.liquid-glass-surface {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  border: 1px solid color-mix(in oklch, var(--primary-foreground) 16%, transparent);
+  background: color-mix(in oklch, var(--primary-foreground) 10%, transparent);
+  -webkit-backdrop-filter: blur(18px) saturate(1.42);
+  backdrop-filter: blur(18px) saturate(1.42);
+  transition:
+    border-color 280ms cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 280ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.liquid-glass-surface__sheen,
+.liquid-glass-surface__rim {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.liquid-glass-surface__sheen {
+  z-index: 0;
+  background: linear-gradient(
+    145deg,
+    color-mix(in oklch, var(--primary-foreground) 14%, transparent) 0%,
+    transparent 42%,
+    color-mix(in oklch, var(--primary-foreground) 5%, transparent) 100%
+  );
+  opacity: 0.38;
+}
+
+.liquid-glass-surface__rim {
+  z-index: 1;
+  opacity: 0;
+}
+
+.liquid-glass-surface__content {
+  position: relative;
+  z-index: 2;
+}
+
+.liquid-glass-featured {
+  border-color: color-mix(in oklch, var(--background) 28%, transparent);
+  background: color-mix(in oklch, var(--background) 68%, transparent);
+  -webkit-backdrop-filter: blur(22px) saturate(1.5);
+  backdrop-filter: blur(22px) saturate(1.5);
+}
+
+.liquid-glass-list:hover {
+  border-color: color-mix(in oklch, var(--primary-foreground) 22%, transparent);
+  background: color-mix(in oklch, var(--primary-foreground) 14%, transparent);
+  transform: translateY(-2px);
+}
+
+.liquid-glass-list-active {
+  border-color: color-mix(in oklch, var(--primary-foreground) 48%, transparent);
+  background: color-mix(in oklch, var(--primary-foreground) 78%, transparent);
+  -webkit-backdrop-filter: blur(24px) saturate(1.58);
+  backdrop-filter: blur(24px) saturate(1.58);
+}
+
+.liquid-glass-list-active .liquid-glass-surface__sheen {
+  opacity: 0.52;
+  background: linear-gradient(
+    145deg,
+    color-mix(in oklch, var(--primary-foreground) 22%, transparent) 0%,
+    transparent 46%,
+    color-mix(in oklch, var(--primary-foreground) 12%, transparent) 100%
+  );
+}
+
+@supports not (
+  (-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))
+) {
+  .liquid-glass-surface {
+    background: color-mix(in oklch, var(--primary-foreground) 88%, var(--primary));
+  }
+
+  .liquid-glass-featured {
+    background: color-mix(in oklch, var(--background) 92%, var(--primary));
+  }
+
+  .liquid-glass-list-active {
+    background: var(--primary-foreground);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .liquid-glass-surface,
+  .liquid-glass-list:hover {
+    transform: none;
+  }
+
+  .liquid-glass-surface-static {
+    -webkit-backdrop-filter: blur(10px) saturate(1.2);
+    backdrop-filter: blur(10px) saturate(1.2);
+  }
+}
+
+.logo-pattern-band__pattern {
+  z-index: 0;
+  opacity: var(--logo-pattern-opacity);
+  mix-blend-mode: var(--logo-pattern-blend);
+  filter: var(--logo-pattern-filter);
+  background-image: url("/brand/grapeclinic-pattern.svg");
+  background-size: 360px 360px;
+  background-repeat: repeat;
+  background-position: top center;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    #000 4%,
+    #000 96%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    #000 4%,
+    #000 96%,
+    transparent 100%
+  );
+}
+
+/* Hero background — sem overlay nativo de play (Safari/WebKit). */
+[data-hero-video] {
+  pointer-events: none;
+}
+
+[data-hero-video]::-webkit-media-controls {
+  display: none !important;
+}
+
+[data-hero-video]::-webkit-media-controls-start-playback-button,
+[data-hero-video]::-webkit-media-controls-overlay-play-button {
+  display: none !important;
+  -apple-appearance: none;
+  -webkit-appearance: none;
+  opacity: 0;
+  pointer-events: none;
+}

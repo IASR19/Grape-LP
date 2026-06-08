@@ -1,0 +1,307 @@
+"use client";
+
+import Image from "next/image";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type RefObject } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
+import { useSiteIntroReady } from "@/hooks/use-site-intro-ready";
+import { resolveHeroVideoSrc } from "@/lib/intro/media-cache";
+import { MOTION } from "@/lib/motion";
+import { scrollTriggerScroller } from "@/lib/motion/gsap";
+import { cn } from "@/lib/utils";
+
+const MAX_PLAY_ATTEMPTS = 6;
+
+type HeroBackgroundProps = {
+  videoSrc: string;
+  posterSrc: string;
+  alt: string;
+  triggerRef: RefObject<HTMLElement | null>;
+  speed?: number;
+  overlayClassName?: string;
+};
+
+export function HeroBackground({
+  videoSrc,
+  posterSrc,
+  alt,
+  triggerRef,
+  speed = MOTION.parallax.hero,
+  overlayClassName,
+}: HeroBackgroundProps) {
+  const fixedBgRef = useRef<HTMLDivElement>(null);
+  const layerRef = useRef<HTMLDivElement>(null);
+  const whiteFadeRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const playAttemptsRef = useRef(0);
+  const tryPlayRef = useRef<() => void>(() => {});
+  const srcLockedRef = useRef(false);
+
+  const [videoReady, setVideoReady] = useState(false);
+  const [resolvedSrc, setResolvedSrc] = useState(videoSrc);
+  const prefersReducedMotion = usePrefersReducedMotion();
+  const introReady = useSiteIntroReady();
+
+  const canAutoplay = introReady && !prefersReducedMotion;
+
+  useLayoutEffect(() => {
+    if (prefersReducedMotion || srcLockedRef.current) return;
+    srcLockedRef.current = true;
+    setResolvedSrc(resolveHeroVideoSrc(videoSrc));
+  }, [prefersReducedMotion, videoSrc]);
+
+  const markVideoReady = useCallback(() => {
+    setVideoReady(true);
+  }, []);
+
+  const scheduleReadyAfterFirstFrame = useCallback((video: HTMLVideoElement) => {
+    if (video.currentTime > 0 && !video.paused) {
+      markVideoReady();
+      return;
+    }
+
+    const requestFrame = (
+      video as HTMLVideoElement & {
+        requestVideoFrameCallback?: (callback: () => void) => number;
+      }
+    ).requestVideoFrameCallback;
+
+    if (requestFrame) {
+      requestFrame.call(video, () => markVideoReady());
+      return;
+    }
+
+    const onTimeUpdate = () => {
+      if (video.currentTime > 0) {
+        video.removeEventListener("timeupdate", onTimeUpdate);
+        markVideoReady();
+      }
+    };
+
+    video.addEventListener("timeupdate", onTimeUpdate);
+  }, [markVideoReady]);
+
+  const tryPlay = useCallback(() => {
+    if (!introReady || prefersReducedMotion) return;
+
+    const video = videoRef.current;
+    if (!video) return;
+
+    void video.play().catch(() => {
+      if (playAttemptsRef.current < MAX_PLAY_ATTEMPTS) {
+        playAttemptsRef.current += 1;
+        window.setTimeout(() => {
+          tryPlayRef.current();
+        }, 300 * playAttemptsRef.current);
+      }
+    });
+  }, [introReady, prefersReducedMotion]);
+
+  useEffect(() => {
+    tryPlayRef.current = tryPlay;
+  }, [tryPlay]);
+
+  useEffect(() => {
+    if (prefersReducedMotion) return;
+
+    const trigger = triggerRef.current;
+    const fixedBg = fixedBgRef.current;
+    const layer = layerRef.current;
+
+    if (!trigger || !fixedBg || !layer) return;
+
+    const ctx = gsap.context(() => {
+      const scrollConfig = {
+        trigger,
+        scroller: scrollTriggerScroller(),
+        start: "top top",
+        end: "bottom top",
+        scrub: 0.55,
+      };
+
+      gsap.fromTo(
+        layer,
+        {
+          scale: 1,
+          scaleX: 1,
+          yPercent: 0,
+          filter: "brightness(1) blur(0px)",
+        },
+        {
+          scale: 1 + speed * 2.35,
+          scaleX: 1 + speed * 3.15,
+          yPercent: -14,
+          filter: "brightness(1.18) blur(3px)",
+          ease: "none",
+          scrollTrigger: scrollConfig,
+        },
+      );
+
+      if (whiteFadeRef.current) {
+        gsap.fromTo(
+          whiteFadeRef.current,
+          { opacity: 0 },
+          {
+            opacity: 1,
+            ease: "none",
+            scrollTrigger: scrollConfig,
+          },
+        );
+      }
+
+      ScrollTrigger.create({
+        trigger,
+        scroller: scrollTriggerScroller(),
+        start: "bottom top",
+        onLeave: () => {
+          fixedBg.style.visibility = "hidden";
+          videoRef.current?.pause();
+        },
+        onEnterBack: () => {
+          fixedBg.style.visibility = "visible";
+          tryPlay();
+        },
+      });
+    }, trigger);
+
+    return () => ctx.revert();
+  }, [prefersReducedMotion, speed, triggerRef, tryPlay]);
+
+  useEffect(() => {
+    if (!canAutoplay) return;
+
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.loop = true;
+    video.muted = true;
+    video.playsInline = true;
+
+    const onTimeUpdate = () => {
+      if (video.currentTime > 0) {
+        markVideoReady();
+      }
+    };
+    const onPlaying = () => scheduleReadyAfterFirstFrame(video);
+    const onCanPlay = () => tryPlay();
+    const onCanPlayThrough = () => tryPlay();
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") tryPlay();
+    };
+
+    video.addEventListener("timeupdate", onTimeUpdate);
+    video.addEventListener("playing", onPlaying);
+    video.addEventListener("canplay", onCanPlay);
+    video.addEventListener("canplaythrough", onCanPlayThrough);
+    video.addEventListener("loadeddata", onCanPlay);
+    document.addEventListener("visibilitychange", onVisibility);
+
+    playAttemptsRef.current = 0;
+    tryPlay();
+
+    return () => {
+      video.removeEventListener("timeupdate", onTimeUpdate);
+      video.removeEventListener("playing", onPlaying);
+      video.removeEventListener("canplay", onCanPlay);
+      video.removeEventListener("canplaythrough", onCanPlayThrough);
+      video.removeEventListener("loadeddata", onCanPlay);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, [canAutoplay, resolvedSrc, tryPlay, markVideoReady, scheduleReadyAfterFirstFrame]);
+
+  const mediaLayer = prefersReducedMotion ? (
+    <Image
+      src={posterSrc}
+      alt={alt}
+      fill
+      priority
+      sizes="100vw"
+      className="object-cover"
+    />
+  ) : (
+    <>
+      <video
+        ref={videoRef}
+        data-hero-video
+        src={resolvedSrc}
+        loop
+        muted
+        playsInline
+        preload="auto"
+        tabIndex={-1}
+        disablePictureInPicture
+        controls={false}
+        className={cn(
+          "absolute inset-0 z-0 h-full w-full object-cover",
+          "transition-opacity duration-500 ease-out",
+          videoReady ? "opacity-100" : "opacity-0",
+        )}
+        aria-hidden
+      />
+      <div
+        className={cn(
+          "absolute inset-0 z-[1] transition-opacity duration-500 ease-out",
+          videoReady ? "pointer-events-none opacity-0" : "opacity-100",
+        )}
+        aria-hidden
+      >
+        <Image
+          src={posterSrc}
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
+        />
+      </div>
+    </>
+  );
+
+  const layer = (
+    <div
+      ref={layerRef}
+      className="absolute inset-0 h-full w-full origin-center will-change-[transform,filter]"
+    >
+      {mediaLayer}
+    </div>
+  );
+
+  const whiteFade = (
+    <div
+      ref={whiteFadeRef}
+      className="pointer-events-none absolute inset-0 bg-background opacity-0"
+      aria-hidden
+    />
+  );
+
+  if (prefersReducedMotion) {
+    return (
+      <div
+        className="pointer-events-none absolute inset-0 overflow-hidden bg-muted"
+        aria-hidden
+      >
+        {layer}
+        {overlayClassName ? (
+          <div className={cn("absolute inset-0", overlayClassName)} />
+        ) : null}
+        {whiteFade}
+      </div>
+    );
+  }
+
+  return (
+    <div
+      ref={fixedBgRef}
+      className="pointer-events-none fixed inset-0 z-0 h-svh w-full overflow-hidden bg-background"
+      aria-hidden
+    >
+      {layer}
+      {overlayClassName ? (
+        <div className={cn("absolute inset-0", overlayClassName)} />
+      ) : null}
+      {whiteFade}
+    </div>
+  );
+};
