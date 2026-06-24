@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-const GRAPEGEST_URL = "https://grapegest.com.br/api/webhooks/leads";
+const GRAPEGEST_URL = "https://www.grapegest.com.br/api/webhooks/leads";
 
 type EvaluationLeadPayload = {
   nome?: unknown;
