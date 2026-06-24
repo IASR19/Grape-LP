@@ -88,7 +88,7 @@ export async function POST(request: Request) {
     urgencia: payload.tempo as string,
     disponibilidade: payload.disponibilidade as string,
     valor_disposto: payload.renda as string,
-    "Momento de saude": payload.momento as string,
+    momento_saude: payload.momento as string,
     source: "landing-page",
   };
 
