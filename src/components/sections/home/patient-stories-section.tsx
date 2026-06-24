@@ -27,8 +27,8 @@ const reviewEase = [0.22, 1, 0.36, 1] as const;
 const REVIEWS_PER_PAGE = 5;
 
 const patientStoriesTitleLines = [
-  "O que quem passou",
-  "pela Grape conta.",
+  "O que nossos pacientes",
+  "contam sobre a Grape.",
 ] as const;
 
 const reviewQuoteBlockClass =

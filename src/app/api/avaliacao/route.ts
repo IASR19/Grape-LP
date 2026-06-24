@@ -6,6 +6,7 @@ type EvaluationLeadPayload = {
   nome?: unknown;
   whatsapp?: unknown;
   cidade?: unknown;
+  profissao?: unknown;
   renda?: unknown;
   situacoes?: unknown;
   tempo?: unknown;
@@ -17,6 +18,7 @@ const requiredStringFields = [
   "nome",
   "whatsapp",
   "cidade",
+  "profissao",
   "tempo",
   "momento",
   "disponibilidade",
@@ -84,6 +86,7 @@ export async function POST(request: Request) {
     name: payload.nome as string,
     phone: payload.whatsapp as string,
     localizacao: payload.cidade as string,
+    profissao: payload.profissao as string,
     dor_principal: situacoes.join(", "),
     urgencia: payload.tempo as string,
     disponibilidade: payload.disponibilidade as string,

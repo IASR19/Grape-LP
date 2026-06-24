@@ -1,6 +1,7 @@
 "use client";
 
-import { Check, ChevronLeft, ChevronRight, LoaderCircle, Send } from "lucide-react";
+import { Check, ChevronDown, ChevronLeft, ChevronRight, LoaderCircle, Send, X } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import { FormEvent, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import { AnimatedHeading } from "@/components/motion/animated-heading";
@@ -79,6 +80,21 @@ const healthMomentOptions = [
 
 const availabilityOptions = ["Sim", "Talvez", "Não"];
 
+const profissaoOptions = [
+  "Médico(a)",
+  "Advogado(a)",
+  "Engenheiro(a)",
+  "Empreendedor(a)",
+  "Executivo(a) / Gestor(a)",
+  "Professor(a) / Educador(a)",
+  "Profissional de Saúde",
+  "Psicólogo(a)",
+  "Servidor(a) Público",
+  "Autônomo(a)",
+  "Estudante",
+  "Outro",
+];
+
 const steps = [
   {
     eyebrow: "01",
@@ -101,6 +117,7 @@ type Answers = {
   nome: string;
   whatsapp: string;
   cidade: string;
+  profissao: string;
   renda: string;
   situacoes: string[];
   tempo: string;
@@ -117,6 +134,7 @@ const initialAnswers: Answers = {
   nome: "",
   whatsapp: "",
   cidade: "",
+  profissao: "",
   renda: "",
   situacoes: [],
   tempo: "",
@@ -166,10 +184,246 @@ function getStepValidationError(currentStep: number, currentAnswers: Answers) {
   return "";
 }
 
+type ContactFieldId = (typeof contactFields)[number]["id"];
+type FieldErrors = Partial<Record<ContactFieldId, string>>;
+
+function validateContactField(fieldId: ContactFieldId, value: string): string {
+  if (fieldId === "nome") {
+    return normalizeSpaces(value) ? "" : "Informe seu nome.";
+  }
+  if (fieldId === "whatsapp") {
+    return isValidBrazilianPhone(value) ? "" : "Informe um WhatsApp válido com DDD.";
+  }
+  if (fieldId === "cidade") {
+    const v = normalizeSpaces(value);
+    if (!v) return "Informe sua cidade.";
+    if (/\d/.test(v) || !/[a-zA-ZÀ-ÿ]/.test(v))
+      return "Informe um nome de cidade válido.";
+    return "";
+  }
+  return "";
+}
+
 const formFieldClass =
   "h-12 rounded-xl border border-input bg-background px-4 text-sm font-normal outline-none transition-[color,border-color] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring/25";
 
+const formFieldErrorClass =
+  "border-destructive focus-visible:border-destructive focus-visible:outline-destructive/25";
+
+const formFieldSuccessClass =
+  "border-emerald-500/70 focus-visible:border-emerald-500 focus-visible:outline-emerald-500/20";
+
 const formStepBodyClass = "p-1";
+
+type ProfissaoSelectProps = {
+  value: string;
+  outroConfirmed: string;
+  onSelect: (option: string) => void;
+  error?: string;
+  labelId: string;
+};
+
+function ProfissaoSelect({
+  value,
+  outroConfirmed,
+  onSelect,
+  error,
+  labelId,
+}: ProfissaoSelectProps) {
+  const [open, setOpen] = useState(false);
+
+  const displayValue =
+    value === "Outro" && outroConfirmed ? `Outro: ${outroConfirmed}` : value;
+  const hasError = !!error;
+  const isValid = !!value && !hasError;
+
+  return (
+    <div>
+      <button
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-labelledby={labelId}
+        onClick={() => setOpen((prev) => !prev)}
+        className={cn(
+          formFieldClass,
+          "flex w-full items-center justify-between text-left",
+          !value && "text-muted-foreground",
+          hasError && formFieldErrorClass,
+          isValid && formFieldSuccessClass,
+          open && "rounded-b-none border-b-0",
+        )}
+      >
+        <span className="truncate">{displayValue || "Selecione sua profissão"}</span>
+        <ChevronDown
+          className={cn(
+            "ml-2 size-4 shrink-0 opacity-50 transition-transform duration-200",
+            open && "rotate-180",
+          )}
+          aria-hidden
+        />
+      </button>
+
+      <AnimatePresence initial={false}>
+        {open ? (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+            className="overflow-hidden rounded-b-xl border border-t-0 border-border bg-background"
+            role="listbox"
+            aria-labelledby={labelId}
+          >
+            <div className="grid grid-cols-2 gap-px bg-border p-px pt-0">
+              {profissaoOptions.map((option) => {
+                const isSelected = value === option;
+                const label =
+                  option === "Outro" && outroConfirmed
+                    ? `Outro: ${outroConfirmed}`
+                    : option;
+                return (
+                  <button
+                    type="button"
+                    key={option}
+                    role="option"
+                    aria-selected={isSelected}
+                    onClick={() => {
+                      if (option !== "Outro") setOpen(false);
+                      onSelect(option);
+                    }}
+                    className={cn(
+                      "flex items-center gap-2.5 bg-background px-3 py-2.5 text-left text-sm transition-colors hover:bg-muted",
+                      isSelected && "bg-primary/5 font-medium",
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "grid size-4 shrink-0 place-items-center rounded border transition-colors",
+                        isSelected
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-border",
+                      )}
+                      aria-hidden
+                    >
+                      {isSelected && <Check className="size-2.5" />}
+                    </span>
+                    <span className="truncate">{label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
+      {hasError ? (
+        <p role="alert" className="mt-2 text-xs text-destructive">
+          {error}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+type OutroDialogProps = {
+  open: boolean;
+  title: string;
+  description: string;
+  placeholder: string;
+  value: string;
+  onChange: (v: string) => void;
+  onConfirm: () => void;
+  onClose: () => void;
+  inputRef: React.RefObject<HTMLInputElement | null>;
+};
+
+function OutroDialog({
+  open,
+  title,
+  description,
+  placeholder,
+  value,
+  onChange,
+  onConfirm,
+  onClose,
+  inputRef,
+}: OutroDialogProps) {
+  return (
+    <AnimatePresence>
+      {open ? (
+        <motion.div
+          key="outro-overlay"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.18 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          onClick={onClose}
+        >
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+          <motion.div
+            key="outro-dialog"
+            initial={{ opacity: 0, scale: 0.96, y: 8 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.96, y: 8 }}
+            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+            className="relative z-10 w-full max-w-md rounded-2xl border border-border bg-background p-6 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="outro-dialog-title"
+          >
+            <div className="mb-5 flex items-start justify-between gap-3">
+              <div>
+                <h4
+                  id="outro-dialog-title"
+                  className="text-base font-semibold leading-tight"
+                >
+                  {title}
+                </h4>
+                <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                  {description}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Fechar"
+                className="mt-0.5 shrink-0 rounded-lg p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+
+            <input
+              ref={inputRef}
+              type="text"
+              value={value}
+              onChange={(e) => onChange(e.target.value)}
+              placeholder={placeholder}
+              maxLength={120}
+              className={cn(formFieldClass, "w-full")}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") onConfirm();
+                if (e.key === "Escape") onClose();
+              }}
+            />
+
+            <div className="mt-4 flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={onClose}>
+                Cancelar
+              </Button>
+              <Button type="button" onClick={onConfirm} disabled={!value.trim()}>
+                Confirmar
+              </Button>
+            </div>
+          </motion.div>
+        </motion.div>
+      ) : null}
+    </AnimatePresence>
+  );
+}
 
 function OptionButton({
   active,
@@ -224,6 +478,31 @@ export function ClosingCtaSection() {
   const stepBodyRef = useRef<HTMLDivElement>(null);
   const submitErrorRef = useRef<HTMLParagraphElement>(null);
   const skipStepFocusRef = useRef(true);
+
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+
+  const [outroDialogOpen, setOutroDialogOpen] = useState(false);
+  const [outroDraft, setOutroDraft] = useState("");
+  const [outroConfirmed, setOutroConfirmed] = useState("");
+  const outroInputRef = useRef<HTMLInputElement>(null);
+
+  const [profissaoError, setProfissaoError] = useState("");
+  const [profissaoOutroDialogOpen, setProfissaoOutroDialogOpen] = useState(false);
+  const [profissaoOutroDraft, setProfissaoOutroDraft] = useState("");
+  const [profissaoOutroConfirmed, setProfissaoOutroConfirmed] = useState("");
+  const profissaoOutroInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!outroDialogOpen) return;
+    const frame = requestAnimationFrame(() => outroInputRef.current?.focus());
+    return () => cancelAnimationFrame(frame);
+  }, [outroDialogOpen]);
+
+  useEffect(() => {
+    if (!profissaoOutroDialogOpen) return;
+    const frame = requestAnimationFrame(() => profissaoOutroInputRef.current?.focus());
+    return () => cancelAnimationFrame(frame);
+  }, [profissaoOutroDialogOpen]);
 
   const progress = useMemo(() => ((step + 1) / steps.length) * 100, [step]);
   const isLastStep = step === steps.length - 1;
@@ -319,6 +598,20 @@ export function ClosingCtaSection() {
   }
 
   function toggleSituation(value: string) {
+    if (value === "Outro") {
+      if (answers.situacoes.includes("Outro")) {
+        setAnswers((current) => ({
+          ...current,
+          situacoes: current.situacoes.filter((item) => item !== "Outro"),
+        }));
+        setOutroConfirmed("");
+      } else {
+        setOutroDraft(outroConfirmed);
+        setOutroDialogOpen(true);
+      }
+      return;
+    }
+
     setAnswers((current) => {
       const selected = current.situacoes.includes(value);
 
@@ -331,29 +624,92 @@ export function ClosingCtaSection() {
     });
   }
 
-  function updateContactField(fieldId: (typeof contactFields)[number]["id"], value: string) {
-    if (fieldId === "whatsapp") {
-      updateAnswer("whatsapp", formatBrazilianPhone(value));
-      return;
-    }
-
-    updateAnswer(fieldId, value);
+  function confirmOutro() {
+    const text = outroDraft.trim();
+    if (!text) return;
+    setOutroConfirmed(text);
+    setAnswers((current) => ({
+      ...current,
+      situacoes: [
+        ...current.situacoes.filter((item) => item !== "Outro"),
+        "Outro",
+      ],
+    }));
+    setOutroDialogOpen(false);
   }
 
-  function finalizeContactField(fieldId: (typeof contactFields)[number]["id"]) {
+  function selectProfissao(value: string) {
+    setProfissaoError("");
+    if (value === "Outro") {
+      if (answers.profissao === "Outro") {
+        updateAnswer("profissao", "");
+        setProfissaoOutroConfirmed("");
+      } else {
+        setProfissaoOutroDraft(profissaoOutroConfirmed);
+        setProfissaoOutroDialogOpen(true);
+      }
+      return;
+    }
+    updateAnswer("profissao", value);
+  }
+
+  function confirmProfissaoOutro() {
+    const text = profissaoOutroDraft.trim();
+    if (!text) return;
+    setProfissaoOutroConfirmed(text);
+    updateAnswer("profissao", "Outro");
+    setProfissaoOutroDialogOpen(false);
+  }
+
+  function updateContactField(fieldId: ContactFieldId, value: string) {
+    const formatted = fieldId === "whatsapp" ? formatBrazilianPhone(value) : value;
+    updateAnswer(fieldId, formatted as Answers[typeof fieldId]);
+
+    setFieldErrors((prev) => {
+      if (prev[fieldId] === undefined) return prev;
+      return { ...prev, [fieldId]: validateContactField(fieldId, formatted) };
+    });
+  }
+
+  function finalizeContactField(fieldId: ContactFieldId) {
     if (fieldId === "nome") {
       updateAnswer("nome", formatPersonName(answers.nome));
       return;
     }
-
     if (fieldId === "cidade") {
       updateAnswer("cidade", formatCityName(answers.cidade));
     }
   }
 
+  function handleFieldBlur(fieldId: ContactFieldId, rawValue: string) {
+    finalizeContactField(fieldId);
+    const error = validateContactField(fieldId, rawValue);
+    setFieldErrors((prev) => ({ ...prev, [fieldId]: error }));
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSubmitError("");
+
+    if (step === 0) {
+      const newErrors: FieldErrors = {};
+      let hasErrors = false;
+      for (const field of contactFields) {
+        const error = validateContactField(field.id, answers[field.id]);
+        newErrors[field.id] = error;
+        if (error) hasErrors = true;
+      }
+      setFieldErrors(newErrors);
+
+      if (!answers.profissao.trim()) {
+        setProfissaoError("Selecione sua profissão para continuar.");
+        hasErrors = true;
+      }
+
+      if (hasErrors) return;
+      setStep((current) => Math.min(current + 1, steps.length - 1));
+      return;
+    }
 
     const validationError = getStepValidationError(step, answers);
 
@@ -375,6 +731,13 @@ export function ClosingCtaSection() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...answers,
+          profissao:
+            answers.profissao === "Outro" && profissaoOutroConfirmed
+              ? profissaoOutroConfirmed
+              : answers.profissao,
+          situacoes: answers.situacoes.map((s) =>
+            s === "Outro" && outroConfirmed ? outroConfirmed : s,
+          ),
           nome: formatPersonName(answers.nome),
           cidade: formatCityName(answers.cidade),
           whatsapp: formatBrazilianPhone(answers.whatsapp),
@@ -391,6 +754,9 @@ export function ClosingCtaSection() {
 
       setSubmitted(true);
       setAnswers(initialAnswers);
+      setFieldErrors({});
+      setProfissaoError("");
+      setProfissaoOutroConfirmed("");
     } catch (error) {
       setSubmitError(
         error instanceof Error
@@ -531,36 +897,76 @@ export function ClosingCtaSection() {
                   <div ref={stepBodyRef} className={formStepBodyClass}>
                     {step === 0 ? (
                       <div className="grid gap-4">
-                        {contactFields.map((field) => (
-                          <label
-                            key={field.id}
-                            htmlFor={field.id}
-                            className="grid gap-2 text-sm font-medium"
-                          >
-                            {field.label}
-                            <input
-                              id={field.id}
-                              name={field.id}
-                              type={field.type}
-                              autoComplete={field.autoComplete}
-                              inputMode={field.id === "whatsapp" ? "numeric" : undefined}
-                              maxLength={field.id === "whatsapp" ? 16 : undefined}
-                              list={field.id === "cidade" ? "city-suggestions" : undefined}
-                              value={answers[field.id]}
-                              onChange={(event) =>
-                                updateContactField(field.id, event.target.value)
-                              }
-                              onBlur={() => finalizeContactField(field.id)}
-                              placeholder={field.placeholder}
-                              className={formFieldClass}
-                            />
-                          </label>
-                        ))}
+                        {contactFields.map((field) => {
+                          const errorMsg = fieldErrors[field.id];
+                          const isTouched = errorMsg !== undefined;
+                          const hasError = !!errorMsg;
+                          const isValid = isTouched && !hasError;
+                          return (
+                            <div key={field.id} className="grid gap-2">
+                              <label
+                                htmlFor={field.id}
+                                className="text-sm font-medium"
+                              >
+                                {field.label}
+                              </label>
+                              <input
+                                id={field.id}
+                                name={field.id}
+                                type={field.type}
+                                autoComplete={field.autoComplete}
+                                inputMode={field.id === "whatsapp" ? "numeric" : undefined}
+                                maxLength={field.id === "whatsapp" ? 16 : undefined}
+                                list={field.id === "cidade" ? "city-suggestions" : undefined}
+                                value={answers[field.id]}
+                                aria-describedby={hasError ? `${field.id}-error` : undefined}
+                                aria-invalid={hasError}
+                                onChange={(event) =>
+                                  updateContactField(field.id, event.target.value)
+                                }
+                                onBlur={(event) =>
+                                  handleFieldBlur(field.id, event.target.value)
+                                }
+                                placeholder={field.placeholder}
+                                className={cn(
+                                  formFieldClass,
+                                  hasError && formFieldErrorClass,
+                                  isValid && formFieldSuccessClass,
+                                )}
+                              />
+                              {hasError ? (
+                                <p
+                                  id={`${field.id}-error`}
+                                  role="alert"
+                                  className="text-xs text-destructive"
+                                >
+                                  {errorMsg}
+                                </p>
+                              ) : null}
+                            </div>
+                          );
+                        })}
                         <datalist id="city-suggestions">
                           {visibleCitySuggestions.map((city) => (
                             <option key={city.id} value={city.label} />
                           ))}
                         </datalist>
+
+                        <div className="grid gap-2">
+                          <label
+                            id="profissao-label"
+                            className="text-sm font-medium"
+                          >
+                            Profissão
+                          </label>
+                          <ProfissaoSelect
+                            value={answers.profissao}
+                            outroConfirmed={profissaoOutroConfirmed}
+                            onSelect={selectProfissao}
+                            error={profissaoError}
+                            labelId="profissao-label"
+                          />
+                        </div>
                       </div>
                     ) : null}
 
@@ -583,7 +989,9 @@ export function ClosingCtaSection() {
                                 pressed={answers.situacoes.includes(option)}
                                 onClick={() => toggleSituation(option)}
                               >
-                                {option}
+                                {option === "Outro" && outroConfirmed
+                                  ? `Outro: ${outroConfirmed}`
+                                  : option}
                               </OptionButton>
                             ))}
                           </div>
@@ -729,6 +1137,29 @@ export function ClosingCtaSection() {
           </form>
         </div>
       </div>
+      <OutroDialog
+        open={outroDialogOpen}
+        title="Qual é sua situação?"
+        description="Descreva o que mais impacta sua qualidade de vida."
+        placeholder="Ex: dores crônicas, problemas de tireoide…"
+        value={outroDraft}
+        onChange={setOutroDraft}
+        onConfirm={confirmOutro}
+        onClose={() => setOutroDialogOpen(false)}
+        inputRef={outroInputRef}
+      />
+
+      <OutroDialog
+        open={profissaoOutroDialogOpen}
+        title="Qual é a sua profissão?"
+        description="Descreva sua profissão ou área de atuação."
+        placeholder="Ex: arquiteto, nutricionista, analista…"
+        value={profissaoOutroDraft}
+        onChange={setProfissaoOutroDraft}
+        onConfirm={confirmProfissaoOutro}
+        onClose={() => setProfissaoOutroDialogOpen(false)}
+        inputRef={profissaoOutroInputRef}
+      />
     </PageSection>
   );
 }
