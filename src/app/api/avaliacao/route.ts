@@ -89,7 +89,7 @@ export async function POST(request: Request) {
     disponibilidade: payload.disponibilidade as string,
     valor_disposto: payload.renda as string,
     momento_saude: payload.momento as string,
-    source: "landing-page",
+    source: "link-bio",
   };
 
   try {
