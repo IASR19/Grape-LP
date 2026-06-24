@@ -2,6 +2,7 @@
 
 import { Reveal, RevealText } from "@/components/motion/reveal";
 import { layout } from "@/lib/layout";
+import { type } from "@/lib/typography";
 import { cn } from "@/lib/utils";
 
 type PageSectionProps = {
@@ -68,25 +69,23 @@ export function SectionHeading({
             {eyebrow}
           </Reveal>
         ) : (
-          <p className="mb-3 text-sm font-medium text-muted-foreground">{eyebrow}</p>
+          <p className={cn("mb-3", type.eyebrow)}>{eyebrow}</p>
         )
       ) : null}
       {title ? (
         animated ? (
-          <RevealText lines={[title]} as="h2" />
+          <RevealText lines={[title]} as="h2" className={type.section} />
         ) : (
-          <h2>{title}</h2>
+          <h2 className={type.section}>{title}</h2>
         )
       ) : null}
       {description ? (
         animated ? (
-          <Reveal preset="fadeUpSoft" delay={0.08} className="mt-3 max-w-2xl text-pretty text-base leading-7 text-muted-foreground">
+          <Reveal preset="fadeUpSoft" delay={0.08} className={cn("mt-4 max-w-2xl", type.body)}>
             {description}
           </Reveal>
         ) : (
-          <p className="mt-3 max-w-2xl text-pretty text-base leading-7 text-muted-foreground">
-            {description}
-          </p>
+          <p className={cn("mt-4 max-w-2xl", type.body)}>{description}</p>
         )
       ) : null}
     </div>

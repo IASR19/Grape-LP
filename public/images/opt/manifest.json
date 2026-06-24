@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-07T15:10:03.909Z",
+  "generatedAt": "2026-06-24T01:52:58.685Z",
   "profiles": {
     "hero": {
       "maxWidth": 1920,
@@ -20,6 +20,14 @@
       "maxWidth": 640,
       "quality": 72,
       "maxBytes": 81920
+    },
+    "journey": {
+      "maxWidth": 1200,
+      "quality": 74,
+      "maxBytes": 184320,
+      "aspectRatio": 1.25,
+      "fit": "cover",
+      "position": "centre"
     }
   },
   "results": [
@@ -29,9 +37,10 @@
       "profile": "hero",
       "skipped": false,
       "bytesBefore": 50603346,
-      "bytesAfter": 87967,
+      "bytesAfter": 70233,
       "width": 10752,
-      "height": 6192
+      "height": 6192,
+      "qualityUsed": 78
     },
     {
       "src": "public/images/sources/hero/banner.jpg",
@@ -39,9 +48,10 @@
       "profile": "hero",
       "skipped": false,
       "bytesBefore": 30671128,
-      "bytesAfter": 151159,
+      "bytesAfter": 126320,
       "width": 7008,
-      "height": 4672
+      "height": 4672,
+      "qualityUsed": 78
     },
     {
       "src": "public/images/sources/spaces/foto clinica retrato.jpg",
@@ -49,69 +59,87 @@
       "profile": "card",
       "skipped": false,
       "bytesBefore": 12591597,
-      "bytesAfter": 109211,
+      "bytesAfter": 87778,
       "width": 3953,
-      "height": 5930
+      "height": 5930,
+      "qualityUsed": 74
     },
     {
-      "src": "public/images/sources/spaces/DSC04462-2.jpg",
+      "src": "public/images/sources/sections/DSC04462-2.jpg",
       "out": "public/images/opt/spaces/dsc-04462.jpg",
       "profile": "card",
       "skipped": false,
       "bytesBefore": 27069004,
-      "bytesAfter": 138430,
+      "bytesAfter": 121837,
       "width": 4571,
-      "height": 6856
+      "height": 6856,
+      "qualityUsed": 74
     },
     {
-      "src": "public/images/sources/spaces/DSC04504.jpg",
+      "src": "public/images/sources/spaces/doutora.png",
+      "out": "public/images/opt/spaces/doutora.jpg",
+      "profile": "section",
+      "skipped": false,
+      "bytesBefore": 92020099,
+      "bytesAfter": 97863,
+      "width": 8411,
+      "height": 9319,
+      "qualityUsed": 76
+    },
+    {
+      "src": "public/images/sources/sections/DSC04504.jpg",
       "out": "public/images/opt/spaces/dsc-04504.jpg",
       "profile": "card",
       "skipped": false,
       "bytesBefore": 24161163,
-      "bytesAfter": 142824,
+      "bytesAfter": 137374,
       "width": 4672,
-      "height": 7008
+      "height": 7008,
+      "qualityUsed": 74
     },
     {
-      "src": "public/images/sources/spaces/DSC04537.jpg",
+      "src": "public/images/sources/sections/DSC04537.jpg",
       "out": "public/images/opt/spaces/dsc-04537.jpg",
       "profile": "card",
       "skipped": false,
       "bytesBefore": 25088488,
-      "bytesAfter": 132906,
+      "bytesAfter": 127594,
       "width": 4672,
-      "height": 7008
+      "height": 7008,
+      "qualityUsed": 74
     },
     {
-      "src": "public/images/sources/spaces/DSC04644.jpg",
+      "src": "public/images/sources/sections/DSC04644.jpg",
       "out": "public/images/opt/spaces/dsc-04644.jpg",
       "profile": "card",
       "skipped": false,
       "bytesBefore": 26121289,
-      "bytesAfter": 133251,
+      "bytesAfter": 110571,
       "width": 4171,
-      "height": 6257
+      "height": 6257,
+      "qualityUsed": 74
     },
     {
-      "src": "public/images/sources/spaces/DSC04710.jpg",
+      "src": "public/images/sources/sections/DSC04710.jpg",
       "out": "public/images/opt/spaces/dsc-04710.jpg",
       "profile": "section",
       "skipped": false,
       "bytesBefore": 19223285,
-      "bytesAfter": 173246,
+      "bytesAfter": 147494,
       "width": 4423,
-      "height": 6635
+      "height": 6635,
+      "qualityUsed": 76
     },
     {
-      "src": "public/images/sources/spaces/DSC05176-2.jpg",
+      "src": "public/images/sources/sections/DSC05176-2.jpg",
       "out": "public/images/opt/spaces/dsc-05176.jpg",
       "profile": "card",
       "skipped": false,
       "bytesBefore": 19077840,
-      "bytesAfter": 95098,
+      "bytesAfter": 76359,
       "width": 4148,
-      "height": 6222
+      "height": 6222,
+      "qualityUsed": 74
     },
     {
       "src": "public/images/sources/spaces/FX_00024.jpg",
@@ -119,9 +147,10 @@
       "profile": "card",
       "skipped": false,
       "bytesBefore": 15998497,
-      "bytesAfter": 83852,
+      "bytesAfter": 63502,
       "width": 6192,
-      "height": 4128
+      "height": 4128,
+      "qualityUsed": 74
     },
     {
       "src": "public/images/sources/spaces/FX_00047-2.jpg",
@@ -129,9 +158,10 @@
       "profile": "card",
       "skipped": false,
       "bytesBefore": 16139127,
-      "bytesAfter": 134547,
+      "bytesAfter": 107224,
       "width": 4128,
-      "height": 6192
+      "height": 6192,
+      "qualityUsed": 74
     },
     {
       "src": "public/images/sources/spaces/FX_00052.jpg",
@@ -139,9 +169,10 @@
       "profile": "section",
       "skipped": false,
       "bytesBefore": 16601422,
-      "bytesAfter": 138496,
+      "bytesAfter": 113402,
       "width": 4128,
-      "height": 6192
+      "height": 6192,
+      "qualityUsed": 76
     },
     {
       "src": "public/images/sources/spaces/FX_00090.jpg",
@@ -149,9 +180,10 @@
       "profile": "section",
       "skipped": false,
       "bytesBefore": 18145552,
-      "bytesAfter": 164988,
+      "bytesAfter": 138557,
       "width": 4128,
-      "height": 6192
+      "height": 6192,
+      "qualityUsed": 76
     },
     {
       "src": "public/images/sources/sections/care-paths.jpg",
@@ -159,9 +191,10 @@
       "profile": "section",
       "skipped": false,
       "bytesBefore": 24233769,
-      "bytesAfter": 212608,
+      "bytesAfter": 174289,
       "width": 4413,
-      "height": 6620
+      "height": 6620,
+      "qualityUsed": 76
     },
     {
       "src": "public/images/sources/sections/care-paths-alt.jpg",
@@ -169,9 +202,10 @@
       "profile": "section",
       "skipped": false,
       "bytesBefore": 19073612,
-      "bytesAfter": 259416,
+      "bytesAfter": 249151,
       "width": 4413,
-      "height": 6620
+      "height": 6620,
+      "qualityUsed": 76
     },
     {
       "src": "public/images/sources/sections/clinical-reading.jpg",
@@ -179,9 +213,21 @@
       "profile": "section",
       "skipped": false,
       "bytesBefore": 29349744,
-      "bytesAfter": 61832,
+      "bytesAfter": 47827,
       "width": 7008,
-      "height": 4672
+      "height": 4672,
+      "qualityUsed": 76
+    },
+    {
+      "src": "public/images/sources/sections/historias-background.jpg",
+      "out": "public/images/opt/sections/historias-background.jpg",
+      "profile": "section",
+      "skipped": false,
+      "bytesBefore": 15998497,
+      "bytesAfter": 101720,
+      "width": 6192,
+      "height": 4128,
+      "qualityUsed": 76
     },
     {
       "src": "public/images/sources/sections/DSC04740.jpg",
@@ -189,9 +235,10 @@
       "profile": "section",
       "skipped": false,
       "bytesBefore": 14132037,
-      "bytesAfter": 51405,
+      "bytesAfter": 46795,
       "width": 7008,
-      "height": 4672
+      "height": 4672,
+      "qualityUsed": 76
     },
     {
       "src": "public/images/sources/sections/DSC05115-2.jpg",
@@ -199,159 +246,54 @@
       "profile": "section",
       "skipped": false,
       "bytesBefore": 22986439,
-      "bytesAfter": 70276,
+      "bytesAfter": 56212,
       "width": 7008,
-      "height": 4672
+      "height": 4672,
+      "qualityUsed": 76
     },
     {
-      "src": "public/images/sources/services/weight-loss-consultation.jpg",
-      "out": "public/images/opt/services/weight-loss-consultation.jpg",
-      "profile": "card",
+      "src": "public/images/sources/journey/diagnostico.png",
+      "out": "public/images/opt/journey/diagnostico.jpg",
+      "profile": "journey",
       "skipped": false,
-      "bytesBefore": 3157398,
-      "bytesAfter": 128144,
-      "width": 3000,
-      "height": 3000
+      "bytesBefore": 1925303,
+      "bytesAfter": 61938,
+      "width": 1536,
+      "height": 1024,
+      "qualityUsed": 74
     },
     {
-      "src": "public/images/sources/services/body-contouring-clinic.jpg",
-      "out": "public/images/opt/services/body-contouring-clinic.jpg",
-      "profile": "card",
+      "src": "public/images/sources/journey/implementacao.png",
+      "out": "public/images/opt/journey/implementacao.jpg",
+      "profile": "journey",
       "skipped": false,
-      "bytesBefore": 17207822,
-      "bytesAfter": 48374,
-      "width": 7999,
-      "height": 5333
+      "bytesBefore": 1847076,
+      "bytesAfter": 60271,
+      "width": 1411,
+      "height": 1114,
+      "qualityUsed": 74
     },
     {
-      "src": "public/images/sources/services/metabolic-health-exam.jpg",
-      "out": "public/images/opt/services/metabolic-health-exam.jpg",
-      "profile": "card",
+      "src": "public/images/sources/journey/monitoramento.png",
+      "out": "public/images/opt/journey/monitoramento.jpg",
+      "profile": "journey",
       "skipped": false,
-      "bytesBefore": 2509799,
-      "bytesAfter": 104988,
-      "width": 2561,
-      "height": 2560
+      "bytesBefore": 1999551,
+      "bytesAfter": 78843,
+      "width": 1370,
+      "height": 1148,
+      "qualityUsed": 74
     },
     {
-      "src": "public/images/sources/services/follow-up-appointment.png",
-      "out": "public/images/opt/services/follow-up-appointment.jpg",
-      "profile": "card",
+      "src": "public/images/sources/journey/consolidacao.png",
+      "out": "public/images/opt/journey/consolidacao.jpg",
+      "profile": "journey",
       "skipped": false,
-      "bytesBefore": 2247342,
-      "bytesAfter": 79210,
-      "width": 1535,
-      "height": 1024
-    },
-    {
-      "src": "public/images/sources/evaluation/patient-listening-consultation.jpg",
-      "out": "public/images/opt/evaluation/patient-listening-consultation.jpg",
-      "profile": "card",
-      "skipped": false,
-      "bytesBefore": 7709644,
-      "bytesAfter": 41682,
-      "width": 5540,
-      "height": 3698
-    },
-    {
-      "src": "public/images/sources/evaluation/clinical-chart-review.jpg",
-      "out": "public/images/opt/evaluation/clinical-chart-review.jpg",
-      "profile": "card",
-      "skipped": false,
-      "bytesBefore": 6430410,
-      "bytesAfter": 41506,
-      "width": 5472,
-      "height": 3648
-    },
-    {
-      "src": "public/images/sources/evaluation/treatment-plan-discussion.jpg",
-      "out": "public/images/opt/evaluation/treatment-plan-discussion.jpg",
-      "profile": "card",
-      "skipped": false,
-      "bytesBefore": 5414224,
-      "bytesAfter": 69549,
-      "width": 5700,
-      "height": 3800
-    },
-    {
-      "src": "public/images/sources/method/hormone-balance-wellness.jpg",
-      "out": "public/images/opt/method/hormone-balance-wellness.jpg",
-      "profile": "card",
-      "skipped": false,
-      "bytesBefore": 2763897,
-      "bytesAfter": 82844,
-      "width": 3910,
-      "height": 2500
-    },
-    {
-      "src": "public/images/sources/method/anti-inflammatory-nutrition.jpg",
-      "out": "public/images/opt/method/anti-inflammatory-nutrition.jpg",
-      "profile": "card",
-      "skipped": false,
-      "bytesBefore": 21855269,
-      "bytesAfter": 187033,
-      "width": 7990,
-      "height": 5327
-    },
-    {
-      "src": "public/images/sources/method/muscle-strength-wellness.jpg",
-      "out": "public/images/opt/method/muscle-strength-wellness.jpg",
-      "profile": "card",
-      "skipped": false,
-      "bytesBefore": 10133089,
-      "bytesAfter": 56239,
-      "width": 6000,
-      "height": 4000
-    },
-    {
-      "src": "public/images/sources/method/gut-health-nutrition.jpg",
-      "out": "public/images/opt/method/gut-health-nutrition.jpg",
-      "profile": "card",
-      "skipped": false,
-      "bytesBefore": 8857104,
-      "bytesAfter": 63586,
-      "width": 5472,
-      "height": 3648
-    },
-    {
-      "src": "public/images/sources/method/clinical-nutrition-plate.jpg",
-      "out": "public/images/opt/method/clinical-nutrition-plate.jpg",
-      "profile": "card",
-      "skipped": false,
-      "bytesBefore": 3150968,
-      "bytesAfter": 272521,
-      "width": 4480,
-      "height": 6720
-    },
-    {
-      "src": "public/images/sources/method/healthy-lifestyle-routine.jpg",
-      "out": "public/images/opt/method/healthy-lifestyle-routine.jpg",
-      "profile": "card",
-      "skipped": false,
-      "bytesBefore": 11467471,
-      "bytesAfter": 93663,
-      "width": 6720,
-      "height": 4480
-    },
-    {
-      "src": "public/images/sources/method/medication-consultation.jpg",
-      "out": "public/images/opt/method/medication-consultation.jpg",
-      "profile": "card",
-      "skipped": false,
-      "bytesBefore": 2052689,
-      "bytesAfter": 79111,
-      "width": 6098,
-      "height": 4066
-    },
-    {
-      "src": "public/images/sources/method/grape-method.png",
-      "out": "public/images/opt/method/grape-method.jpg",
-      "profile": "card",
-      "skipped": false,
-      "bytesBefore": 37227,
-      "bytesAfter": 23742,
-      "width": 782,
-      "height": 1024
+      "bytesBefore": 1966736,
+      "bytesAfter": 79843,
+      "width": 1514,
+      "height": 1039,
+      "qualityUsed": 74
     }
   ]
 }

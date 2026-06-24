@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { mkdir, rename, stat, unlink } from "node:fs/promises";
+import { mkdir, rename, stat } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";

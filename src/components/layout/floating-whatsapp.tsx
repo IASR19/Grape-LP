@@ -1,10 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { ChevronUp, FilePenLine } from "lucide-react";
+import { useEffect, useState, type ReactNode } from "react";
 
+import { HomeSectionLink } from "@/components/navigation/home-section-link";
 import { siteConfig } from "@/content/site";
+import { getLenis, getScrollY } from "@/lib/lenis";
+import { scrollToTop } from "@/lib/navigation/scroll-to-hash";
 import { zIndex } from "@/lib/z-index";
 import { cn } from "@/lib/utils";
+
+const BACK_TO_TOP_THRESHOLD_PX = 320;
+
+const subtleFabButtonClass =
+  "flex size-11 items-center justify-center rounded-full border border-border/30 bg-background/20 text-foreground/65 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.12)] backdrop-blur-xl backdrop-saturate-150 transition-[opacity,transform,colors,background-color,border-color] duration-300 ease-out hover:border-border/45 hover:bg-background/35 hover:text-foreground/90 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+
+function subtleFabRevealClass(visible: boolean) {
+  return visible
+    ? "translate-y-0 opacity-100"
+    : "pointer-events-none translate-y-2 opacity-0";
+}
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
@@ -19,8 +34,56 @@ function WhatsAppIcon({ className }: { className?: string }) {
   );
 }
 
+type PrimaryPulseFabProps = {
+  href: string;
+  ariaLabel: string;
+  className?: string;
+  children: ReactNode;
+};
+
+function PrimaryPulseFabLink({
+  href,
+  ariaLabel,
+  className,
+  children,
+}: PrimaryPulseFabProps) {
+  return (
+    <HomeSectionLink
+      href={href}
+      aria-label={ariaLabel}
+      className={cn(
+        "group relative flex size-14 items-center justify-center",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+        className,
+      )}
+    >
+      <span
+        aria-hidden="true"
+        className="fab-primary-ring absolute inset-0 rounded-full bg-primary"
+      />
+      <span
+        aria-hidden="true"
+        className="fab-primary-ring fab-primary-ring-delay absolute inset-0 rounded-full bg-primary"
+      />
+
+      <span
+        className={cn(
+          "fab-primary-btn relative flex size-14 items-center justify-center rounded-full",
+          "bg-primary text-primary-foreground",
+          "transition-transform duration-300 ease-out",
+          "group-hover:scale-105",
+          "group-active:scale-95",
+        )}
+      >
+        {children}
+      </span>
+    </HomeSectionLink>
+  );
+}
+
 export function FloatingWhatsApp() {
   const [hideNearContact, setHideNearContact] = useState(false);
+  const [showBackToTop, setShowBackToTop] = useState(false);
 
   useEffect(() => {
     const contactSection = document.getElementById("contato");
@@ -40,40 +103,60 @@ export function FloatingWhatsApp() {
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    function updateBackToTopVisibility() {
+      setShowBackToTop(getScrollY() > BACK_TO_TOP_THRESHOLD_PX);
+    }
+
+    updateBackToTopVisibility();
+
+    const lenis = getLenis();
+    if (lenis) {
+      lenis.on("scroll", updateBackToTopVisibility);
+      return () => lenis.off("scroll", updateBackToTopVisibility);
+    }
+
+    window.addEventListener("scroll", updateBackToTopVisibility, { passive: true });
+    return () => window.removeEventListener("scroll", updateBackToTopVisibility);
+  }, []);
+
+  const hidden = hideNearContact;
+
   return (
-    <a
-      href={siteConfig.whatsappHref}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label={siteConfig.whatsappLabel}
+    <div
       className={cn(
-        "group fixed right-5 bottom-5 flex size-14 items-center justify-center sm:right-6 sm:bottom-6",
+        "fixed right-4 bottom-[max(0.625rem,env(safe-area-inset-bottom))] flex flex-col items-center gap-3 sm:right-6 sm:bottom-[max(1rem,env(safe-area-inset-bottom))]",
         "transition-[opacity,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
-        hideNearContact && "pointer-events-none translate-y-4 opacity-0",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+        hidden && "pointer-events-none translate-y-4 opacity-0",
       )}
       style={{ zIndex: zIndex.fab }}
     >
-      <span
-        aria-hidden="true"
-        className="whatsapp-float-ring absolute inset-0 rounded-full bg-primary"
-      />
-      <span
-        aria-hidden="true"
-        className="whatsapp-float-ring whatsapp-float-ring-delay absolute inset-0 rounded-full bg-primary"
-      />
-
-      <span
-        className={cn(
-          "whatsapp-float-btn relative flex size-14 items-center justify-center rounded-full",
-          "bg-primary text-primary-foreground",
-          "transition-transform duration-300 ease-out",
-          "group-hover:scale-105",
-          "group-active:scale-95",
-        )}
+      <button
+        type="button"
+        aria-label="Voltar ao início da página"
+        onClick={() => scrollToTop(false)}
+        className={cn(subtleFabButtonClass, subtleFabRevealClass(showBackToTop))}
       >
-        <WhatsAppIcon className="size-7" />
-      </span>
-    </a>
+        <ChevronUp className="size-5" strokeWidth={2.25} aria-hidden="true" />
+      </button>
+
+      <a
+        href={siteConfig.whatsappHref}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={siteConfig.whatsappLabel}
+        className={subtleFabButtonClass}
+      >
+        <WhatsAppIcon className="size-5" />
+      </a>
+
+      <PrimaryPulseFabLink
+        href={siteConfig.evaluationFormHref}
+        ariaLabel="Solicitar avaliação"
+        className="mt-5"
+      >
+        <FilePenLine className="size-7" strokeWidth={1.75} aria-hidden="true" />
+      </PrimaryPulseFabLink>
+    </div>
   );
 }

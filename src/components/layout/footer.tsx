@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import {
   Camera,
   MapPin,
@@ -9,7 +10,12 @@ import {
 
 import { BrandLogo } from "@/components/layout/brand-logo";
 import { ExternalArrow } from "@/components/ui/external-arrow";
-import { footerNavItems, siteConfig } from "@/content/site";
+import {
+  doctorProfile,
+  formatDoctorRegistrationLabel,
+  footerNavItems,
+  siteConfig,
+} from "@/content/site";
 import { layout } from "@/lib/layout";
 import { newWindowHint } from "@/lib/a11y";
 import { cn } from "@/lib/utils";
@@ -18,17 +24,27 @@ const footerSocialLinks = [
   { label: "Instagram", href: siteConfig.instagramHref, icon: Camera },
   { label: "YouTube", href: siteConfig.youtubeHref, icon: PlayCircle },
   { label: "WhatsApp", href: siteConfig.whatsappHref, icon: MessageCircle },
-  { label: "Reviews", href: siteConfig.reviewsHref, icon: Star },
+  { label: "Google", href: siteConfig.reviewsHref, icon: Star },
 ] as const;
 
-export function Footer() {
+type FooterProps = {
+  id?: string;
+  className?: string;
+  style?: CSSProperties;
+};
+
+export function Footer({ id, className, style }: FooterProps) {
   return (
-    <footer className="border-t border-border bg-primary text-primary-foreground">
+    <footer
+      id={id}
+      className={cn("border-t border-border bg-primary text-primary-foreground", className)}
+      style={style}
+    >
       <div className={cn(layout.container, layout.gutter, "py-9 lg:py-12")}>
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,22rem)] lg:items-end lg:gap-10">
           <div>
             <BrandLogo onPrimary className="w-36" />
-            <p className="mt-7 max-w-2xl text-balance font-sans text-[clamp(2rem,4vw,3.65rem)] font-medium leading-[1.02]">
+            <p className="mt-7 max-w-2xl text-balance font-sans text-[clamp(1.65rem,7.5vw,3.65rem)] font-medium leading-[1.06] sm:text-[clamp(2rem,4vw,3.65rem)] sm:leading-[1.02]">
               Uma avaliação individual é o melhor começo.
             </p>
             <p className="mt-4 max-w-xl text-pretty text-sm leading-6 text-primary-foreground/72 sm:text-base">
@@ -37,10 +53,8 @@ export function Footer() {
           </div>
 
           <aside className="flex w-full flex-col gap-4 lg:justify-self-end">
-            <a
-              href={siteConfig.whatsappHref}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href={siteConfig.evaluationFormHref}
               className="group flex min-h-[3.75rem] items-center justify-between gap-4 rounded-xl bg-primary-foreground px-4 py-3.5 text-primary motion-safe:transition motion-safe:duration-300 motion-safe:hover:bg-primary-foreground/92 sm:min-h-[4.25rem] sm:px-5 sm:py-4"
             >
               <span className="min-w-0">
@@ -54,8 +68,7 @@ export function Footer() {
               <span className="grid size-10 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground motion-safe:transition motion-safe:duration-300 group-hover:scale-105 sm:size-11">
                 <ExternalArrow />
               </span>
-              <span className="sr-only">{newWindowHint}</span>
-            </a>
+            </Link>
 
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-0 sm:overflow-hidden sm:rounded-xl sm:border sm:border-primary-foreground/14 sm:divide-x sm:divide-primary-foreground/14">
               {footerSocialLinks.map((item) => {
@@ -81,7 +94,7 @@ export function Footer() {
           </aside>
         </div>
 
-        <div className="mt-8 grid gap-6 border-t border-primary-foreground/14 pt-6 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:items-start">
+        <div className="mt-8 grid gap-6 border-t border-primary-foreground/14 pt-6 sm:grid-cols-2 lg:items-start">
           <nav aria-label="Páginas do site">
             <p className="text-sm font-medium text-primary-foreground">Navegação</p>
             <ul className="mt-2 flex flex-wrap gap-x-5 gap-y-1">
@@ -98,8 +111,6 @@ export function Footer() {
               ))}
             </ul>
           </nav>
-
-          <div className="hidden h-16 w-px bg-primary-foreground/14 lg:block" aria-hidden />
 
           <address className="text-sm not-italic leading-6 text-primary-foreground/72 sm:text-right">
             <p className="font-medium text-primary-foreground">{siteConfig.city}</p>
@@ -126,7 +137,11 @@ export function Footer() {
           )}
         >
           <p>© {new Date().getFullYear()} Grape Clinic. Todos os direitos reservados.</p>
-          <p>Dra. Marcela Ferreira</p>
+          <div className="text-right">
+            <p>{doctorProfile.name}</p>
+            <p>{formatDoctorRegistrationLabel()}</p>
+            <p>{doctorProfile.primarySpecialty}</p>
+          </div>
         </div>
       </div>
     </footer>

@@ -16,10 +16,6 @@ function collectMediaSrc(value: unknown, urls: Set<string>) {
     urls.add(value.poster);
   }
 
-  if ("thumbSrc" in value && typeof value.thumbSrc === "string" && value.thumbSrc.startsWith("/")) {
-    urls.add(value.thumbSrc);
-  }
-
   for (const nested of Object.values(value)) {
     collectMediaSrc(nested, urls);
   }

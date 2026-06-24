@@ -6,7 +6,9 @@ import { ExternalArrow } from "@/components/ui/external-arrow";
 import { useRef, useState } from "react";
 
 import { HeroBackground } from "@/components/media/hero-background";
+import { AnimatedHeading } from "@/components/motion/animated-heading";
 import { Button } from "@/components/ui/button";
+import { ShimmerButton, grapeCtaShimmerOnLight } from "@/registry/magicui/shimmer-button";
 import { mediaAssets } from "@/content/media";
 import { homeCopy, siteConfig } from "@/content/site";
 import { useSiteIntroReady } from "@/hooks/use-site-intro-ready";
@@ -15,14 +17,15 @@ import {
   MOTION,
   heroCta,
   heroEyebrow,
-  heroLine,
   heroStat,
   heroStagger,
   heroStaggerReturn,
   staggerContainerFast,
-  textLineStagger,
 } from "@/lib/motion";
 import { cn } from "@/lib/utils";
+
+const heroTitleClass =
+  "text-balance font-serif text-[clamp(2.05rem,7.4vw,2.3rem)] font-normal leading-[1.1] tracking-[-0.02em] sm:text-[clamp(2.25rem,4.6vw,3.65rem)] sm:leading-[1.08]";
 
 function readFastEntrance() {
   if (typeof document === "undefined") return true;
@@ -34,7 +37,7 @@ export function HeroSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const prefersReducedMotion = useReducedMotion();
   const introReady = useSiteIntroReady();
-  const [fastEntrance] = useState(readFastEntrance);
+  const [fastEntrance] = useState(() => readFastEntrance());
 
   const containerVariants = fastEntrance ? heroStaggerReturn : heroStagger;
   const animateState = introReady && !prefersReducedMotion ? "show" : "hidden";
@@ -44,7 +47,7 @@ export function HeroSection() {
       ref={sectionRef}
       id="hero"
       data-site-hero
-      className="relative isolate min-h-svh overflow-hidden"
+      className="relative min-h-svh overflow-hidden"
     >
       <HeroBackground
         triggerRef={sectionRef}
@@ -57,12 +60,12 @@ export function HeroSection() {
 
       <div
         className={cn(
-          "relative z-10 flex min-h-svh flex-col justify-end pb-14 pt-28 text-white sm:pb-16 sm:pt-32 lg:pb-[4.75rem] lg:pt-36",
+          "relative flex min-h-svh flex-col justify-end pb-7 pt-[4.75rem] text-white sm:pb-16 sm:pt-32 lg:pb-[4.75rem] lg:pt-36",
           layout.container,
           layout.gutter,
         )}
       >
-        <div className="grid gap-12 lg:grid-cols-12 lg:items-end lg:gap-x-20 xl:gap-x-24">
+        <div className="grid gap-6 sm:gap-12 lg:grid-cols-12 lg:items-end lg:gap-x-20 xl:gap-x-24">
           <motion.div
             variants={prefersReducedMotion ? undefined : containerVariants}
             initial={prefersReducedMotion ? false : "hidden"}
@@ -71,31 +74,28 @@ export function HeroSection() {
           >
             <motion.p
               variants={prefersReducedMotion ? undefined : heroEyebrow}
-              className="text-xs text-white/54 sm:text-sm"
+              className="text-[0.6875rem] tracking-[0.06em] text-white/50 sm:text-xs sm:tracking-normal sm:text-white/54"
             >
               {siteConfig.city}
             </motion.p>
 
-            <motion.div
-              variants={prefersReducedMotion ? undefined : textLineStagger}
-              className="mt-5 sm:mt-6 lg:mt-7"
-            >
-              <h1 className="text-balance font-serif text-[clamp(2.25rem,4.6vw,3.65rem)] font-normal leading-[1.08] tracking-[-0.02em]">
-                {homeCopy.heroTitleLines.map((line) => (
-                  <motion.span
-                    key={line}
-                    variants={prefersReducedMotion ? undefined : heroLine}
-                    className="block"
-                  >
-                    {line}
-                  </motion.span>
-                ))}
-              </h1>
-            </motion.div>
+            <div className="mt-3.5 sm:mt-6 lg:mt-7">
+              {introReady && !prefersReducedMotion ? (
+                <AnimatedHeading
+                  as="h1"
+                  mode="intro"
+                  text={homeCopy.heroTitle}
+                  startDelay={fastEntrance ? 40 : 120}
+                  className={heroTitleClass}
+                />
+              ) : (
+                <h1 className={heroTitleClass}>{homeCopy.heroTitle}</h1>
+              )}
+            </div>
 
             <motion.ul
               variants={prefersReducedMotion ? undefined : staggerContainerFast}
-              className="mt-10 grid grid-cols-3 justify-items-start gap-x-6 sm:mt-12 sm:gap-x-10 lg:mt-14 lg:gap-x-14 xl:gap-x-16"
+              className="mt-5 grid grid-cols-3 justify-items-start gap-x-2.5 gap-y-3 sm:mt-12 sm:gap-x-10 sm:gap-y-4 lg:mt-14 lg:gap-x-14 xl:gap-x-16"
               aria-label="Indicadores da clínica"
             >
               {homeCopy.stats.map((stat) => (
@@ -104,10 +104,10 @@ export function HeroSection() {
                   variants={prefersReducedMotion ? undefined : heroStat}
                   className="min-w-0"
                 >
-                  <p className="font-sans text-[clamp(1.125rem,2.2vw,1.375rem)] font-medium tabular-nums leading-none text-white/92">
+                  <p className="font-sans text-[0.9375rem] font-medium tabular-nums leading-none text-white/90 sm:text-[clamp(1rem,4.8vw,1.375rem)] sm:text-white/92">
                     {stat.value}
                   </p>
-                  <p className="mt-2 max-w-[9rem] text-[0.6875rem] leading-[1.45] text-white/58 sm:max-w-none sm:text-xs sm:leading-5">
+                  <p className="mt-1 max-w-[6.5rem] text-[0.6rem] leading-[1.35] text-white/52 sm:mt-2 sm:max-w-none sm:text-xs sm:leading-5 sm:text-white/58">
                     {stat.label}
                   </p>
                 </motion.li>
@@ -120,21 +120,29 @@ export function HeroSection() {
             initial={prefersReducedMotion ? false : "hidden"}
             animate={prefersReducedMotion ? undefined : animateState}
             transition={prefersReducedMotion ? undefined : { delay: fastEntrance ? 0.28 : 0.48 }}
-            className="flex w-full flex-col gap-3 sm:flex-row sm:items-center lg:col-span-5 lg:ml-auto lg:max-w-[17.5rem] lg:flex-col lg:items-stretch xl:col-span-4"
+            className="flex w-full flex-col gap-2.5 sm:gap-3 sm:flex-row sm:items-center lg:col-span-5 lg:ml-auto lg:max-w-[17.5rem] lg:flex-col lg:items-stretch xl:col-span-4 [&_a]:w-full [&_button]:w-full sm:[&_a]:w-auto sm:[&_button]:w-auto"
           >
-            <Button asChild size="lg" variant="secondary" className="group">
-              <Link href="#contato">
-                Solicitar avaliação
-                <ExternalArrow />
-              </Link>
-            </Button>
+            <ShimmerButton
+              href="#contato"
+              className="h-11 gap-2 text-[0.8125rem] font-medium text-secondary-foreground sm:h-12 sm:text-sm"
+              {...grapeCtaShimmerOnLight}
+              background="var(--secondary)"
+              hoverBackground="color-mix(in oklch, var(--secondary) 92%, var(--foreground) 8%)"
+            >
+              {homeCopy.cta}
+              <ExternalArrow />
+            </ShimmerButton>
             <Button
               asChild
               size="lg"
               variant="outline"
-              className="border-white/22 text-white/88 hover:border-white/32 hover:bg-white/8 hover:text-white"
+              className={cn(
+                "header-glass-btn header-glass-btn--hero",
+                "h-10 px-5 text-[0.8125rem] sm:h-12 sm:px-6 sm:text-sm",
+                "border-white/26 bg-white/[0.16] text-white hover:border-white/32 hover:bg-white/[0.22] hover:text-white",
+              )}
             >
-              <Link href="#metodo">Conhecer o método</Link>
+              <Link href="#metodo">Conhecer o método Grape</Link>
             </Button>
           </motion.div>
         </div>

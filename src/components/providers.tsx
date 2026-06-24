@@ -3,25 +3,68 @@
 import { ThemeProvider } from "next-themes";
 import Lenis from "lenis";
 import { MotionConfig } from "motion/react";
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect } from "react";
 
 import { SiteIntro } from "@/components/layout/site-intro";
 import { HashScrollHandler } from "@/components/layout/hash-scroll-handler";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
+import { SITE_INTRO_READY_EVENT } from "@/hooks/use-site-intro-ready";
 import { setLenis } from "@/lib/lenis";
 import {
   initHashNavigation,
+  initScrollRestoration,
   scrollToInitialHash,
+  scrollToTop,
 } from "@/lib/navigation/scroll-to-hash";
 import { registerGsapPlugins } from "@/lib/motion/gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 registerGsapPlugins();
 
+function isIntroBlocking() {
+  if (typeof document === "undefined") return false;
+
+  return (
+    document.documentElement.hasAttribute("data-site-intro-pending") ||
+    document.documentElement.hasAttribute("data-site-intro-revealing") ||
+    Boolean(document.querySelector("[data-site-intro-root]"))
+  );
+}
+
+function applyInitialScrollPosition() {
+  if (window.location.hash) {
+    scrollToInitialHash();
+    return;
+  }
+
+  scrollToTop(true);
+  window.scrollTo(0, 0);
+}
+
 export function Providers({ children }: { children: React.ReactNode }) {
   const prefersReducedMotion = usePrefersReducedMotion();
 
+  useLayoutEffect(() => {
+    const onIntroReady = () => applyInitialScrollPosition();
+
+    window.addEventListener(SITE_INTRO_READY_EVENT, onIntroReady);
+
+    if (!isIntroBlocking()) {
+      onIntroReady();
+    }
+
+    return () => {
+      window.removeEventListener(SITE_INTRO_READY_EVENT, onIntroReady);
+    };
+  }, []);
+
   useEffect(() => {
+    initScrollRestoration();
+
+    if (!window.location.hash) {
+      window.scrollTo(0, 0);
+    }
+
     if (prefersReducedMotion) {
       scrollToInitialHash();
       const removeHashNav = initHashNavigation();
@@ -38,6 +81,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
     setLenis(lenis);
     lenis.on("scroll", ScrollTrigger.update);
+
+    if (!window.location.hash) {
+      lenis.scrollTo(0, { immediate: true });
+      window.scrollTo(0, 0);
+    }
 
     ScrollTrigger.scrollerProxy(document.documentElement, {
       scrollTop(value) {

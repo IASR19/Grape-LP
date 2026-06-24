@@ -13,13 +13,16 @@
     "typecheck": "tsc --noEmit",
     "optimize:images": "node scripts/optimize-images.mjs",
     "optimize:video": "node scripts/optimize-video.mjs",
-    "optimize:media": "npm run optimize:images && npm run optimize:video",
-    "optimize:media:force": "npm run optimize:images -- --force && npm run optimize:video"
+    "optimize:reels": "node scripts/optimize-reels.mjs",
+    "optimize:media": "npm run optimize:images && npm run optimize:video && npm run optimize:reels",
+    "optimize:media:force": "npm run optimize:images -- --force && npm run optimize:video && npm run optimize:reels -- --force"
   },
   "dependencies": {
+    "@gsap/react": "^2.1.2",
     "@radix-ui/react-slot": "^1.2.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "estados-cidades": "^4.1.0",
     "gsap": "^3.15.0",
     "lenis": "^1.3.23",
     "liquid-glass-react": "^1.1.1",

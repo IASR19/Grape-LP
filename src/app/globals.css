@@ -5,6 +5,20 @@
 
 @import "tailwindcss";
 
+.split-char,
+.split-word,
+.split-line {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  will-change: transform, opacity;
+}
+
+.split-parent-center .split-line {
+  display: block;
+  text-align: center;
+}
+
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
@@ -21,13 +35,22 @@
   --border: oklch(0.85 0.015 78);
   --input: oklch(0.82 0.014 78);
   --ring: oklch(0.5 0.05 65);
-  --logo-pattern-opacity: 0.04;
+  --logo-pattern-image: url("/brand/grapeclinic-pattern.svg");
+  --logo-pattern-primary-image: url("/brand/grapeclinic-pattern-light.svg");
+  --logo-pattern-opacity: 0.035;
   --logo-pattern-blend: multiply;
   --logo-pattern-filter: none;
+  --logo-pattern-size: 200px;
+  --grape-shimmer-warm: color-mix(in oklch, var(--primary) 92%, var(--foreground) 8%);
+  --grape-shimmer-glass: color-mix(in oklch, white 94%, var(--primary) 6%);
+  --grape-shimmer-primary: color-mix(in oklch, white 93%, var(--primary) 7%);
+  --grape-shimmer-cut: 0.14em;
+  --grape-shimmer-blur: 0px;
 }
 
 html {
   scrollbar-width: none;
+  overflow-x: clip;
 }
 
 html::-webkit-scrollbar,
@@ -38,6 +61,47 @@ body::-webkit-scrollbar {
 }
 
 @theme inline {
+  --animate-shimmer-slide: shimmer-slide var(--speed) ease-in-out infinite alternate;
+  --animate-spin-around: spin-around calc(var(--speed) * 2) infinite linear;
+
+  @keyframes shimmer-slide {
+    to {
+      transform: translate(calc(100cqw - 100%), 0);
+    }
+  }
+
+  @keyframes spin-around {
+    0% {
+      transform: translateZ(0) rotate(0);
+    }
+    15%,
+    35% {
+      transform: translateZ(0) rotate(90deg);
+    }
+    65%,
+    85% {
+      transform: translateZ(0) rotate(270deg);
+    }
+    100% {
+      transform: translateZ(0) rotate(360deg);
+    }
+  }
+
+  --animate-orbit: orbit calc(var(--duration) * 1s) linear infinite;
+
+  @keyframes orbit {
+    0% {
+      transform: translate(-50%, -50%) rotate(calc(var(--angle) * 1deg))
+        translateY(calc(var(--radius) * 1px))
+        rotate(calc(var(--angle) * -1deg));
+    }
+    100% {
+      transform: translate(-50%, -50%) rotate(calc(var(--angle) * 1deg + 360deg))
+        translateY(calc(var(--radius) * 1px))
+        rotate(calc((var(--angle) * -1deg) - 360deg));
+    }
+  }
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -70,9 +134,17 @@ body::-webkit-scrollbar {
   --border: oklch(0.31 0.02 58);
   --input: oklch(0.34 0.02 58);
   --ring: oklch(0.79 0.035 84);
-  --logo-pattern-opacity: 0.24;
+  --logo-pattern-image: url("/brand/grapeclinic-pattern-light.svg");
+  --logo-pattern-primary-image: url("/brand/grapeclinic-pattern.svg");
+  --logo-pattern-opacity: 0.13;
   --logo-pattern-blend: soft-light;
-  --logo-pattern-filter: brightness(2.1) contrast(0.82);
+  --logo-pattern-filter: none;
+  --logo-pattern-size: 200px;
+  --grape-shimmer-warm: color-mix(in oklch, white 86%, var(--primary) 14%);
+  --grape-shimmer-glass: color-mix(in oklch, white 94%, var(--primary) 6%);
+  --grape-shimmer-primary: color-mix(in oklch, white 97%, var(--primary) 3%);
+  --grape-shimmer-cut: 0.11em;
+  --grape-shimmer-blur: 1px;
 }
 
 body {
@@ -84,6 +156,33 @@ body {
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -ms-overflow-style: none;
+  overflow-x: clip;
+}
+
+/* Interface flat — sem elevação por sombra */
+*,
+*::before,
+*::after {
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+:focus-visible {
+  outline: 2px solid color-mix(in oklch, var(--ring) 72%, transparent);
+  outline-offset: 2px;
+}
+
+html[data-hub-route],
+html[data-hub-route] body {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+html[data-hub-route] [data-app-shell] {
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
 }
 
 [id="hero"],
@@ -96,6 +195,7 @@ body {
 [id="historias"],
 [id="duvidas"],
 [id="contato"],
+[id="contato-form"],
 [id="galeria"] {
   scroll-margin-top: 5rem;
 }
@@ -125,6 +225,11 @@ blockquote {
 
 ::selection {
   background: color-mix(in oklch, var(--primary) 24%, transparent);
+}
+
+[data-dragging="true"] {
+  scroll-snap-type: none !important;
+  cursor: grabbing !important;
 }
 
 .skip-link {
@@ -215,19 +320,23 @@ summary:focus-visible,
 
 @keyframes header-cta-ring-pulse-primary {
   0% {
-    box-shadow: 0 0 0 0 color-mix(in oklch, var(--primary) 44%, transparent);
+    opacity: 0.45;
+    transform: scale(1);
   }
   100% {
-    box-shadow: 0 0 0 5px color-mix(in oklch, var(--primary) 0%, transparent);
+    opacity: 0;
+    transform: scale(1.12);
   }
 }
 
 @keyframes header-cta-ring-pulse-light {
   0% {
-    box-shadow: 0 0 0 0 color-mix(in oklch, var(--primary-foreground) 36%, transparent);
+    opacity: 0.4;
+    transform: scale(1);
   }
   100% {
-    box-shadow: 0 0 0 5px color-mix(in oklch, var(--primary-foreground) 0%, transparent);
+    opacity: 0;
+    transform: scale(1.12);
   }
 }
 
@@ -245,6 +354,7 @@ summary:focus-visible,
   border-radius: inherit;
   pointer-events: none;
   z-index: -1;
+  border: 1px solid color-mix(in oklch, var(--primary) 28%, transparent);
 }
 
 .header-cta-pulse-hero::before,
@@ -274,6 +384,30 @@ summary:focus-visible,
   animation-delay: 1.55s;
 }
 
+.grape-orbit-pulse-ring {
+  animation: whatsapp-ring-pulse 2.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.grape-orbit-pulse-ring-delay {
+  animation-delay: 1.4s;
+}
+
+.grape-orbit-center-breathe {
+  animation: whatsapp-float-breathe 3.2s ease-in-out infinite;
+}
+
+.fab-primary-ring {
+  animation: whatsapp-ring-pulse 2.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.fab-primary-ring-delay {
+  animation-delay: 1.4s;
+}
+
+.fab-primary-btn {
+  animation: whatsapp-float-breathe 3.2s ease-in-out infinite;
+}
+
 .whatsapp-float-ring {
   animation: whatsapp-ring-pulse 2.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
@@ -286,14 +420,45 @@ summary:focus-visible,
   animation: whatsapp-float-breathe 3.2s ease-in-out infinite;
 }
 
+.header-glass-btn {
+  isolation: isolate;
+  -webkit-backdrop-filter: blur(22px) saturate(1.65);
+  backdrop-filter: blur(22px) saturate(1.65);
+  box-shadow: none;
+  transition:
+    background-color 500ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 500ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.header-glass-btn--hero:hover,
+.header-glass-btn--default:hover {
+  box-shadow: none;
+}
+
+@supports not (
+  (-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))
+) {
+  .header-glass-btn--hero {
+    background: rgb(255 255 255 / 0.28);
+  }
+
+  .header-glass-btn--default {
+    background: color-mix(in oklch, var(--background) 92%, transparent);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .header-cta-pulse-hero::before,
   .header-cta-pulse-hero::after,
   .header-cta-pulse-solid::before,
   .header-cta-pulse-solid::after,
   .header-cta-ring,
+  .fab-primary-ring,
+  .fab-primary-btn,
   .whatsapp-float-ring,
-  .whatsapp-float-btn {
+  .whatsapp-float-btn,
+  .grape-orbit-pulse-ring,
+  .grape-orbit-center-breathe {
     animation: none;
   }
 }
@@ -309,8 +474,12 @@ summary:focus-visible,
   .header-cta-pulse-solid::before,
   .header-cta-pulse-solid::after,
   .header-cta-ring,
+  .fab-primary-ring,
+  .fab-primary-btn,
   .whatsapp-float-ring,
-  .whatsapp-float-btn {
+  .whatsapp-float-btn,
+  .grape-orbit-pulse-ring,
+  .grape-orbit-center-breathe {
     animation: none !important;
   }
 }
@@ -320,8 +489,8 @@ summary:focus-visible,
   isolation: isolate;
   overflow: hidden;
   border-radius: 0.75rem;
-  border: 1px solid color-mix(in oklch, var(--primary-foreground) 16%, transparent);
-  background: color-mix(in oklch, var(--primary-foreground) 10%, transparent);
+  border: 1px solid color-mix(in oklch, var(--border) 72%, transparent);
+  background: color-mix(in oklch, var(--card) 56%, transparent);
   -webkit-backdrop-filter: blur(18px) saturate(1.42);
   backdrop-filter: blur(18px) saturate(1.42);
   transition:
@@ -342,9 +511,9 @@ summary:focus-visible,
   z-index: 0;
   background: linear-gradient(
     145deg,
-    color-mix(in oklch, var(--primary-foreground) 14%, transparent) 0%,
+    color-mix(in oklch, var(--foreground) 8%, transparent) 0%,
     transparent 42%,
-    color-mix(in oklch, var(--primary-foreground) 5%, transparent) 100%
+    color-mix(in oklch, var(--primary) 6%, transparent) 100%
   );
   opacity: 0.38;
 }
@@ -360,21 +529,21 @@ summary:focus-visible,
 }
 
 .liquid-glass-featured {
-  border-color: color-mix(in oklch, var(--background) 28%, transparent);
-  background: color-mix(in oklch, var(--background) 68%, transparent);
+  border-color: color-mix(in oklch, var(--border) 78%, transparent);
+  background: color-mix(in oklch, var(--card) 74%, transparent);
   -webkit-backdrop-filter: blur(22px) saturate(1.5);
   backdrop-filter: blur(22px) saturate(1.5);
 }
 
 .liquid-glass-list:hover {
-  border-color: color-mix(in oklch, var(--primary-foreground) 22%, transparent);
-  background: color-mix(in oklch, var(--primary-foreground) 14%, transparent);
+  border-color: color-mix(in oklch, var(--primary) 22%, transparent);
+  background: color-mix(in oklch, var(--card) 68%, transparent);
   transform: translateY(-2px);
 }
 
 .liquid-glass-list-active {
-  border-color: color-mix(in oklch, var(--primary-foreground) 48%, transparent);
-  background: color-mix(in oklch, var(--primary-foreground) 78%, transparent);
+  border-color: color-mix(in oklch, var(--primary) 34%, transparent);
+  background: color-mix(in oklch, var(--card) 86%, transparent);
   -webkit-backdrop-filter: blur(24px) saturate(1.58);
   backdrop-filter: blur(24px) saturate(1.58);
 }
@@ -383,9 +552,9 @@ summary:focus-visible,
   opacity: 0.52;
   background: linear-gradient(
     145deg,
-    color-mix(in oklch, var(--primary-foreground) 22%, transparent) 0%,
+    color-mix(in oklch, var(--primary) 12%, transparent) 0%,
     transparent 46%,
-    color-mix(in oklch, var(--primary-foreground) 12%, transparent) 100%
+    color-mix(in oklch, var(--foreground) 6%, transparent) 100%
   );
 }
 
@@ -393,15 +562,15 @@ summary:focus-visible,
   (-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))
 ) {
   .liquid-glass-surface {
-    background: color-mix(in oklch, var(--primary-foreground) 88%, var(--primary));
+    background: color-mix(in oklch, var(--card) 90%, var(--background));
   }
 
   .liquid-glass-featured {
-    background: color-mix(in oklch, var(--background) 92%, var(--primary));
+    background: color-mix(in oklch, var(--card) 94%, var(--background));
   }
 
   .liquid-glass-list-active {
-    background: var(--primary-foreground);
+    background: color-mix(in oklch, var(--card) 96%, var(--primary));
   }
 }
 
@@ -418,28 +587,162 @@ summary:focus-visible,
 }
 
 .logo-pattern-band__pattern {
+  position: absolute;
+  inset: 0;
   z-index: 0;
+  pointer-events: none;
   opacity: var(--logo-pattern-opacity);
   mix-blend-mode: var(--logo-pattern-blend);
   filter: var(--logo-pattern-filter);
-  background-image: url("/brand/grapeclinic-pattern.svg");
-  background-size: 360px 360px;
+  background-image: var(--logo-pattern-image);
+  background-size: var(--logo-pattern-size) var(--logo-pattern-size);
   background-repeat: repeat;
   background-position: top center;
+  background-attachment: local;
   -webkit-mask-image: linear-gradient(
     to bottom,
     transparent 0%,
-    #000 4%,
-    #000 96%,
+    #000 18%,
+    #000 82%,
     transparent 100%
   );
   mask-image: linear-gradient(
     to bottom,
     transparent 0%,
-    #000 4%,
-    #000 96%,
+    #000 18%,
+    #000 82%,
     transparent 100%
   );
+}
+
+.logo-pattern-band--pattern {
+  background: var(--background);
+}
+
+.logo-pattern-band__pattern--pattern {
+  opacity: calc(var(--logo-pattern-opacity) * 0.62);
+}
+
+.dark .logo-pattern-band__pattern--pattern {
+  opacity: calc(var(--logo-pattern-opacity) * 0.42);
+  mix-blend-mode: soft-light;
+}
+
+.logo-pattern-band--muted {
+  background: color-mix(in oklch, var(--background) 88%, var(--secondary));
+}
+
+.dark .logo-pattern-band--muted {
+  background: color-mix(in oklch, var(--background) 90%, var(--secondary));
+}
+
+.logo-pattern-band__pattern--muted {
+  opacity: calc(var(--logo-pattern-opacity) * 0.42);
+}
+
+.dark .logo-pattern-band__pattern--muted {
+  opacity: calc(var(--logo-pattern-opacity) * 0.34);
+  mix-blend-mode: soft-light;
+}
+
+.logo-pattern-band--primary {
+  background: var(--primary);
+}
+
+.logo-pattern-band__pattern--primary {
+  background-image: var(--logo-pattern-primary-image);
+  opacity: calc(var(--logo-pattern-opacity) * 1.15);
+  mix-blend-mode: soft-light;
+  filter: none;
+}
+
+/* Editorial sections — pattern suave e uniforme (light + dark) */
+.logo-pattern-band--soft {
+  background: var(--background);
+}
+
+.logo-pattern-band--soft-muted {
+  background: color-mix(in oklch, var(--background) 88%, var(--secondary));
+}
+
+.dark .logo-pattern-band--soft-muted {
+  background: color-mix(in oklch, var(--background) 90%, var(--secondary));
+}
+
+.logo-pattern-band__pattern--soft,
+.logo-pattern-band__pattern--soft-muted {
+  opacity: var(--logo-pattern-opacity);
+  mix-blend-mode: var(--logo-pattern-blend);
+  filter: var(--logo-pattern-filter);
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+.dark .logo-pattern-band__pattern--soft,
+.dark .logo-pattern-band__pattern--soft-muted {
+  opacity: var(--logo-pattern-opacity);
+  mix-blend-mode: var(--logo-pattern-blend);
+  filter: var(--logo-pattern-filter);
+}
+
+.dark .logo-pattern-band__pattern--primary {
+  opacity: calc(var(--logo-pattern-opacity) * 0.72);
+  mix-blend-mode: multiply;
+  filter: none;
+}
+
+/* #metodo — símbolo da uva como marca d'água de fundo. */
+.care-toggle-grape-watermark {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.care-toggle-grape-watermark__glyph {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(82vw, 24rem);
+  height: min(98vw, 28.5rem);
+  transform: translate(-50%, -50%);
+  background-color: var(--primary);
+  opacity: 0.04;
+  -webkit-mask-image: url("/brand/grape-symbol-watermark.svg");
+  mask-image: url("/brand/grape-symbol-watermark.svg");
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  transition:
+    opacity 500ms cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 500ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.care-toggle-grape-watermark__glyph--grape {
+  background-color: var(--primary-foreground);
+  opacity: 0.075;
+}
+
+@media (min-width: 640px) {
+  .care-toggle-grape-watermark__glyph {
+    width: min(52vw, 28rem);
+    height: min(62vw, 33rem);
+    opacity: 0.035;
+  }
+
+  .care-toggle-grape-watermark__glyph--grape {
+    opacity: 0.07;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .care-toggle-grape-watermark__glyph {
+    transition: none;
+  }
 }
 
 /* Hero background — sem overlay nativo de play (Safari/WebKit). */

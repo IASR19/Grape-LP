@@ -1,19 +1,29 @@
 "use client";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState } from "react";
 
-import { Reveal, RevealText } from "@/components/motion/reveal";
+import { AnimatedHeading } from "@/components/motion/animated-heading";
+import { Reveal } from "@/components/motion/reveal";
 import { clinicPhotos } from "@/content/media";
+import { homeCopy } from "@/content/site";
 import { layout } from "@/lib/layout";
+import { type } from "@/lib/typography";
 import { cn } from "@/lib/utils";
 
+type GalleryPhoto = {
+  src: string;
+  alt: string;
+  objectPosition: string;
+  priority?: boolean;
+};
+
+/** Ambientes reais da clínica — apenas fotos de espaço em `public/images/opt/spaces/`. */
 const galleryPhotos = [
   {
-    src: clinicPhotos.institucional,
+    src: clinicPhotos.receptionWide,
     alt: "Recepção ampla da Grape Clinic com balcão curvo e iluminação integrada",
-    objectPosition: "50% 45%",
+    objectPosition: "50% 50%",
+    priority: true,
   },
   {
     src: clinicPhotos.ambiance,
@@ -21,183 +31,91 @@ const galleryPhotos = [
     objectPosition: "50% 50%",
   },
   {
-    src: clinicPhotos.detail,
-    alt: "Sala de atendimento com arquitetura curva e equipamentos clínicos",
-    objectPosition: "50% 48%",
-  },
-  {
     src: clinicPhotos.corridor,
-    alt: "Corredor interno da Grape Clinic com bancos integrados",
+    alt: "Corredor interno da Grape Clinic com lounge integrado",
     objectPosition: "50% 50%",
   },
   {
-    src: clinicPhotos.receptionAlt,
-    alt: "Detalhe decorativo com painel circular iluminado na clínica",
-    objectPosition: "50% 50%",
+    src: clinicPhotos.treatmentRoom,
+    alt: "Sala de atendimento com arquitetura curva e equipamentos clínicos",
+    objectPosition: "50% 42%",
   },
-] as const;
+] as const satisfies readonly GalleryPhoto[];
+
+function GalleryTile({
+  photo,
+  className,
+}: {
+  photo: GalleryPhoto;
+  className?: string;
+}) {
+  return (
+    <figure className={className}>
+      <Image
+        src={photo.src}
+        alt={photo.alt}
+        fill
+        priority={photo.priority}
+        sizes="(min-width: 1024px) 40vw, 50vw"
+        className="object-cover motion-safe:transition-transform motion-safe:duration-500 motion-safe:hover:scale-[1.015]"
+        style={{ objectPosition: photo.objectPosition }}
+      />
+    </figure>
+  );
+}
 
 export function ClinicGallerySection() {
-  const trackRef = useRef<HTMLDivElement>(null);
-  const slideRefs = useRef<Array<HTMLDivElement | null>>([]);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const slideAnnouncement = useMemo(
-    () =>
-      `Imagem ${activeIndex + 1} de ${galleryPhotos.length}: ${galleryPhotos[activeIndex].alt}`,
-    [activeIndex],
-  );
-
-  function scrollToSlide(index: number) {
-    const slide = slideRefs.current[index];
-
-    if (!slide) return;
-
-    slide.scrollIntoView({
-      behavior: "smooth",
-      block: "nearest",
-      inline: "center",
-    });
-  }
-
-  function goToSlide(index: number) {
-    setActiveIndex(index);
-    scrollToSlide(index);
-  }
-
-  function move(direction: -1 | 1) {
-    const nextIndex =
-      (activeIndex + direction + galleryPhotos.length) % galleryPhotos.length;
-    goToSlide(nextIndex);
-  }
-
-  useEffect(() => {
-    const track = trackRef.current;
-
-    if (!track) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-
-        if (!visible?.target) return;
-
-        const index = slideRefs.current.findIndex(
-          (slide) => slide === visible.target,
-        );
-
-        if (index >= 0) {
-          setActiveIndex(index);
-        }
-      },
-      {
-        root: track,
-        threshold: [0.55, 0.72, 0.9],
-      },
-    );
-
-    slideRefs.current.forEach((slide) => {
-      if (slide) observer.observe(slide);
-    });
-
-    return () => observer.disconnect();
-  }, []);
+  const [hero, consultorio, corridor, consultRoom] = galleryPhotos;
 
   return (
-    <section id="galeria" className={cn(layout.gutter, "pb-16 lg:pb-20")}>
-      <div className={cn(layout.container, "min-w-0")}>
-        <div className="flex h-svh min-h-[36rem] flex-col overflow-hidden">
-          <div
-            className={cn(
-              "flex shrink-0 flex-col gap-4 pb-4 sm:pb-5",
-              "pt-16 sm:pt-20 lg:flex-row lg:items-end lg:justify-between lg:pb-4 lg:pt-20",
-            )}
-          >
-            <Reveal>
-              <p className="text-sm font-medium text-muted-foreground">
-                Galeria da clínica
-              </p>
-              <RevealText
-                lines={["Ambientes, detalhes e presença."]}
-                as="h2"
-                delay={0.08}
-                className="mt-4 max-w-2xl text-balance font-sans text-4xl font-medium leading-[1.12] sm:text-5xl"
+    <section
+      id="galeria"
+      className={cn(
+        "relative w-full max-w-[100vw] overflow-hidden bg-transparent",
+        layout.sectionBandStart,
+        layout.gutter,
+      )}
+    >
+      <div className={cn("mx-auto w-full", layout.container)}>
+        <div className="max-w-2xl text-left">
+          <Reveal preset="fadeUp">
+            <p className={type.eyebrow}>Galeria da clínica</p>
+          </Reveal>
+          <AnimatedHeading
+            text={homeCopy.galleryTitle}
+            textAlign="left"
+            className={cn(layout.proseAfterHeading, "max-w-2xl text-balance", type.section)}
+          />
+        </div>
+
+        <div
+          className={cn(
+            layout.gridAfterProse,
+            "max-sm:h-[min(78dvh,44rem)] max-sm:min-h-[min(72dvh,40rem)] sm:h-[min(62vh,34rem)] sm:min-h-[28rem] lg:min-h-[32rem]",
+          )}
+        >
+          <div className="grid h-full min-h-0 grid-rows-[minmax(0,1.05fr)_minmax(0,0.95fr)] gap-1 sm:gap-1.5">
+            <div className="grid min-h-0 grid-cols-6 grid-rows-2 gap-1 sm:grid-cols-12 sm:grid-rows-2 sm:gap-1.5">
+              <GalleryTile
+                photo={hero}
+                className="relative col-span-6 row-span-1 min-h-0 overflow-hidden bg-muted sm:col-span-7 sm:row-span-2"
               />
-            </Reveal>
-
-            <Reveal preset="fadeIn" delay={0.12} className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => move(-1)}
-                className="grid size-10 place-items-center rounded-full border border-border bg-card text-foreground shadow-sm transition hover:border-primary/35 hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/25 lg:size-11"
-                aria-label="Imagem anterior da galeria"
-              >
-                <ChevronLeft className="size-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => move(1)}
-                className="grid size-10 place-items-center rounded-full border border-border bg-card text-foreground shadow-sm transition hover:border-primary/35 hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/25 lg:size-11"
-                aria-label="Próxima imagem da galeria"
-              >
-                <ChevronRight className="size-4" />
-              </button>
-            </Reveal>
-          </div>
-
-          <div className="relative min-h-0 flex-1">
-            <p className="sr-only" aria-live="polite" aria-atomic="true">
-              {slideAnnouncement}
-            </p>
-            <div
-              ref={trackRef}
-              role="region"
-              aria-roledescription="carrossel"
-              aria-label="Fotos da clínica"
-              className={cn(
-                "absolute inset-0 flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth",
-                "[-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:gap-4",
-              )}
-            >
-              {galleryPhotos.map((photo, index) => (
-                <div
-                  key={photo.src}
-                  ref={(node) => {
-                    slideRefs.current[index] = node;
-                  }}
-                  className="relative h-full min-w-[86%] snap-center overflow-hidden rounded-xl bg-muted ring-1 ring-border sm:min-w-[78%] lg:min-w-[calc(100%-2.5rem)]"
-                >
-                  <Image
-                    src={photo.src}
-                    alt={photo.alt}
-                    fill
-                    priority={index === 0}
-                    sizes="(min-width: 1024px) 75rem, 88vw"
-                    className="object-cover"
-                    style={{ objectPosition: photo.objectPosition }}
-                  />
-                </div>
-              ))}
+              <GalleryTile
+                photo={consultorio}
+                className="relative col-span-6 row-span-1 min-h-0 overflow-hidden bg-muted sm:col-span-5 sm:col-start-8 sm:row-span-2"
+              />
             </div>
-          </div>
 
-          <div className="flex shrink-0 items-center justify-center gap-2 pb-6 pt-3 sm:pb-7 lg:pb-8 lg:pt-4">
-            {galleryPhotos.map((photo, index) => (
-              <button
-                key={photo.src}
-                type="button"
-                onClick={() => goToSlide(index)}
-                className={cn(
-                  "h-1.5 rounded-full transition-[width,background-color] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/25",
-                  activeIndex === index
-                    ? "w-8 bg-primary"
-                    : "w-1.5 bg-border hover:bg-primary/45",
-                )}
-                aria-label={`Ir para imagem ${index + 1} da galeria`}
-                aria-current={activeIndex === index ? "true" : undefined}
+            <div className="grid min-h-0 grid-cols-2 gap-1 sm:gap-1.5">
+              <GalleryTile
+                photo={corridor}
+                className="relative min-h-0 overflow-hidden bg-muted"
               />
-            ))}
+              <GalleryTile
+                photo={consultRoom}
+                className="relative min-h-0 overflow-hidden bg-muted"
+              />
+            </div>
           </div>
         </div>
       </div>

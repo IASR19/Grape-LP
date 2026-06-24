@@ -58,6 +58,52 @@ async function isUpToDate(sourcePath, outputPath) {
   }
 }
 
+async function encodeToJpeg(sourcePath, outputPath, profile) {
+  const minQuality = 58;
+  let quality = profile.quality;
+  let buffer = null;
+
+  while (quality >= minQuality) {
+    let pipeline = sharp(sourcePath).rotate();
+
+    if (profile.aspectRatio) {
+      const width = profile.maxWidth;
+      const height = Math.round(width / profile.aspectRatio);
+      pipeline = pipeline.resize({
+        width,
+        height,
+        fit: profile.fit ?? "cover",
+        position: profile.position ?? "centre",
+      });
+    } else {
+      pipeline = pipeline.resize({
+        width: profile.maxWidth,
+        withoutEnlargement: true,
+        fit: "inside",
+      });
+    }
+
+    buffer = await pipeline
+      .jpeg({
+        quality,
+        mozjpeg: true,
+        chromaSubsampling: "4:2:0",
+      })
+      .toBuffer();
+
+    if (!profile.maxBytes || buffer.length <= profile.maxBytes) {
+      break;
+    }
+
+    quality -= 4;
+  }
+
+  await mkdir(path.dirname(outputPath), { recursive: true });
+  await sharp(buffer).toFile(outputPath);
+
+  return { bytesAfter: buffer.length, qualityUsed: quality };
+}
+
 async function optimizeOne(entry) {
   const sourcePath = path.resolve(ROOT, entry.src);
   const outDir = path.resolve(ROOT, entry.outDir ?? defaultOutputDir);
@@ -76,6 +122,14 @@ async function optimizeOne(entry) {
     return null;
   }
 
+  let meta;
+  try {
+    meta = await sharp(sourcePath).metadata();
+  } catch (error) {
+    console.warn(`  ⊘ origem inválida: ${entry.src} (${error.message})`);
+    return null;
+  }
+
   if (await isUpToDate(sourcePath, outputPath)) {
     const size = await fileSize(outputPath);
     console.log(`  ↷ ${entry.src} → ${path.relative(ROOT, outputPath)} (${formatBytes(size)}, sem alterações)`);
@@ -88,31 +142,14 @@ async function optimizeOne(entry) {
     };
   }
 
-  await mkdir(path.dirname(outputPath), { recursive: true });
-
   const before = await fileSize(sourcePath);
-  const meta = await sharp(sourcePath).metadata();
-
-  await sharp(sourcePath)
-    .rotate()
-    .resize({
-      width: profile.maxWidth,
-      withoutEnlargement: true,
-      fit: "inside",
-    })
-    .jpeg({
-      quality: profile.quality,
-      mozjpeg: true,
-      chromaSubsampling: "4:4:4",
-    })
-    .toFile(outputPath);
-
-  const after = await fileSize(outputPath);
+  const { bytesAfter, qualityUsed } = await encodeToJpeg(sourcePath, outputPath, profile);
+  const after = bytesAfter;
   const saved = before - after;
   const pct = before > 0 ? ((saved / before) * 100).toFixed(0) : 0;
 
   console.log(
-    `  ✓ ${entry.src} → ${path.relative(ROOT, outputPath)} (${formatBytes(before)} → ${formatBytes(after)}, -${pct}%, ${meta.width}×${meta.height})`,
+    `  ✓ ${entry.src} → ${path.relative(ROOT, outputPath)} (${formatBytes(before)} → ${formatBytes(after)}, -${pct}%, ${meta.width}×${meta.height}, q${qualityUsed}${profile.maxBytes && after > profile.maxBytes ? ", acima do maxBytes" : ""})`,
   );
 
   return {
@@ -124,6 +161,7 @@ async function optimizeOne(entry) {
     bytesAfter: after,
     width: meta.width,
     height: meta.height,
+    qualityUsed,
   };
 }
 

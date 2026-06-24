@@ -1,4 +1,4 @@
-import { clinicPhotos, previewPhoto } from "@/content/media";
+import { clinicPhotos } from "@/content/media";
 
 export const siteConfig = {
   name: "Grape Clinic",
@@ -17,7 +17,7 @@ export const siteConfig = {
   instagramHref: "https://www.instagram.com/grapeclinic_/",
   youtubeHref: "https://www.youtube.com/channel/UCjaaFEZQH5Ef8D9g-OJCTfw",
   reviewsHref:
-    "https://www.google.com/maps/dir//R.+Cel.+Brito+Filho,+n%C2%B0461+-+e+469+-+Fatima,+Pouso+Alegre+-+MG,+37554-246/@-22.2244654,-46.0057998,12z/data=!4m8!4m7!1m0!1m5!1m1!1s0x94cbc749485e24f5:0xef1266625663eac6!2m2!1d-45.9233982!2d-22.2244861?entry=ttu",
+    "https://www.google.com/maps/place/Grape+Clinic/@-22.2244861,-45.9259731,17z/data=!4m8!3m7!1s0x94cbc749485e24f5:0xef1266625663eac6!8m2!3d-22.2244861!4d-45.9233982!9m1!1b1",
 };
 
 export type NavLink = {
@@ -29,8 +29,8 @@ export type NavLink = {
 export const sitePages: NavLink[] = [
   { label: "Home", href: "/" },
   {
-    label: "Link Bio",
-    href: "/link-bio",
+    label: "Hub",
+    href: "/hub",
     description: "Principais links do site e canais da clínica",
   },
 ];
@@ -44,12 +44,12 @@ export const homeSections: NavLink[] = [
   {
     label: "Cuidado",
     href: "/#cuidado",
-    description: "Quatro frentes de atendimento",
+    description: "Etapas da jornada clínica",
   },
   {
     label: "Avaliação",
-    href: "/#avaliacao",
-    description: "Como funciona a primeira consulta",
+    href: "/#cuidado",
+    description: "Etapas da primeira consulta",
   },
   {
     label: "Método Grape",
@@ -59,7 +59,7 @@ export const homeSections: NavLink[] = [
   {
     label: "Depoimentos",
     href: "/#reels",
-    description: "Vídeos de pacientes",
+    description: "Depoimentos em vídeo de pacientes",
   },
   {
     label: "Dúvidas",
@@ -82,20 +82,18 @@ export const menuContactLinks = [
 ] as const;
 
 export const homeCopy = {
-  heroTitle: "Cuidado médico para o corpo.",
-  heroTitleLines: ["Cuidado médico", "para o corpo."] as const,
+  heroTitle: "Saúde, performance e longevidade",
   stats: [
-    { value: "800+", label: "pacientes acompanhadas" },
+    { value: "1000+", label: "vidas transformadas" },
     { value: "1:1", label: "avaliação individual" },
     { value: "MG", label: "atendimento presencial" },
   ],
-  visualBreakTitle: "O corpo pede leitura inteira, não atalhos.",
   timelineTitle: "Primeira avaliação.",
-  founderTitle: "Escuta, estratégia e acompanhamento.",
-  galleryTitle: "A clínica por dentro.",
+  galleryTitle: "Um ecossistema de saúde premium",
+  reelsTitle: "Trajetórias reais e transformações de vida",
   testimonialsTitle: "Relatos de pacientes.",
-  faqTitle: "Dúvidas frequentes.",
-  ctaTitle: "Comece por uma avaliação individual.",
+  faqTitle: "Principais dúvidas antes da primeira avaliação.",
+  ctaTitle: "Comece com uma leitura individual do seu momento.",
   cta: "Solicitar avaliação",
 };
 
@@ -122,52 +120,51 @@ export const methodSteps = [
 
 export const grapeMethodCopy = {
   eyebrow: "Método Grape",
-  title: "Sete frentes de leitura para cuidar do corpo de forma integral.",
-  description:
-    "Cada pilar entra na avaliação e no plano individual. Nada de receita pronta: a estratégia evolui com você, conforme exames, rotina e resposta do corpo.",
+  title: "Conheça os 7 pilares de acompanhamento do método",
+  description: "",
 };
 
 export const grapeMethodSteps = [
   {
-    title: "Hormônios",
-    text: "Metabolismo, energia, composição corporal e resposta ao plano passam por uma leitura hormonal cuidadosa.",
+    title: "Hormônio",
+    text: "O equilíbrio hormonal é a base fundamental da vitalidade, do humor, da libido e da composição corporal. Realizamos uma avaliação minuciosa para ajustar cada detalhe, garantindo que todo o seu sistema funcione em harmonia.",
     src: clinicPhotos.hormoneBalance,
     variant: "muted" as const,
   },
   {
-    title: "Inflamação",
-    text: "Processos inflamatórios que atrapalham a evolução são identificados e tratados com critério clínico.",
-    src: clinicPhotos.antiInflammatoryNutrition,
+    title: "Metabolismo",
+    text: "Investigamos profundamente os fatores que podem estar travando o seu metabolismo e impedindo resultados. A velocidade, a eficiência e a resposta biológica ao tratamento dependem diretamente desta leitura técnica.",
+    src: clinicPhotos.metabolicHealthExam,
     variant: "secondary" as const,
   },
   {
-    title: "Músculo",
-    text: "Massa magra entra na estratégia como parte do cuidado com corpo, força e metabolismo.",
-    src: clinicPhotos.muscleStrength,
+    title: "Inflamação",
+    text: "A inflamação crônica e silenciosa é a causa oculta por trás do cansaço constante e da dificuldade em emagrecer. Através do nosso método, identificamos esses processos e tratamos a causa para evitar o envelhecimento precoce.",
+    src: clinicPhotos.antiInflammatoryNutrition,
     variant: "primary" as const,
   },
   {
-    title: "Intestino",
-    text: "Equilíbrio digestivo e absorção de nutrientes compõem a base do cuidado metabólico.",
-    src: clinicPhotos.gutHealth,
+    title: "Saúde Muscular",
+    text: "Massa muscular não é uma questão apenas estética, mas um pilar essencial para a longevidade e autonomia. Monitoramos e protegemos sua musculatura para garantir um metabolismo ativo e um envelhecimento saudável.",
+    src: clinicPhotos.muscleStrength,
     variant: "muted" as const,
   },
   {
-    title: "Nutrientes",
-    text: "Alimentação e suplementação são indicados com base clínica, não por tendência ou moda.",
-    src: clinicPhotos.clinicalNutritionPlate,
+    title: "Intestino",
+    text: "A saúde intestinal impacta diretamente na sua imunidade, no humor e na capacidade de absorção de nutrientes. Uma microbiota em total equilíbrio é capaz de transformar completamente a sua resposta a qualquer tratamento.",
+    src: clinicPhotos.gutHealth,
     variant: "secondary" as const,
   },
   {
-    title: "Estilo de vida",
-    text: "Sono, rotina, estresse e movimento entram no plano de forma praticável e sustentável.",
-    src: clinicPhotos.healthyLifestyle,
+    title: "Nutrientes",
+    text: "Deficiências nutricionais silenciosas podem comprometer seriamente a sua energia, o sono e a performance cognitiva. Identificamos e corrigimos cada carência com precisão médica para otimizar o funcionamento do seu corpo.",
+    src: clinicPhotos.clinicalNutritionPlate,
     variant: "primary" as const,
   },
   {
-    title: "Medicamentos",
-    text: "Recursos medicamentosos entram quando indicados, com monitoramento e segurança ao longo do percurso.",
-    src: clinicPhotos.medicationConsultation,
+    title: "Estilo de Vida",
+    text: "Fatores como o sono, o estresse e a rotina diária moldam a sua biologia tanto quanto qualquer medicamento. Por isso, integramos esses elementos comportamentais ao seu protocolo individual de forma personalizada.",
+    src: clinicPhotos.healthyLifestyle,
     variant: "muted" as const,
   },
 ] as const;
@@ -184,14 +181,12 @@ export const faqs = [
       "Não necessariamente. Antes de indicar qualquer caminho, a equipe avalia histórico, exames, rotina, objetivos e segurança.",
   },
   {
-    question: "Preciso iniciar com exercicios intensos?",
-    answer:
-      "Não necessariamente. A proposta é construir uma estratégia possível para a sua rotina, com ajustes ao longo do processo.",
+    question: "Preciso iniciar com exercícios intensos?",
+    answer: "Não necessariamente. A proposta é construir uma estratégia possível para a sua rotina, com ajustes ao longo do processo.",
   },
   {
     question: "Preciso seguir uma dieta restritiva?",
-    answer:
-      "A estratégia busca ser praticável, não extrema. O foco é orientar escolhas, quantidades e constância sem transformar cuidado em sofrimento.",
+    answer: "A estratégia busca ser praticável, não extrema. O foco é orientar escolhas, quantidades e constância sem transformar cuidado em sofrimento.",
   },
   {
     question: "Como funciona o acompanhamento?",
@@ -205,38 +200,56 @@ export const faqs = [
   },
 ];
 
-export const testimonials = [
-  {
-    quote:
-      "Cheguei ao meu grande dia mais confiante, sem sentir que estava sozinha.",
-    name: "Ana Silva",
-    photoSrc: previewPhoto(0),
-  },
-  {
-    quote: "Entendi o que mudar na rotina e parei de recomeçar toda semana.",
-    name: "Vanessa Duarte",
-    photoSrc: previewPhoto(1),
-  },
-  {
-    quote: "O acompanhamento trouxe segurança para cuidar do corpo com calma.",
-    name: "Livia Rodrigues",
-    photoSrc: previewPhoto(2),
-  },
-  {
-    quote: "Um plano que cabia na minha vida, sem dieta extrema.",
-    name: "Camila Nunes",
-    photoSrc: previewPhoto(3),
-  },
-  {
-    quote: "Cuidado real, com ajustes e escuta.",
-    name: "Juliana Moraes",
-    photoSrc: previewPhoto(4),
-  },
-] as const;
+
+export type ProfileTextSegment = {
+  text: string;
+  emphasis?: boolean;
+};
 
 export const doctorProfile = {
-  name: "Dra. Marcela Ferreira",
+  name: "Dra. Marcela Ferreira de Oliveira",
+  crm: "55051",
+  crmRegion: "MG",
+  rqe: "33744",
+  primarySpecialty: "Ginecologia e Obstetrícia",
   title:
     "Acompanhamento médico para mulheres que desejam cuidar do corpo com critério, estratégia e proximidade.",
-  note: "Anos de prática clínica unindo ciência, avaliação individual e acompanhamento próximo.",
+  credentialsSegments: [
+    { text: "Médica, " },
+    { text: "ginecologista e obstetra", emphasis: true },
+    { text: ". Pós-graduada em " },
+    { text: "Nutrologia", emphasis: true },
+    { text: ", " },
+    { text: "Nutriendocrinologia", emphasis: true },
+    { text: " e " },
+    { text: "Ciências da Obesidade e Sarcopenia", emphasis: true },
+    { text: "." },
+  ] satisfies ProfileTextSegment[],
+  personalStorySegments: [
+    { text: "Em " },
+    { text: "2022", emphasis: true },
+    { text: ", após minha gestação, enfrentei obesidade no pós-parto — e foi esse momento que deu origem ao " },
+    { text: "Método Grape", emphasis: true },
+    { text: ". Porque emagrecer não bastava: era preciso entender o corpo por inteiro." },
+  ] satisfies ProfileTextSegment[],
+  specialties: [
+    "Ginecologia e Obstetrícia",
+    "Nutrologia",
+    "Terapias Hormonais",
+    "Medicina Regenerativa",
+  ] as const,
+  complementaryRole: "Mentora de Médicos",
+  founderRole: "Fundadora do ecossistema Grape",
 };
+
+export function formatDoctorCrmLabel(crm: string, region = doctorProfile.crmRegion) {
+  return `CRM/${region} ${crm}`;
+}
+
+export function formatDoctorRegistrationLabel(
+  crm = doctorProfile.crm,
+  region = doctorProfile.crmRegion,
+  rqe = doctorProfile.rqe,
+) {
+  return `CRM/${region}: ${crm} - RQE Nº: ${rqe}`;
+}

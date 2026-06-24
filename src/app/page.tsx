@@ -11,7 +11,7 @@ import {
 } from "@/lib/seo";
 
 export const metadata: Metadata = createPageMetadata({
-  title: "Clínica de emagrecimento médico e estética em Pouso Alegre",
+  title: "Saúde, performance e longevidade em Pouso Alegre",
   description: siteConfig.description,
   path: "/",
 });
@@ -20,7 +20,8 @@ export default function Home() {
   return (
     <>
       <JsonLd
-        data={[websiteJsonLd(), medicalClinicJsonLd(), faqJsonLd(faqs.slice(0, 5))]}
+        id="home-json-ld"
+        data={[websiteJsonLd(), medicalClinicJsonLd(), faqJsonLd(faqs)]}
       />
       <PremiumHome />
     </>

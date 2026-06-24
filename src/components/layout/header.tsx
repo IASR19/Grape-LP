@@ -329,17 +329,17 @@ export function Header() {
                   "py-4 sm:py-6 lg:py-7",
                 )}
               >
-                <div className="flex shrink-0 items-center justify-between gap-4">
+                <div className="flex shrink-0 items-center justify-between gap-3 sm:gap-4">
                   <Link href="/" onClick={closeMenu} aria-label="Grape Clinic início">
                     <BrandLogo width={150} height={48} className="w-[7.5rem] sm:w-32" />
                   </Link>
-                  <div className="flex items-center gap-2">
-                    <ThemeToggle className="border-border/70 bg-card/80" />
+                  <div className="flex min-w-0 items-center gap-2">
                     <HeaderEvaluationCta
                       mobileVisible
                       onNavigate={closeMenu}
                       className="max-[420px]:hidden"
                     />
+                    <ThemeToggle className="border-border/70 bg-card/80" />
                     <button
                       type="button"
                       aria-label="Fechar menu"
@@ -352,9 +352,12 @@ export function Header() {
                   </div>
                 </div>
 
-                <div className="mt-4 grid shrink-0 grid-cols-[1fr_auto] items-center gap-2 rounded-xl border border-border bg-card/70 p-2 min-[421px]:hidden">
-                  <HeaderEvaluationCta mobileVisible onNavigate={closeMenu} />
-                  <ThemeToggle className="border-border/70 bg-background" />
+                <div className="mt-3 shrink-0 min-[421px]:hidden">
+                  <HeaderEvaluationCta
+                    mobileVisible
+                    onNavigate={closeMenu}
+                    className="w-full justify-center"
+                  />
                 </div>
 
                 <div className="mt-5 min-h-0 flex-1 overflow-y-auto overscroll-contain sm:mt-6 lg:mt-7">
@@ -470,7 +473,7 @@ export function Header() {
         >
           <div className="flex min-w-0 items-center gap-8 lg:gap-10">
             <Link href="/" aria-label="Grape Clinic início" onClick={() => setOpen(false)}>
-              <BrandLogo priority width={170} height={52} className="w-36" lockLight={inHero} />
+              <BrandLogo priority width={170} height={52} className="w-[7.5rem] sm:w-36" lockLight={inHero} />
             </Link>
 
             <nav
@@ -494,13 +497,13 @@ export function Header() {
             </nav>
           </div>
 
-          <div className="flex items-center gap-1.5 sm:gap-2.5">
+          <div className="flex items-center gap-1 sm:gap-2.5">
             <ThemeToggle
               className={cn(
+                "header-glass-btn hidden sm:grid",
                 inHero
-                  ? "border-white/18 bg-white/[0.08] text-white hover:bg-white/[0.13]"
-                  : "border-border/70 bg-background/76 text-foreground hover:bg-background",
-                "backdrop-blur-xl",
+                  ? "header-glass-btn--hero border-white/26 bg-white/[0.16] text-white hover:bg-white/[0.22]"
+                  : "header-glass-btn--default border-border/80 bg-background/80 text-foreground hover:bg-background/92",
               )}
             />
             <HeaderEvaluationCta inHero={inHero} onNavigate={() => setOpen(false)} />
@@ -512,10 +515,10 @@ export function Header() {
               aria-label={open ? "Fechar menu" : "Abrir menu"}
               onClick={toggleMenu}
               className={cn(
-                "inline-flex h-11 items-center gap-3 rounded-full px-4 text-sm font-semibold motion-safe:transition-[background-color,border-color,color,box-shadow] motion-safe:duration-500 sm:gap-4 sm:px-5",
+                "header-glass-btn inline-flex h-11 items-center gap-2 rounded-full px-3.5 text-sm font-semibold motion-safe:transition-[background-color,border-color,color] motion-safe:duration-500 sm:gap-4 sm:px-5",
                 inHero
-                  ? "border border-white/20 bg-white/[0.09] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-xl hover:bg-white/[0.13]"
-                  : "border border-border/80 bg-background/82 text-foreground shadow-[inset_0_1px_0_color-mix(in_oklch,var(--background)_82%,transparent)] backdrop-blur-xl hover:border-primary/20 hover:bg-background",
+                  ? "header-glass-btn--hero border border-white/26 bg-white/[0.16] text-white hover:bg-white/[0.22]"
+                  : "header-glass-btn--default border border-border/80 bg-background/80 text-foreground hover:border-primary/20 hover:bg-background/92",
               )}
               style={{ transitionTimingFunction: MOTION.easeCss }}
             >

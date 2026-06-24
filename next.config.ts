@@ -7,8 +7,8 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
-        source: "/hub",
-        destination: "/link-bio",
+        source: "/link-bio",
+        destination: "/hub",
         permanent: true,
       },
     ];

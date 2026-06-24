@@ -20,7 +20,7 @@ const variants: Record<MockImageVariant, string> = {
 };
 
 export function MockImage({
-  label = "Imagem provisoria",
+  label = "Imagem provisória",
   variant = "muted",
   src,
   sizes = "100vw",

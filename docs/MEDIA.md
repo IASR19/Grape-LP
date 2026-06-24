@@ -15,8 +15,10 @@ public/images/
 │   ├── spaces/
 │   ├── sections/
 │   ├── services/
+│   ├── journey/
 │   ├── evaluation/
-│   └── method/
+│   ├── method/
+│   └── reels/
 └── opt/              # Versões web (servidas pelo site)
     ├── hero/
     ├── spaces/
@@ -30,9 +32,19 @@ public/images/
 | `hero` | Fundos full-screen da home e Hub |
 | `spaces` | Ambientes da clínica, galeria, fundos CTA |
 | `sections` | Fundos editoriais (parallax, visual break) |
-| `services` | Cards «Quatro frentes de cuidado» (`#cuidado`) |
-| `evaluation` | Passos da avaliação (`#avaliacao`) |
+| `services` | Cards legados (não usados na jornada atual) |
+| `journey` | Etapas da Jornada — `diagnostico`, `implementacao`, `monitoramento`, `consolidacao` (`#cuidado`) |
+| `evaluation` | Passos legados da avaliação (formulário antigo) |
 | `method` | Pilares do Método Grape (`#experiencia`) |
+| `reels` | Posters dos depoimentos em vídeo (`#reels`) — substituir `placeholder.jpg` quando houver foto dedicada por reel |
+
+### Posters de reels
+
+1. Adicionar o master em `public/images/sources/reels/{nome}.jpg` (ou apontar entrada em `optimize-images.config.mjs`).
+2. Rodar `npm run optimize:images`.
+3. Atualizar o terceiro argumento de `youtubeTestimonial()` em [`src/content/media.ts`](../src/content/media.ts).
+
+Enquanto as fotos finais não chegam, todos os reels usam `reels/placeholder.jpg`.
 
 ### Perfis de compressão
 

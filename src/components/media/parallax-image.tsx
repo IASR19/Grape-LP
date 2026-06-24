@@ -30,6 +30,10 @@ type ParallaxImageProps = {
   /** Largura estimada do slot (ex.: coluna estreita de card ≈ 320px). */
   sizes?: string;
   overlayClassName?: string;
+  /** Zoom leve no scroll. Desligue para capas editoriais (ex.: reels). */
+  zoom?: boolean;
+  /** contained = menos overscan — ideal para capas 9:16 em cards. */
+  layerDepth?: "default" | "contained";
 };
 
 export function ParallaxImage({
@@ -44,6 +48,8 @@ export function ParallaxImage({
   triggerRef,
   overlayClassName,
   sizes = "100vw",
+  zoom = true,
+  layerDepth = "default",
 }: ParallaxImageProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const layerRef = useRef<HTMLDivElement>(null);
@@ -59,6 +65,13 @@ export function ParallaxImage({
     const layer = layerRef.current;
 
     if (!container || !layer) {
+      return;
+    }
+
+    const isTouchLayout =
+      window.matchMedia("(max-width: 1023px), (hover: none) and (pointer: coarse)").matches;
+
+    if (isTouchLayout) {
       return;
     }
 
@@ -132,7 +145,9 @@ export function ParallaxImage({
   }, [mode, prefersReducedMotion, speed, triggerRef]);
 
   const layerClasses = cn(
-    "absolute inset-x-0 top-[-26%] h-[152%] w-full will-change-transform",
+    layerDepth === "contained"
+      ? "absolute inset-x-0 top-[-12%] h-[124%] w-full motion-safe:will-change-transform"
+      : "absolute inset-x-0 top-[-26%] h-[152%] w-full motion-safe:will-change-transform",
     !prefersReducedMotion && mode === "scroll" && "motion-reduce:top-0 motion-reduce:h-full",
     mode === "fixed" && !prefersReducedMotion && "inset-0 top-0 h-full",
     "relative",
@@ -149,7 +164,7 @@ export function ParallaxImage({
           sizes={sizes}
           className={cn(
             "object-cover object-center min-h-full min-w-full",
-            !prefersReducedMotion && mode === "scroll" && "scale-110",
+            !prefersReducedMotion && mode === "scroll" && zoom && "scale-105",
             imageClassName,
           )}
         />

@@ -20,7 +20,7 @@ export const metadata: Metadata = createPageMetadata({
 export default function HubPage() {
   return (
     <>
-      <JsonLd data={hubWebPageJsonLd()} />
+      <JsonLd id="hub-json-ld" data={hubWebPageJsonLd()} />
       <LinkBioBento />
     </>
   );

@@ -17,8 +17,8 @@ type LiquidGlassSurfaceProps<T extends ElementType = "div"> = {
 
 const variantClass: Record<LiquidGlassVariant, string> = {
   featured: "liquid-glass-featured text-foreground",
-  list: "liquid-glass-list text-primary-foreground",
-  listActive: "liquid-glass-list-active text-primary",
+  list: "liquid-glass-list text-foreground",
+  listActive: "liquid-glass-list-active text-foreground",
 };
 
 export function LiquidGlassSurface<T extends ElementType = "div">({

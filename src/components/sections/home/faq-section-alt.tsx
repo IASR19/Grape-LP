@@ -1,25 +1,32 @@
 "use client";
 
 import { FaqAccordion } from "@/components/interaction/faq-accordion";
+import { AnimatedHeading } from "@/components/motion/animated-heading";
 import { Reveal } from "@/components/motion/reveal";
 import { PageSection } from "@/components/sections/section-shell";
-import { faqs } from "@/content/site";
+import { faqs, homeCopy } from "@/content/site";
+import { layout } from "@/lib/layout";
+import { type } from "@/lib/typography";
+import { cn } from "@/lib/utils";
 
 export function FaqSectionAlt() {
   return (
     <PageSection
       id="duvidas"
-      className="bg-transparent pb-8 pt-24 sm:pb-10 sm:pt-32 lg:pb-12 lg:pt-36"
-      containerClassName="grid gap-12 lg:grid-cols-[0.82fr_1.18fr] lg:items-start"
+      className={cn("bg-transparent", layout.sectionBandStart)}
+      containerClassName="grid gap-10 lg:grid-cols-[0.78fr_1.22fr] lg:items-start lg:gap-18"
     >
-      <Reveal preset="fadeUp" className="lg:sticky lg:top-28">
-        <h2 className="text-balance font-sans text-4xl font-medium leading-[1.12] sm:text-5xl">
-          Dúvidas antes da avaliação.
-        </h2>
-        <p className="mt-4 max-w-md text-pretty text-base leading-7 text-muted-foreground">
-          Respostas curtas para decidir se faz sentido conversar com a equipe.
-        </p>
-      </Reveal>
+      <div className={cn("mb-0 max-w-md lg:sticky", layout.stickyAside)}>
+        <AnimatedHeading
+          text={homeCopy.faqTitle}
+          className={cn("max-w-md", type.sectionSub)}
+        />
+        <Reveal preset="fadeUp" delay={0.08}>
+          <p className={cn("max-w-md", type.body, layout.proseAfterHeading)}>
+            Respostas curtas para decidir se faz sentido conversar com a equipe.
+          </p>
+        </Reveal>
+      </div>
       <FaqAccordion items={faqs.slice(0, 5)} animated />
     </PageSection>
   );

@@ -18,9 +18,9 @@ function isIntroBlocking() {
   );
 }
 
-function readInitialReady(prefersReducedMotion: boolean) {
-  if (prefersReducedMotion) return true;
-  return !isIntroBlocking();
+/** Valor inicial idêntico no SSR e na hidratação; resolvido no useEffect. */
+function readInitialReady() {
+  return false;
 }
 
 export function dispatchSiteIntroReady() {
@@ -30,7 +30,7 @@ export function dispatchSiteIntroReady() {
 
 export function useSiteIntroReady() {
   const prefersReducedMotion = usePrefersReducedMotion();
-  const [ready, setReady] = useState(() => readInitialReady(prefersReducedMotion));
+  const [ready, setReady] = useState(readInitialReady);
 
   useEffect(() => {
     let timeoutId: number | undefined;

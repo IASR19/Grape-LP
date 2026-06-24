@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import {
   Camera,
   MapPin,
@@ -9,30 +8,54 @@ import {
   Star,
   Stethoscope,
 } from "lucide-react";
+import { motion, useReducedMotion } from "motion/react";
+import { useEffect, useState, type ReactNode } from "react";
 
+import { HomeSectionLink } from "@/components/navigation/home-section-link";
 import { ParallaxImage } from "@/components/media/parallax-image";
-import { Reveal, RevealItem, StaggerReveal } from "@/components/motion/reveal";
 import { ExternalArrow } from "@/components/ui/external-arrow";
 import { mediaAssets } from "@/content/media";
 import { siteConfig } from "@/content/site";
+import { useSiteIntroReady } from "@/hooks/use-site-intro-ready";
 import { layout } from "@/lib/layout";
-import { MOTION } from "@/lib/motion";
+import {
+  MOTION,
+  heroCta,
+  heroEyebrow,
+  heroLine,
+  heroStat,
+  hubPanelShell,
+  hubPanelShellReturn,
+  hubCardItem,
+  hubCardsStagger,
+  staggerContainerFast,
+  staggerItem,
+} from "@/lib/motion";
 import { cn } from "@/lib/utils";
+
+const hubTitleLines = ["Estética avançada", "com olhar médico."] as const;
+const hubTitleClass =
+  "font-serif text-[clamp(1.4375rem,5.2vw,1.6rem)] font-normal leading-[1.12] text-balance text-foreground max-lg:tracking-normal sm:text-[clamp(1.5625rem,5.5vw,2.65rem)] sm:leading-[1.1] lg:leading-[1.08]";
+
+function readFastEntrance() {
+  if (typeof document === "undefined") return true;
+  return !document.documentElement.hasAttribute("data-site-intro-pending");
+}
 
 const columns = [
   {
     featured: {
       title: "Conheça a clínica",
-      description: "Ambiente, método e presença em Pouso Alegre.",
-      href: "/",
+      description: "Ambiente, acolhimento e estrutura em Pouso Alegre.",
+      href: "/#galeria",
       image: mediaAssets.linkBio.institucional,
-      label: "Institucional",
+      label: "Galeria",
       icon: Sparkles,
     },
     support: [
       {
         title: "Depoimentos em vídeo",
-        description: "Histórias de pacientes",
+        description: "Reels e histórias de pacientes",
         href: "/#reels",
         icon: Star,
         tone: "dark" as const,
@@ -50,11 +73,11 @@ const columns = [
   },
   {
     featured: {
-      title: "Tratamentos",
-      description: "Emagrecimento, estética e saúde metabólica.",
-      href: "/#cuidado",
+      title: "Método Grape",
+      description: "Leitura clínica, protocolo e acompanhamento individual.",
+      href: "/#metodo",
       image: mediaAssets.linkBio.protocolo,
-      label: "Especialidades",
+      label: "Tratamentos",
       icon: Stethoscope,
     },
     support: [
@@ -87,6 +110,37 @@ const mobileSupportLinks = columns.flatMap((column) =>
 );
 
 export function LinkBioBento() {
+  const prefersReducedMotion = useReducedMotion() ?? false;
+  const entranceReady = useSiteIntroReady();
+  const [fastEntrance] = useState(() => readFastEntrance());
+  const [introComplete, setIntroComplete] = useState(prefersReducedMotion);
+
+  const animateState = entranceReady && !prefersReducedMotion ? "show" : "hidden";
+  const panelVariants = fastEntrance ? hubPanelShellReturn : hubPanelShell;
+  const cardsAnimateState =
+    prefersReducedMotion || (introComplete && animateState === "show") ? "show" : "hidden";
+
+  useEffect(() => {
+    if (prefersReducedMotion) return;
+
+    if (animateState === "hidden") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- reset ao esconder painel
+      setIntroComplete(false);
+      return;
+    }
+
+    const fallbackMs = fastEntrance ? 1050 : 1450;
+    const timeoutId = window.setTimeout(() => setIntroComplete(true), fallbackMs);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [animateState, fastEntrance, prefersReducedMotion]);
+
+  useEffect(() => {
+    if (!prefersReducedMotion) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- modo reduzido sem animação
+    setIntroComplete(true);
+  }, [prefersReducedMotion]);
+
   return (
     <section className="relative isolate flex min-h-0 w-full max-w-[100vw] flex-1 flex-col overflow-hidden max-lg:h-full lg:h-full">
       <div className="pointer-events-none absolute inset-0" aria-hidden>
@@ -114,27 +168,47 @@ export function LinkBioBento() {
             "lg:h-full lg:min-h-0 lg:grid lg:grid-cols-[minmax(18rem,0.62fr)_minmax(0,1.38fr)] lg:gap-5",
           )}
         >
-          <LinkBioIntroPanel />
+          <LinkBioIntroPanel
+            animateState={animateState}
+            panelVariants={panelVariants}
+            prefersReducedMotion={prefersReducedMotion}
+            onIntroComplete={() => setIntroComplete(true)}
+          />
 
-          <div className="grid w-full min-h-0 flex-1 grid-cols-2 grid-rows-[minmax(0,1fr)_auto] gap-2.5 sm:gap-3 lg:hidden">
+          <HubCardsGrid
+            animateState={cardsAnimateState}
+            prefersReducedMotion={prefersReducedMotion}
+            className="grid w-full min-h-0 flex-1 grid-cols-2 grid-rows-[minmax(0,1fr)_auto] gap-2.5 sm:gap-3 lg:hidden"
+          >
             {columns.map((column) => (
-              <FeaturedBioCard
+              <motion.div
                 key={column.featured.title}
-                item={column.featured}
-                density="mobile"
+                variants={prefersReducedMotion ? undefined : hubCardItem}
                 className="h-full min-h-0"
-              />
+              >
+                <FeaturedBioCard
+                  item={column.featured}
+                  density="mobile"
+                  className="h-full min-h-0"
+                />
+              </motion.div>
             ))}
             {mobileSupportLinks.map((item) => (
-              <SupportBioCard key={item.title} item={item} density="mobile" />
+              <motion.div key={item.title} variants={prefersReducedMotion ? undefined : hubCardItem}>
+                <SupportBioCard item={item} density="mobile" />
+              </motion.div>
             ))}
-          </div>
+          </HubCardsGrid>
 
-          {/* Desktop: bento completo com todos os cards e copy */}
-          <StaggerReveal className="hidden min-h-0 min-w-0 grid-cols-2 gap-3 lg:grid lg:h-full">
+          <HubCardsGrid
+            animateState={cardsAnimateState}
+            prefersReducedMotion={prefersReducedMotion}
+            className="hidden min-h-0 min-w-0 grid-cols-2 gap-3 lg:grid lg:h-full"
+          >
             {columns.map((column) => (
-              <RevealItem
+              <motion.div
                 key={column.featured.title}
+                variants={prefersReducedMotion ? undefined : hubCardItem}
                 className="flex min-h-0 min-w-0 flex-col gap-3"
               >
                 <FeaturedBioCard
@@ -145,53 +219,110 @@ export function LinkBioBento() {
                 {column.support.map((item) => (
                   <SupportBioCard key={item.title} item={item} density="desktop" />
                 ))}
-              </RevealItem>
+              </motion.div>
             ))}
-          </StaggerReveal>
+          </HubCardsGrid>
         </div>
       </div>
     </section>
   );
 }
 
-function LinkBioIntroPanel() {
+function HubCardsGrid({
+  animateState,
+  prefersReducedMotion,
+  className,
+  children,
+}: {
+  animateState: "hidden" | "show";
+  prefersReducedMotion: boolean;
+  className?: string;
+  children: ReactNode;
+}) {
   return (
-    <Reveal
-      preset="fadeIn"
-      className="flex shrink-0 flex-col gap-3 rounded-2xl border border-border/70 bg-background/88 p-4 backdrop-blur-xl max-lg:gap-3 sm:max-lg:gap-3.5 lg:h-full lg:justify-between lg:gap-5 lg:p-6"
+    <motion.div
+      className={className}
+      variants={prefersReducedMotion ? undefined : hubCardsStagger}
+      initial={prefersReducedMotion ? false : "hidden"}
+      animate={prefersReducedMotion ? undefined : animateState}
     >
-      <div className="min-w-0 space-y-3 lg:space-y-0">
-        <p className="hidden items-center gap-1.5 text-xs font-medium text-muted-foreground lg:inline-flex">
-          <MapPin className="size-3.5 shrink-0 text-primary" aria-hidden />
-          {siteConfig.city}
-        </p>
+      {children}
+    </motion.div>
+  );
+}
 
-        <div className="lg:mt-3">
-          <h1 className="font-serif text-[clamp(1.5625rem,5.5vw,2.65rem)] font-normal leading-[1.1] text-balance text-foreground max-lg:tracking-normal lg:leading-[1.08]">
-            Estética avançada com olhar médico.
-          </h1>
+function LinkBioIntroPanel({
+  animateState,
+  panelVariants,
+  prefersReducedMotion,
+  onIntroComplete,
+}: {
+  animateState: "hidden" | "show";
+  panelVariants: typeof hubPanelShell;
+  prefersReducedMotion: boolean;
+  onIntroComplete: () => void;
+}) {
+  return (
+    <motion.div
+      variants={prefersReducedMotion ? undefined : panelVariants}
+      initial={prefersReducedMotion ? false : "hidden"}
+      animate={prefersReducedMotion ? undefined : animateState}
+      className="flex shrink-0 flex-col gap-3 overflow-hidden rounded-2xl border border-border/70 bg-background/88 p-4 backdrop-blur-xl max-lg:gap-3 sm:max-lg:gap-3.5 lg:h-full lg:justify-between lg:gap-5 lg:p-6"
+    >
+      <motion.p
+        variants={prefersReducedMotion ? undefined : heroEyebrow}
+        className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground"
+      >
+        <MapPin className="size-3.5 shrink-0 text-primary" aria-hidden />
+        {siteConfig.city}
+      </motion.p>
 
-          <p className="mt-2.5 max-w-none text-pretty text-sm leading-6 text-muted-foreground sm:mt-3 lg:mt-4 lg:max-w-[32ch] lg:text-[0.9375rem] lg:leading-7">
-            Tecnologia, avaliação individual e acompanhamento próximo em Pouso Alegre.
-          </p>
-        </div>
-      </div>
+      <motion.h1
+        variants={prefersReducedMotion ? undefined : heroLine}
+        className={hubTitleClass}
+      >
+        {hubTitleLines.map((line) => (
+          <span key={line} className="block">
+            {line}
+          </span>
+        ))}
+      </motion.h1>
 
-      <div className="grid grid-cols-3 divide-x divide-border/80 rounded-xl border border-border/70 bg-card/40">
+      <motion.p
+        variants={prefersReducedMotion ? undefined : staggerItem}
+        className="max-w-none text-pretty text-[0.8125rem] leading-[1.55] text-muted-foreground sm:text-sm sm:leading-6 lg:max-w-[32ch] lg:text-[0.9375rem] lg:leading-7"
+      >
+        Tecnologia, avaliação individual e acompanhamento próximo em Pouso Alegre.
+      </motion.p>
+
+      <motion.div
+        variants={prefersReducedMotion ? undefined : staggerContainerFast}
+        className="grid grid-cols-3 divide-x divide-border/80 rounded-xl border border-border/70 bg-card/40"
+      >
         {proofPoints.map((item) => (
-          <div key={item.label} className="min-w-0 px-2 py-3 text-center lg:px-3 lg:py-4">
+          <motion.div
+            key={item.label}
+            variants={prefersReducedMotion ? undefined : heroStat}
+            className="min-w-0 px-2 py-3 text-center lg:px-3 lg:py-4"
+          >
             <p className="text-[0.9375rem] font-semibold leading-none tabular-nums text-foreground lg:text-lg">
               {item.value}
             </p>
             <p className="mt-1.5 text-[0.6875rem] leading-4 text-muted-foreground lg:mt-2 lg:text-xs lg:leading-4">
               {item.label}
             </p>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
-      <div className="shrink-0">
-        <Link
+      <motion.div
+        variants={prefersReducedMotion ? undefined : heroCta}
+        className="shrink-0"
+        onAnimationComplete={
+          prefersReducedMotion || animateState !== "show" ? undefined : onIntroComplete
+        }
+      >
+        <HomeSectionLink
           href={siteConfig.evaluationFormHref}
           className="group relative flex min-h-[3.625rem] items-center overflow-hidden rounded-2xl bg-primary px-4 py-3 text-primary-foreground motion-safe:transition motion-safe:duration-300 motion-safe:hover:-translate-y-0.5 lg:min-h-[5.75rem] lg:p-4"
         >
@@ -201,7 +332,7 @@ function LinkBioIntroPanel() {
           />
           <span className="relative flex w-full items-center justify-between gap-3">
             <span className="min-w-0">
-              <span className="block text-base font-medium leading-tight lg:text-[1.45rem] lg:leading-none">
+              <span className="block text-sm font-medium leading-tight sm:text-base lg:text-[1.45rem] lg:leading-none">
                 Solicitar avaliação
               </span>
               <span className="mt-1 hidden text-sm leading-5 text-primary-foreground/76 lg:mt-2 lg:block">
@@ -212,9 +343,9 @@ function LinkBioIntroPanel() {
               <ExternalArrow />
             </span>
           </span>
-        </Link>
-      </div>
-    </Reveal>
+        </HomeSectionLink>
+      </motion.div>
+    </motion.div>
   );
 }
 
@@ -235,7 +366,7 @@ function FeaturedBioCard({
   const isMobile = density === "mobile";
 
   return (
-    <Link
+    <HomeSectionLink
       href={item.href}
       className={cn(
         "group relative flex min-h-0 overflow-hidden rounded-2xl bg-primary text-white",
@@ -300,7 +431,7 @@ function FeaturedBioCard({
           ) : null}
         </div>
       </div>
-    </Link>
+    </HomeSectionLink>
   );
 }
 
@@ -382,8 +513,8 @@ function SupportBioCard({
   }
 
   return (
-    <Link href={item.href} className={className}>
+    <HomeSectionLink href={item.href} className={className}>
       {content}
-    </Link>
+    </HomeSectionLink>
   );
 }

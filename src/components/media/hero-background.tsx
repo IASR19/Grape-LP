@@ -112,13 +112,16 @@ export function HeroBackground({
 
     if (!trigger || !fixedBg || !layer) return;
 
+    const isTouchLayout =
+      window.matchMedia("(max-width: 1023px), (hover: none) and (pointer: coarse)").matches;
+
     const ctx = gsap.context(() => {
       const scrollConfig = {
         trigger,
         scroller: scrollTriggerScroller(),
         start: "top top",
         end: "bottom top",
-        scrub: 0.55,
+        scrub: isTouchLayout ? 0.35 : 0.55,
       };
 
       gsap.fromTo(
@@ -127,13 +130,11 @@ export function HeroBackground({
           scale: 1,
           scaleX: 1,
           yPercent: 0,
-          filter: "brightness(1) blur(0px)",
         },
         {
-          scale: 1 + speed * 2.35,
-          scaleX: 1 + speed * 3.15,
-          yPercent: -14,
-          filter: "brightness(1.18) blur(3px)",
+          scale: 1 + speed * (isTouchLayout ? 0.85 : 1.55),
+          scaleX: isTouchLayout ? 1 : 1 + speed * 2.05,
+          yPercent: isTouchLayout ? -4 : -10,
           ease: "none",
           scrollTrigger: scrollConfig,
         },
@@ -229,7 +230,7 @@ export function HeroBackground({
         loop
         muted
         playsInline
-        preload="auto"
+        preload="metadata"
         tabIndex={-1}
         disablePictureInPicture
         controls={false}
@@ -262,7 +263,7 @@ export function HeroBackground({
   const layer = (
     <div
       ref={layerRef}
-      className="absolute inset-0 h-full w-full origin-center will-change-[transform,filter]"
+      className="absolute inset-0 h-full w-full origin-center will-change-transform"
     >
       {mediaLayer}
     </div>

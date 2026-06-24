@@ -107,7 +107,7 @@ export default function RootLayout({
         />
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var k="grapeclinic:intro-seen:v4";if(!sessionStorage.getItem(k)){document.documentElement.setAttribute("data-site-intro-pending","");}}catch(e){}})();`,
+            __html: `(function(){try{var k="grapeclinic:intro-seen:v4";if(!sessionStorage.getItem(k)){document.documentElement.setAttribute("data-site-intro-pending","");}if("scrollRestoration" in history){history.scrollRestoration="manual";}if(!window.location.hash){window.scrollTo(0,0);document.documentElement.scrollTop=0;document.body.scrollTop=0;}}catch(e){}})();`,
           }}
         />
       </head>

@@ -38,24 +38,23 @@ A base visual da home e do link-bio está em produção e evolui com refinamento
 
 ### Home — narrativa implementada
 
-A home é uma página longa com scroll coreografado. Cada seção tem papel editorial e conversão. Ordem atual:
+A home é uma página longa com scroll coreografado. Cada seção tem papel editorial e conversão. Ordem atual (`PremiumHome`):
 
 | # | Seção | ID | Função |
 | --- | --- | --- | --- |
-| 1 | **Hero** | `#hero` | Vídeo loop da clínica em full bleed, parallax no scroll, H1 serif em duas linhas, stats de confiança e CTAs à direita |
-| 2 | **Contraste de método** | `#metodo` | Toggle "tentativas isoladas" vs "Método Grape" com GSAP ScrollTrigger |
-| 3 | **Quebra visual** | — | Frase editorial + foto imersiva (`VisualBreakSection`) |
-| 4 | **Quatro frentes de cuidado** | `#cuidado` | Grid 2×2 de cards editoriais com foto, overlay e link para WhatsApp |
-| 5 | **Primeira avaliação** | `#avaliacao` | Tabs (Escuta → Leitura clínica → Próximo passo) + painel fotográfico |
-| 6 | **Método Grape** | `#experiencia` | Sete pilares clínicos com sticky scroll e cards editoriais |
-| 7 | **Fundadora** | `#fundadora` | Declaração de autoridade da Dra. Marcela Ferreira |
-| 8 | **Depoimentos em vídeo** | `#reels` | Carrossel de reels com player inline |
-| 9 | **Histórias de pacientes** | `#historias` | Cards de prova social (sem animação de entrada nos cards) |
-| 10 | **Dúvidas + Contato** | `#duvidas` / `#contato` | FAQ com pattern da marca + formulário multi-etapas de avaliação |
+| 1 | **Hero** | `#hero` | Vídeo loop full bleed, H1, stats e CTAs |
+| 2 | **Contraste de método** | `#metodo` | Toggle "tentativas isoladas" vs "Método Grape" (GSAP ScrollTrigger) |
+| 3 | **Galeria + Jornada** | `#galeria` / `#cuidado` | Faixa com pattern — espaço da clínica e quatro etapas da jornada |
+| 4 | **Método Grape — 7 pilares** | `#experiencia` | Faixa primary sólida com sete pilares clínicos |
+| 5 | **Fundadora + Reels** | `#fundadora` / `#reels` | Faixa muted — autoridade e depoimentos em vídeo |
+| 6 | **Relatos Google** | `#historias` | Avaliações verificadas |
+| 7 | **FAQ + Contato** | `#duvidas` / `#contato` | Faixa muted — dúvidas e formulário de avaliação |
+
+**Fundo:** pattern da marca em camada única contínua; bands alternam tom default/muted.
 
 **Navegação lateral:** `HomeScrollNav` fixo à direita com âncoras das seções principais.
 
-**CTA principal:** "Solicitar avaliação" → WhatsApp ou formulário em `#contato`.
+**CTA principal:** "Solicitar avaliação" → formulário em `#contato` ou WhatsApp.
 
 ### Shell e primeira impressão
 
@@ -88,7 +87,7 @@ A home é uma página longa com scroll coreografado. Cada seção tem papel edit
 | Scroll reveals | `Reveal`, `StaggerReveal`, `RevealItem` em quase todas as seções da home |
 | Hero coreography | Variants `heroStagger` / `heroLine` gated por `useSiteIntroReady` |
 | Parallax | `ParallaxImage`, `HeroBackground` (scale, blur, fade branco no scroll) |
-| Scroll storytelling | GSAP pinned em `#experiencia`, toggle em `#metodo` |
+| Scroll storytelling | GSAP ScrollTrigger em `#metodo`; pilares em `#experiencia` |
 | Scroll suave | Lenis (desligado com `prefers-reduced-motion`) |
 
 ## Brand Personality

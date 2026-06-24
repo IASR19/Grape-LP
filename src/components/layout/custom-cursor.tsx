@@ -216,7 +216,7 @@ export function CustomCursor() {
         }}
       >
         <motion.span
-          className="absolute left-1/2 top-1/2 block size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-foreground/75 shadow-[0_0_10px_color-mix(in_oklch,var(--foreground)_8%,transparent)]"
+          className="absolute left-1/2 top-1/2 block size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-foreground/75"
           style={{
             scale: smoothDotScale,
             opacity: dotOpacity,

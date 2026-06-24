@@ -29,8 +29,8 @@ export const fadeUpShow: Variant = { opacity: 1, y: 0 };
 export const fadeUpSoftHidden: Variant = { opacity: 0, y: 16 };
 export const fadeUpSoftShow: Variant = { opacity: 1, y: 0 };
 
-export const fadeInHidden: Variant = { opacity: 0, filter: "blur(4px)" };
-export const fadeInShow: Variant = { opacity: 1, filter: "blur(0px)" };
+export const fadeInHidden: Variant = { opacity: 0, y: 12 };
+export const fadeInShow: Variant = { opacity: 1, y: 0 };
 
 export const scaleInHidden: Variant = { opacity: 0, scale: 0.96 };
 export const scaleInShow: Variant = { opacity: 1, scale: 1 };
@@ -122,12 +122,11 @@ export const heroEyebrow: Variants = {
 };
 
 export const heroLine: Variants = {
-  hidden: { opacity: 0, y: 32, filter: "blur(6px)" },
+  hidden: { opacity: 0, y: 24 },
   show: {
     opacity: 1,
     y: 0,
-    filter: "blur(0px)",
-    transition: { duration: 0.82, ease },
+    transition: { duration: 0.72, ease },
   },
 };
 
@@ -164,6 +163,70 @@ export const heroStaggerReturn: Variants = {
       staggerChildren: 0.06,
       delayChildren: 0.02,
     },
+  },
+};
+
+export const hubPanelShell: Variants = {
+  hidden: {
+    opacity: 0,
+    y: 18,
+    scale: 0.988,
+  },
+  show: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.58,
+      ease,
+      staggerChildren: 0.08,
+      delayChildren: 0.12,
+    },
+  },
+};
+
+export const hubPanelShellReturn: Variants = {
+  hidden: {
+    opacity: 0,
+    y: 14,
+    scale: 0.992,
+  },
+  show: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.48,
+      ease,
+      staggerChildren: 0.06,
+      delayChildren: 0.08,
+    },
+  },
+};
+
+/** @deprecated Use hubPanelShell */
+export const hubIntroStagger = hubPanelShell;
+
+/** @deprecated Use hubPanelShellReturn */
+export const hubIntroStaggerReturn = hubPanelShellReturn;
+
+export const hubCardsStagger: Variants = {
+  hidden: {},
+  show: {
+    transition: {
+      staggerChildren: 0.08,
+      delayChildren: 0.05,
+    },
+  },
+};
+
+export const hubCardItem: Variants = {
+  hidden: { opacity: 0, y: 16, scale: 0.985 },
+  show: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.52, ease },
   },
 };
 

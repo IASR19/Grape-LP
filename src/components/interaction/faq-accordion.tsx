@@ -36,7 +36,7 @@ function FaqAccordionItem({
   const answerId = `${baseId}-answer-${toDomId(item.question) || index}`;
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-card transition-colors duration-300 hover:border-primary/24">
+    <div className="overflow-hidden rounded-lg border border-border/78 bg-card/82 transition-[border-color,background-color] duration-300 hover:border-primary/22 hover:bg-card">
       <h3 className="m-0">
         <button
           type="button"
@@ -44,11 +44,11 @@ function FaqAccordionItem({
           aria-expanded={isOpen}
           aria-controls={answerId}
           onClick={onToggle}
-          className="flex w-full items-center gap-4 px-5 py-4 text-left transition-colors duration-300 hover:bg-muted/35"
+          className="flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors duration-300 hover:bg-muted/24 sm:gap-4 sm:px-6 sm:py-4.5"
         >
           <span
             className={cn(
-              "grid size-9 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground motion-safe:transition motion-safe:duration-300 motion-safe:ease-out",
+              "grid size-8 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground motion-safe:transition motion-safe:duration-300 motion-safe:ease-out sm:size-9",
               isOpen && "motion-safe:translate-y-0.5",
             )}
             aria-hidden
@@ -60,7 +60,7 @@ function FaqAccordionItem({
               )}
             />
           </span>
-          <span className="flex-1 text-base font-medium">{item.question}</span>
+          <span className="flex-1 text-sm font-medium leading-snug sm:text-base">{item.question}</span>
         </button>
       </h3>
       <AnimatePresence initial={false}>
@@ -76,7 +76,7 @@ function FaqAccordionItem({
             transition={{ duration: 0.38, ease: MOTION.ease }}
             className="overflow-hidden"
           >
-            <p className="px-5 pb-5 pl-[4.25rem] text-sm leading-6 text-muted-foreground">
+            <p className="px-5 pb-6 pl-[4rem] text-sm leading-[1.75] text-muted-foreground sm:px-6 sm:pl-[4.75rem]">
               {item.answer}
             </p>
           </motion.div>
@@ -109,11 +109,11 @@ export function FaqAccordion({ items, className, animated = false }: FaqAccordio
 
   if (animated) {
     return (
-      <StaggerReveal fast className={cn("grid gap-2.5", className)}>
+      <StaggerReveal fast className={cn("grid gap-3", className)}>
         {content}
       </StaggerReveal>
     );
   }
 
-  return <div className={cn("grid gap-2.5", className)}>{content}</div>;
+  return <div className={cn("grid gap-3", className)}>{content}</div>;
 }

@@ -17,11 +17,11 @@ export const MOTION = {
     intro: 3.34,
   },
   parallax: {
-    hero: 0.28,
-    narrative: 0.24,
-    break: 0.32,
-    card: 0.22,
-    default: 0.3,
+    hero: 0.22,
+    narrative: 0.18,
+    break: 0.24,
+    card: 0.18,
+    default: 0.22,
   },
   hover: {
     cardMs: 300,

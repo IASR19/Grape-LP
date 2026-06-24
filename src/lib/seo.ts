@@ -19,8 +19,10 @@ export const siteKeywords = [
   "emagrecimento médico Pouso Alegre",
   "estética corporal Pouso Alegre",
   "saúde metabólica",
+  "longevidade",
+  "performance e saúde",
   "avaliação médica individual",
-  "Dra. Marcela Ferreira",
+  "Dra. Marcela Ferreira de Oliveira",
   "clínica médica MG",
 ] as const;
 
@@ -120,7 +122,11 @@ export function medicalClinicJsonLd() {
       "@type": "City",
       name: "Pouso Alegre",
     },
-    medicalSpecialty: ["WeightLoss", "Endocrinology", "Dermatology"],
+    medicalSpecialty: [
+      "WeightLoss",
+      "Endocrinology",
+      "Dermatology",
+    ],
     sameAs: [
       siteConfig.instagramHref,
       siteConfig.youtubeHref,
@@ -129,7 +135,7 @@ export function medicalClinicJsonLd() {
     founder: {
       "@type": "Person",
       name: doctorProfile.name,
-      jobTitle: "Médica",
+      jobTitle: doctorProfile.primarySpecialty,
     },
   };
 }
@@ -156,7 +162,7 @@ export function hubWebPageJsonLd() {
     name: `Hub | ${siteConfig.name}`,
     description:
       "Principais links da Grape Clinic: avaliação, tratamentos, localização e canais oficiais.",
-    url: absoluteUrl("/link-bio"),
+    url: absoluteUrl("/hub"),
     isPartOf: {
       "@id": `${siteUrl}/#website`,
     },

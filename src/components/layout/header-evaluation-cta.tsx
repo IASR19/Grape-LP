@@ -1,7 +1,10 @@
 "use client";
 
-import Link from "next/link";
-
+import {
+  grapeCtaShimmerHeaderPrimary,
+  grapeCtaShimmerOnWhite,
+  ShimmerButton,
+} from "@/registry/magicui/shimmer-button";
 import { homeCopy, siteConfig } from "@/content/site";
 import { cn } from "@/lib/utils";
 
@@ -19,29 +22,32 @@ export function HeaderEvaluationCta({
   mobileVisible = false,
 }: HeaderEvaluationCtaProps) {
   return (
-    <Link
+    <ShimmerButton
       href={siteConfig.evaluationFormHref}
       onClick={onNavigate}
       aria-label={homeCopy.cta}
+      {...(inHero ? grapeCtaShimmerOnWhite : grapeCtaShimmerHeaderPrimary)}
+      background={
+        inHero
+          ? "color-mix(in oklch, white 90%, transparent)"
+          : "var(--primary)"
+      }
+      hoverBackground={
+        inHero
+          ? "white"
+          : "color-mix(in oklch, var(--primary) 90%, white 10%)"
+      }
       className={cn(
-        "group relative inline-flex shrink-0 items-center justify-center overflow-visible",
+        "relative h-11 shrink-0 px-4 text-sm font-semibold sm:px-5",
         mobileVisible ? "inline-flex" : "hidden sm:inline-flex",
+        inHero
+          ? "border border-white/28 text-primary backdrop-blur-xl"
+          : "text-primary-foreground",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
         className,
       )}
     >
-      <span
-        className={cn(
-          "relative isolate inline-flex h-11 min-w-11 items-center justify-center rounded-full px-4 text-sm font-semibold whitespace-nowrap sm:px-5",
-          "transition-[background-color,transform] duration-300 ease-out",
-          "motion-safe:group-hover:-translate-y-0.5 motion-safe:group-active:translate-y-0",
-          inHero
-            ? "header-cta-pulse-hero border border-white/28 bg-white/90 text-primary backdrop-blur-xl group-hover:bg-white"
-            : "header-cta-pulse-solid bg-primary text-primary-foreground group-hover:bg-primary/92",
-        )}
-      >
-        {homeCopy.cta}
-      </span>
-    </Link>
+      {homeCopy.cta}
+    </ShimmerButton>
   );
 }

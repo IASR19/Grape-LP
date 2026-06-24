@@ -1,5 +1,4 @@
 import type { MockImageVariant } from "@/components/media/mock-image";
-import { youtubeThumbnail } from "@/lib/youtube";
 
 export type MediaAsset = {
   alt: string;
@@ -25,24 +24,28 @@ export const clinicPhotos = {
   hero: image("hero", "foto-da-clinica.jpg"),
   linkBioBanner: image("hero", "banner.jpg"),
 
-  // spaces — ambientes
+  // spaces — ambientes da clínica (FX_* e foto-clinica-retrato; DSC_* nesta pasta são retratos)
   institucional: image("spaces", "foto-clinica-retrato.jpg"),
+  receptionWide: image("spaces", "foto-clinica-retrato.jpg"),
   receptionAlt: image("spaces", "fx-00090.jpg"),
-  lounge: image("spaces", "dsc-04710.jpg"),
+  lounge: image("spaces", "fx-00052.jpg"),
   corridor: image("spaces", "fx-00052.jpg"),
-  consultRoom: image("spaces", "dsc-05176.jpg"),
-  treatmentRoom: image("spaces", "dsc-04537.jpg"),
+  consultRoom: image("spaces", "fx-00047.jpg"),
+  treatmentRoom: image("spaces", "fx-00047.jpg"),
   detail: image("spaces", "fx-00047.jpg"),
   ambiance: image("spaces", "fx-00024.jpg"),
-  receptionWide: image("spaces", "dsc-04462.jpg"),
-  teamSpace: image("spaces", "dsc-04504.jpg"),
-  ctaBackground: image("spaces", "dsc-04504.jpg"),
-  suite: image("spaces", "dsc-04644.jpg"),
+  teamSpace: image("spaces", "fx-00024.jpg"),
+  ctaBackground: image("spaces", "foto-clinica-retrato.jpg"),
+  suite: image("spaces", "fx-00024.jpg"),
+
+  // retratos (arquivos DSC_* em opt/spaces — não usar na galeria de ambientes)
+  founderPortraitStudio: image("spaces", "doutora.jpg"),
 
   // sections — fundos editoriais
   carePaths: image("sections", "care-paths.jpg"),
   carePathsAlt: image("sections", "care-paths-alt.jpg"),
   clinicalReading: image("sections", "clinical-reading.jpg"),
+  historiasBackground: image("sections", "historias-background.jpg"),
   methodSection: image("sections", "dsc-04740.jpg"),
   visualBreak: image("sections", "dsc-05115.jpg"),
 
@@ -52,10 +55,16 @@ export const clinicPhotos = {
   metabolicHealthExam: image("services", "metabolic-health-exam.jpg"),
   followUpAppointment: image("services", "follow-up-appointment.jpg"),
 
-  // evaluation — #avaliacao
+  // evaluation — passos legados (formulário antigo)
   patientListening: image("evaluation", "patient-listening-consultation.jpg"),
   clinicalChartReview: image("evaluation", "clinical-chart-review.jpg"),
   treatmentPlanDiscussion: image("evaluation", "treatment-plan-discussion.jpg"),
+
+  // journey — Etapas da Jornada (#cuidado)
+  journeyDiagnostico: image("journey", "diagnostico.jpg"),
+  journeyImplementacao: image("journey", "implementacao.jpg"),
+  journeyMonitoramento: image("journey", "monitoramento.jpg"),
+  journeyConsolidacao: image("journey", "consolidacao.jpg"),
 
   // method — Método Grape
   hormoneBalance: image("method", "hormone-balance-wellness.jpg"),
@@ -110,13 +119,17 @@ export const mediaAssets = {
     alt: "Experiência de atendimento presencial na Grape Clinic",
     src: clinicPhotos.carePathsAlt,
   },
+  gallerySection: {
+    alt: "Recepção e ambiente da Grape Clinic",
+    src: clinicPhotos.hero,
+  },
   patientStoriesSection: {
-    alt: "Pacientes e acompanhamento na Grape Clinic",
-    src: clinicPhotos.clinicalReading,
+    alt: "Ambiente da Grape Clinic",
+    src: clinicPhotos.historiasBackground,
   },
   founderPortrait: {
-    alt: "Retrato profissional da Dra. Marcela Ferreira",
-    src: clinicPhotos.receptionWide,
+    alt: "Retrato profissional da Dra. Marcela Ferreira de Oliveira",
+    src: clinicPhotos.founderPortraitStudio,
   },
   ctaBackground: {
     alt: "Ambiente da clínica Grape Clinic",
@@ -168,37 +181,110 @@ export const mediaAssets = {
       src: clinicPhotos.suite,
     },
   },
+  careJourney: {
+    diagnostico: {
+      alt: "Etapa de diagnóstico clínico na jornada Grape",
+      src: clinicPhotos.journeyDiagnostico,
+    },
+    implementacao: {
+      alt: "Etapa de implementação do protocolo na jornada Grape",
+      src: clinicPhotos.journeyImplementacao,
+    },
+    monitoramento: {
+      alt: "Etapa de monitoramento contínuo na jornada Grape",
+      src: clinicPhotos.journeyMonitoramento,
+    },
+    consolidacao: {
+      alt: "Etapa de consolidação de resultados na jornada Grape",
+      src: clinicPhotos.journeyConsolidacao,
+    },
+  },
 } satisfies Record<string, MediaAsset | Record<string, MediaAsset>>;
 
 export type VideoAsset = {
   id: string;
   title: string;
-  src?: string;
-  youtubeId?: string;
-  thumbSrc?: string;
+  /** Label editorial na UI — não depende do nome do arquivo. */
+  displayLabel?: string;
+  src: string;
+  poster: string;
   variant?: MockImageVariant;
 };
 
-function youtubeTestimonial(id: string, title: string): VideoAsset {
+const REELS_VIDEO_VERSION = "3";
+
+function reelVideo(file: string) {
+  return `${VIDEO}/reels/${file}?v=${REELS_VIDEO_VERSION}`;
+}
+
+function reelPoster(fileBase: string) {
+  return `${OPT}/reels/${fileBase}.jpg`;
+}
+
+function localReel(
+  id: string,
+  quote: string,
+  clients: string,
+  fileBase: string,
+): VideoAsset {
   return {
-    id: `yt-${id}`,
-    title,
-    youtubeId: id,
-    thumbSrc: youtubeThumbnail(id),
+    id,
+    title: clients,
+    displayLabel: quote,
+    src: reelVideo(`${fileBase}.mp4`),
+    poster: reelPoster(fileBase),
   };
 }
 
-export const founderVideos = {
-  sectionTitle: "Depoimentos em vídeo",
-  sectionLead: "Pacientes compartilhando como foi viver o acompanhamento na prática.",
+export const patientReels = {
+  sectionTitle: "Histórias reais, vidas transformadas",
+  sectionLead:
+    "Descubra como o Método Grape impacta a saúde através de seus 7 pilares fundamentais.",
   featured: [
-    youtubeTestimonial("S9pcoAQslDw", "Cheguei mais confiante"),
-    youtubeTestimonial("LDBjCcrwVuY", "Parei de recomeçar sozinha"),
-    youtubeTestimonial("13Dzxh0-wcg", "Tive direção e segurança"),
-    youtubeTestimonial("Pbv98CMUuTs", "Um plano que coube na rotina"),
-    youtubeTestimonial("cWpqCq2gfgg", "Acompanhamento com escuta"),
-    youtubeTestimonial("BPC9Vh9GF_8", "Cuidado até a manutenção"),
-    youtubeTestimonial("12HsQYBvMBg", "Voltei a confiar no processo"),
-    youtubeTestimonial("fBMTseog9Rk", "Menos ansiedade, mais clareza"),
+    localReel(
+      "ivan-isabela",
+      "Recuperamos a nossa autoestima",
+      "Ivan & Isabela",
+      "ivan-isabela",
+    ),
+    localReel(
+      "junior-leticia-01",
+      "A nossa vida mudou completamente",
+      "Junior & Letícia",
+      "junior-leticia-01",
+    ),
+    localReel(
+      "junior-leticia-02",
+      "A nossa vida mudou completamente",
+      "Junior & Letícia",
+      "junior-leticia-02",
+    ),
+    localReel(
+      "lucio-marcela",
+      "Nós fomos os primeiros pacientes",
+      "Lúcio & Marcela",
+      "lucio-marcela",
+    ),
+    localReel(
+      "marcelo-marianne-01",
+      "Nós somos outro casal, vivemos melhor",
+      "Marcelo & Marianne",
+      "marcelo-marianne-01",
+    ),
+    localReel(
+      "marcelo-marianne-02",
+      "Nós somos outro casal, vivemos melhor",
+      "Marcelo & Marianne",
+      "marcelo-marianne-02",
+    ),
+    localReel(
+      "marcos-dani",
+      "O nosso corpo é a base dos nossos sonhos",
+      "Marcos & Dani",
+      "marcos-dani",
+    ),
   ] satisfies VideoAsset[],
-};
+} as const;
+
+/** @deprecated Use patientReels */
+export const founderVideos = patientReels;
