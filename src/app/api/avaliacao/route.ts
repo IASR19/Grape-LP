@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+const GRAPEGEST_URL = "https://grapegest.com.br/api/webhooks/leads";
+
 type EvaluationLeadPayload = {
   nome?: unknown;
   whatsapp?: unknown;
@@ -64,11 +66,65 @@ export async function POST(request: Request) {
     );
   }
 
-  return NextResponse.json(
-    {
-      message:
-        "Banco de dados ainda não configurado. Conecte esta rota ao serviço de leads antes de publicar.",
-    },
-    { status: 501 },
-  );
+  const token = process.env.GRAPEGEST_TOKEN;
+
+  if (!token) {
+    console.error("[avaliacao] GRAPEGEST_TOKEN não configurado.");
+    return NextResponse.json(
+      { message: "Serviço de leads não configurado. Tente novamente mais tarde." },
+      { status: 503 },
+    );
+  }
+
+  const situacoes = Array.isArray(payload.situacoes)
+    ? (payload.situacoes as string[]).filter(isFilledString)
+    : [];
+
+  const grapegestPayload = {
+    name: payload.nome as string,
+    phone: payload.whatsapp as string,
+    localizacao: payload.cidade as string,
+    dor_principal: situacoes.join(", "),
+    urgencia: payload.tempo as string,
+    disponibilidade: payload.disponibilidade as string,
+    valor_disposto: payload.renda as string,
+    momento_saude: payload.momento as string,
+    source: "landing-page",
+  };
+
+  try {
+    const response = await fetch(GRAPEGEST_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(grapegestPayload),
+    });
+
+    if (response.status === 401) {
+      console.error("[avaliacao] Token do GrapeGest inválido.");
+      return NextResponse.json(
+        { message: "Não foi possível registrar sua avaliação agora. Tente novamente." },
+        { status: 502 },
+      );
+    }
+
+    if (!response.ok) {
+      const body = await response.text().catch(() => "");
+      console.error(`[avaliacao] GrapeGest retornou ${response.status}: ${body}`);
+      return NextResponse.json(
+        { message: "Não foi possível registrar sua avaliação agora. Tente novamente." },
+        { status: 502 },
+      );
+    }
+
+    return NextResponse.json({ message: "Avaliação recebida com sucesso." });
+  } catch (error) {
+    console.error("[avaliacao] Erro ao contatar GrapeGest:", error);
+    return NextResponse.json(
+      { message: "Não foi possível registrar sua avaliação agora. Tente novamente." },
+      { status: 502 },
+    );
+  }
 }
