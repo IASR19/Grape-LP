@@ -18,7 +18,6 @@ const requiredStringFields = [
   "nome",
   "whatsapp",
   "cidade",
-  "profissao",
   "tempo",
   "momento",
   "disponibilidade",
@@ -82,11 +81,10 @@ export async function POST(request: Request) {
     ? (payload.situacoes as string[]).filter(isFilledString)
     : [];
 
-  const grapegestPayload = {
+  const grapegestPayload: Record<string, string> = {
     name: payload.nome as string,
     phone: payload.whatsapp as string,
     localizacao: payload.cidade as string,
-    profissao: payload.profissao as string,
     dor_principal: situacoes.join(", "),
     urgencia: payload.tempo as string,
     disponibilidade: payload.disponibilidade as string,
@@ -94,6 +92,10 @@ export async function POST(request: Request) {
     momento_saude: payload.momento as string,
     source: "link-bio",
   };
+
+  if (isFilledString(payload.profissao)) {
+    grapegestPayload.profissao = payload.profissao as string;
+  }
 
   try {
     const response = await fetch(GRAPEGEST_URL, {
