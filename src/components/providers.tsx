@@ -7,6 +7,7 @@ import { useEffect, useLayoutEffect } from "react";
 
 import { SiteIntro } from "@/components/layout/site-intro";
 import { HashScrollHandler } from "@/components/layout/hash-scroll-handler";
+import { MetaPixel } from "@/components/seo/meta-pixel";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import { SITE_INTRO_READY_EVENT } from "@/hooks/use-site-intro-ready";
 import { setLenis } from "@/lib/lenis";
@@ -136,6 +137,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       enableSystem
       disableTransitionOnChange
     >
+      <MetaPixel />
       <MotionConfig reducedMotion={prefersReducedMotion ? "always" : "never"}>
         <SiteIntro />
         <div data-app-shell className="flex min-h-full w-full flex-1 flex-col">
