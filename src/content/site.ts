@@ -2,6 +2,7 @@ import { clinicPhotos } from "@/content/media";
 
 export const siteConfig = {
   name: "Grape Clinic",
+  cnpj: "21.762.194/0001-32",
   description:
     "Clínica de estética, emagrecimento médico e cuidado corporal personalizado em Pouso Alegre, MG. Avaliação individual, acompanhamento médico e protocolos sob medida.",
   city: "Pouso Alegre, MG",
@@ -182,11 +183,13 @@ export const faqs = [
   },
   {
     question: "Preciso iniciar com exercícios intensos?",
-    answer: "Não necessariamente. A proposta é construir uma estratégia possível para a sua rotina, com ajustes ao longo do processo.",
+    answer:
+      "Não necessariamente. A proposta é construir uma estratégia possível para a sua rotina, com ajustes ao longo do processo.",
   },
   {
     question: "Preciso seguir uma dieta restritiva?",
-    answer: "A estratégia busca ser praticável, não extrema. O foco é orientar escolhas, quantidades e constância sem transformar cuidado em sofrimento.",
+    answer:
+      "A estratégia busca ser praticável, não extrema. O foco é orientar escolhas, quantidades e constância sem transformar cuidado em sofrimento.",
   },
   {
     question: "Como funciona o acompanhamento?",
@@ -199,7 +202,6 @@ export const faqs = [
       "Segurança depende de avaliação, indicação correta e monitoramento. Por isso, o processo não começa por uma fórmula pronta.",
   },
 ];
-
 
 export type ProfileTextSegment = {
   text: string;
@@ -228,9 +230,13 @@ export const doctorProfile = {
   personalStorySegments: [
     { text: "Em " },
     { text: "2022", emphasis: true },
-    { text: ", após minha gestação, enfrentei obesidade no pós-parto — e foi esse momento que deu origem ao " },
+    {
+      text: ", após minha gestação, enfrentei obesidade no pós-parto — e foi esse momento que deu origem ao ",
+    },
     { text: "Método Grape", emphasis: true },
-    { text: ". Porque emagrecer não bastava: era preciso entender o corpo por inteiro." },
+    {
+      text: ". Porque emagrecer não bastava: era preciso entender o corpo por inteiro.",
+    },
   ] satisfies ProfileTextSegment[],
   specialties: [
     "Ginecologia e Obstetrícia",
@@ -242,7 +248,10 @@ export const doctorProfile = {
   founderRole: "Fundadora do ecossistema Grape",
 };
 
-export function formatDoctorCrmLabel(crm: string, region = doctorProfile.crmRegion) {
+export function formatDoctorCrmLabel(
+  crm: string,
+  region = doctorProfile.crmRegion,
+) {
   return `CRM/${region} ${crm}`;
 }
 

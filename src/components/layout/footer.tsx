@@ -1,12 +1,6 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
-import {
-  Camera,
-  MapPin,
-  MessageCircle,
-  PlayCircle,
-  Star,
-} from "lucide-react";
+import { Camera, MapPin, MessageCircle, PlayCircle, Star } from "lucide-react";
 
 import { BrandLogo } from "@/components/layout/brand-logo";
 import { ExternalArrow } from "@/components/ui/external-arrow";
@@ -37,7 +31,10 @@ export function Footer({ id, className, style }: FooterProps) {
   return (
     <footer
       id={id}
-      className={cn("border-t border-border bg-primary text-primary-foreground", className)}
+      className={cn(
+        "border-t border-border bg-primary text-primary-foreground",
+        className,
+      )}
       style={style}
     >
       <div className={cn(layout.container, layout.gutter, "py-9 lg:py-12")}>
@@ -48,7 +45,8 @@ export function Footer({ id, className, style }: FooterProps) {
               Uma avaliação individual é o melhor começo.
             </p>
             <p className="mt-4 max-w-xl text-pretty text-sm leading-6 text-primary-foreground/72 sm:text-base">
-              A equipe entende seu momento, orienta o próximo passo e indica se a Grape Clinic é o caminho certo para você.
+              A equipe entende seu momento, orienta o próximo passo e indica se
+              a Grape Clinic é o caminho certo para você.
             </p>
           </div>
 
@@ -83,7 +81,10 @@ export function Footer({ id, className, style }: FooterProps) {
                     aria-label={`${item.label}. ${newWindowHint}`}
                     className="flex min-h-11 flex-col items-center justify-center gap-1.5 rounded-lg px-2 py-2.5 text-center transition-colors hover:bg-primary-foreground/10 sm:min-h-[4.25rem] sm:rounded-none sm:px-3"
                   >
-                    <Icon className="size-4 text-primary-foreground/88" aria-hidden />
+                    <Icon
+                      className="size-4 text-primary-foreground/88"
+                      aria-hidden
+                    />
                     <span className="text-xs font-medium leading-none text-primary-foreground/76">
                       {item.label}
                     </span>
@@ -96,7 +97,9 @@ export function Footer({ id, className, style }: FooterProps) {
 
         <div className="mt-8 grid gap-6 border-t border-primary-foreground/14 pt-6 sm:grid-cols-2 lg:items-start">
           <nav aria-label="Páginas do site">
-            <p className="text-sm font-medium text-primary-foreground">Navegação</p>
+            <p className="text-sm font-medium text-primary-foreground">
+              Navegação
+            </p>
             <ul className="mt-2 flex flex-wrap gap-x-5 gap-y-1">
               {footerNavItems.map((item) => (
                 <li key={item.href}>
@@ -105,7 +108,10 @@ export function Footer({ id, className, style }: FooterProps) {
                     className="group inline-flex min-h-9 items-center gap-1.5 py-1 text-sm text-primary-foreground/66 transition-colors hover:text-primary-foreground"
                   >
                     {item.label}
-                    <ExternalArrow size="sm" className="opacity-0 motion-safe:group-hover:opacity-100" />
+                    <ExternalArrow
+                      size="sm"
+                      className="opacity-0 motion-safe:group-hover:opacity-100"
+                    />
                   </Link>
                 </li>
               ))}
@@ -113,7 +119,9 @@ export function Footer({ id, className, style }: FooterProps) {
           </nav>
 
           <address className="text-sm not-italic leading-6 text-primary-foreground/72 sm:text-right">
-            <p className="font-medium text-primary-foreground">{siteConfig.city}</p>
+            <p className="font-medium text-primary-foreground">
+              {siteConfig.city}
+            </p>
             <p className="mt-2 text-pretty">{siteConfig.address}</p>
             <a
               href={siteConfig.mapsHref}
@@ -136,7 +144,11 @@ export function Footer({ id, className, style }: FooterProps) {
             "py-4",
           )}
         >
-          <p>© {new Date().getFullYear()} Grape Clinic. Todos os direitos reservados.</p>
+          <p>
+            © {new Date().getFullYear()} Grape Clinic. Todos os direitos
+            reservados.
+          </p>
+          <p>CNPJ {siteConfig.cnpj}</p>
           <div className="text-right">
             <p>{doctorProfile.name}</p>
             <p>{formatDoctorRegistrationLabel()}</p>
