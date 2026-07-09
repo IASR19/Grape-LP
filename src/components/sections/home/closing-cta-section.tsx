@@ -1,8 +1,23 @@
 "use client";
 
-import { Check, ChevronDown, ChevronLeft, ChevronRight, LoaderCircle, Send, X } from "lucide-react";
+import {
+  Check,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  LoaderCircle,
+  Send,
+  X,
+} from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { FormEvent, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import {
+  FormEvent,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import { AnimatedHeading } from "@/components/motion/animated-heading";
 import { Reveal } from "@/components/motion/reveal";
@@ -10,7 +25,6 @@ import { PageSection } from "@/components/sections/section-shell";
 import { Button } from "@/components/ui/button";
 import {
   formatBrazilianPhone,
-  formatCityName,
   formatPersonName,
   isValidBrazilianPhone,
   normalizeSpaces,
@@ -35,22 +49,7 @@ const contactFields = [
     placeholder: "(00) 00000-0000",
     autoComplete: "tel",
   },
-  {
-    id: "cidade",
-    label: "Cidade",
-    type: "text",
-    placeholder: "Onde você mora",
-    autoComplete: "address-level2",
-  },
 ] as const;
-
-const incomeOptions = [
-  "Até R$ 10.000",
-  "R$ 10.000 a R$ 20.000",
-  "R$ 20.000 a R$ 40.000",
-  "R$ 40.000 a R$ 80.000",
-  "Acima de R$ 80.000",
-];
 
 const situationOptions = [
   "Falta de energia",
@@ -61,21 +60,6 @@ const situationOptions = [
   "Performance física ou mental",
   "Inflamação e endometriose",
   "Outro",
-];
-
-const durationOptions = [
-  "Menos de 6 meses",
-  "6 meses a 1 ano",
-  "1 a 3 anos",
-  "3 a 5 anos",
-  "Mais de 5 anos",
-];
-
-const healthMomentOptions = [
-  "Só busco informações por agora.",
-  "Estou avaliando tratamento.",
-  "Pronto(a) para investir se fizer sentido.",
-  "Busco acompanhamento de longo prazo.",
 ];
 
 const availabilityOptions = ["Sim", "Talvez", "Não"];
@@ -98,86 +82,40 @@ const profissaoOptions = [
 const steps = [
   {
     eyebrow: "01",
-    title: "Primeiro contato",
-    description: "Dados básicos para a equipe entender quem deve retornar.",
+    title: "Identificação",
+    description: "Dados básicos para a equipe saber quem deve retornar.",
   },
   {
     eyebrow: "02",
-    title: "Momento atual",
-    description: "Sinais, sintomas e tempo convivendo com essa situação.",
-  },
-  {
-    eyebrow: "03",
-    title: "Perfil de atendimento",
-    description: "Momento, disponibilidade e compatibilidade com acompanhamento.",
+    title: "Seu momento",
+    description: "A principal situação e sua disponibilidade para avaliação.",
   },
 ] as const;
 
 type Answers = {
   nome: string;
   whatsapp: string;
-  cidade: string;
   profissao: string;
-  renda: string;
-  situacoes: string[];
-  tempo: string;
-  momento: string;
+  situacao: string;
   disponibilidade: string;
-};
-
-type CitySuggestion = {
-  id: string;
-  label: string;
 };
 
 const initialAnswers: Answers = {
   nome: "",
   whatsapp: "",
-  cidade: "",
   profissao: "",
-  renda: "",
-  situacoes: [],
-  tempo: "",
-  momento: "",
+  situacao: "",
   disponibilidade: "",
 };
 
 function getStepValidationError(currentStep: number, currentAnswers: Answers) {
-  if (currentStep === 0) {
-    if (!normalizeSpaces(currentAnswers.nome)) {
-      return "Informe seu nome para continuar.";
-    }
-
-    if (!isValidBrazilianPhone(currentAnswers.whatsapp)) {
-      return "Informe um WhatsApp válido com DDD.";
-    }
-
-    if (!normalizeSpaces(currentAnswers.cidade)) {
-      return "Informe sua cidade.";
-    }
-  }
-
   if (currentStep === 1) {
-    if (currentAnswers.situacoes.length === 0) {
-      return "Selecione pelo menos uma situação que impacta sua qualidade de vida.";
-    }
-
-    if (!currentAnswers.tempo.trim()) {
-      return "Selecione há quanto tempo convive com essa situação.";
-    }
-  }
-
-  if (currentStep === 2) {
-    if (!currentAnswers.momento.trim()) {
-      return "Selecione a afirmação que melhor representa seu momento atual.";
+    if (!currentAnswers.situacao.trim()) {
+      return "Selecione a situação que mais impacta sua qualidade de vida.";
     }
 
     if (!currentAnswers.disponibilidade.trim()) {
       return "Informe sua disponibilidade para uma avaliação estratégica.";
-    }
-
-    if (!currentAnswers.renda.trim()) {
-      return "Selecione sua faixa de renda mensal.";
     }
   }
 
@@ -192,14 +130,9 @@ function validateContactField(fieldId: ContactFieldId, value: string): string {
     return normalizeSpaces(value) ? "" : "Informe seu nome.";
   }
   if (fieldId === "whatsapp") {
-    return isValidBrazilianPhone(value) ? "" : "Informe um WhatsApp válido com DDD.";
-  }
-  if (fieldId === "cidade") {
-    const v = normalizeSpaces(value);
-    if (!v) return "Informe sua cidade.";
-    if (/\d/.test(v) || !/[a-zA-ZÀ-ÿ]/.test(v))
-      return "Informe um nome de cidade válido.";
-    return "";
+    return isValidBrazilianPhone(value)
+      ? ""
+      : "Informe um WhatsApp válido com DDD.";
   }
   return "";
 }
@@ -215,7 +148,9 @@ const formFieldSuccessClass =
 
 const formStepBodyClass = "p-1";
 
-type ProfissaoSelectProps = {
+type OptionSelectProps = {
+  options: readonly string[];
+  placeholder: string;
   value: string;
   outroConfirmed: string;
   onSelect: (option: string) => void;
@@ -223,13 +158,15 @@ type ProfissaoSelectProps = {
   labelId: string;
 };
 
-function ProfissaoSelect({
+function OptionSelect({
+  options,
+  placeholder,
   value,
   outroConfirmed,
   onSelect,
   error,
   labelId,
-}: ProfissaoSelectProps) {
+}: OptionSelectProps) {
   const [open, setOpen] = useState(false);
 
   const displayValue =
@@ -254,7 +191,7 @@ function ProfissaoSelect({
           open && "rounded-b-none border-b-0",
         )}
       >
-        <span className="truncate">{displayValue || "Selecione sua profissão"}</span>
+        <span className="truncate">{displayValue || placeholder}</span>
         <ChevronDown
           className={cn(
             "ml-2 size-4 shrink-0 opacity-50 transition-transform duration-200",
@@ -276,7 +213,7 @@ function ProfissaoSelect({
             aria-labelledby={labelId}
           >
             <div className="grid grid-cols-2 gap-px bg-border p-px pt-0">
-              {profissaoOptions.map((option) => {
+              {options.map((option) => {
                 const isSelected = value === option;
                 const label =
                   option === "Outro" && outroConfirmed
@@ -414,7 +351,11 @@ function OutroDialog({
               <Button type="button" variant="outline" onClick={onClose}>
                 Cancelar
               </Button>
-              <Button type="button" onClick={onConfirm} disabled={!value.trim()}>
+              <Button
+                type="button"
+                onClick={onConfirm}
+                disabled={!value.trim()}
+              >
                 Confirmar
               </Button>
             </div>
@@ -469,10 +410,7 @@ export function ClosingCtaSection() {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
-  const [citySuggestions, setCitySuggestions] = useState<CitySuggestion[]>([]);
   const [answers, setAnswers] = useState<Answers>(initialAnswers);
-  const visibleCitySuggestions =
-    answers.cidade.trim().length >= 2 ? citySuggestions : [];
   const [stepBodyHeight, setStepBodyHeight] = useState<number>();
   const stepHeadingRef = useRef<HTMLHeadingElement>(null);
   const stepBodyRef = useRef<HTMLDivElement>(null);
@@ -481,28 +419,34 @@ export function ClosingCtaSection() {
 
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
-  const [outroDialogOpen, setOutroDialogOpen] = useState(false);
-  const [outroDraft, setOutroDraft] = useState("");
-  const [outroConfirmed, setOutroConfirmed] = useState("");
-  const outroInputRef = useRef<HTMLInputElement>(null);
-
   const [profissaoError, setProfissaoError] = useState("");
-  const [profissaoOutroDialogOpen, setProfissaoOutroDialogOpen] = useState(false);
+  const [profissaoOutroDialogOpen, setProfissaoOutroDialogOpen] =
+    useState(false);
   const [profissaoOutroDraft, setProfissaoOutroDraft] = useState("");
   const [profissaoOutroConfirmed, setProfissaoOutroConfirmed] = useState("");
   const profissaoOutroInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (!outroDialogOpen) return;
-    const frame = requestAnimationFrame(() => outroInputRef.current?.focus());
-    return () => cancelAnimationFrame(frame);
-  }, [outroDialogOpen]);
+  const [situacaoError, setSituacaoError] = useState("");
+  const [situacaoOutroDialogOpen, setSituacaoOutroDialogOpen] = useState(false);
+  const [situacaoOutroDraft, setSituacaoOutroDraft] = useState("");
+  const [situacaoOutroConfirmed, setSituacaoOutroConfirmed] = useState("");
+  const situacaoOutroInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!profissaoOutroDialogOpen) return;
-    const frame = requestAnimationFrame(() => profissaoOutroInputRef.current?.focus());
+    const frame = requestAnimationFrame(() =>
+      profissaoOutroInputRef.current?.focus(),
+    );
     return () => cancelAnimationFrame(frame);
   }, [profissaoOutroDialogOpen]);
+
+  useEffect(() => {
+    if (!situacaoOutroDialogOpen) return;
+    const frame = requestAnimationFrame(() =>
+      situacaoOutroInputRef.current?.focus(),
+    );
+    return () => cancelAnimationFrame(frame);
+  }, [situacaoOutroDialogOpen]);
 
   const progress = useMemo(() => ((step + 1) / steps.length) * 100, [step]);
   const isLastStep = step === steps.length - 1;
@@ -556,86 +500,12 @@ export function ClosingCtaSection() {
     return () => window.cancelAnimationFrame(frame);
   }, [submitError]);
 
-  useEffect(() => {
-    const query = answers.cidade.trim();
-
-    if (query.length < 2) {
-      return;
-    }
-
-    const controller = new AbortController();
-    const timeout = window.setTimeout(async () => {
-      try {
-        const response = await fetch(`/api/cidades?q=${encodeURIComponent(query)}`, {
-          signal: controller.signal,
-        });
-
-        if (!response.ok) return;
-
-        const data = (await response.json()) as {
-          cities?: CitySuggestion[];
-        };
-
-        setCitySuggestions(data.cities ?? []);
-      } catch (error) {
-        if (error instanceof DOMException && error.name === "AbortError") {
-          return;
-        }
-
-        setCitySuggestions([]);
-      }
-    }, 160);
-
-    return () => {
-      controller.abort();
-      window.clearTimeout(timeout);
-    };
-  }, [answers.cidade]);
-
-  function updateAnswer<Key extends keyof Answers>(key: Key, value: Answers[Key]) {
+  function updateAnswer<Key extends keyof Answers>(
+    key: Key,
+    value: Answers[Key],
+  ) {
     setSubmitError("");
     setAnswers((current) => ({ ...current, [key]: value }));
-  }
-
-  function toggleSituation(value: string) {
-    if (value === "Outro") {
-      if (answers.situacoes.includes("Outro")) {
-        setAnswers((current) => ({
-          ...current,
-          situacoes: current.situacoes.filter((item) => item !== "Outro"),
-        }));
-        setOutroConfirmed("");
-      } else {
-        setOutroDraft(outroConfirmed);
-        setOutroDialogOpen(true);
-      }
-      return;
-    }
-
-    setAnswers((current) => {
-      const selected = current.situacoes.includes(value);
-
-      return {
-        ...current,
-        situacoes: selected
-          ? current.situacoes.filter((item) => item !== value)
-          : [...current.situacoes, value],
-      };
-    });
-  }
-
-  function confirmOutro() {
-    const text = outroDraft.trim();
-    if (!text) return;
-    setOutroConfirmed(text);
-    setAnswers((current) => ({
-      ...current,
-      situacoes: [
-        ...current.situacoes.filter((item) => item !== "Outro"),
-        "Outro",
-      ],
-    }));
-    setOutroDialogOpen(false);
   }
 
   function selectProfissao(value: string) {
@@ -661,8 +531,32 @@ export function ClosingCtaSection() {
     setProfissaoOutroDialogOpen(false);
   }
 
+  function selectSituacao(value: string) {
+    setSituacaoError("");
+    if (value === "Outro") {
+      if (answers.situacao === "Outro") {
+        updateAnswer("situacao", "");
+        setSituacaoOutroConfirmed("");
+      } else {
+        setSituacaoOutroDraft(situacaoOutroConfirmed);
+        setSituacaoOutroDialogOpen(true);
+      }
+      return;
+    }
+    updateAnswer("situacao", value);
+  }
+
+  function confirmSituacaoOutro() {
+    const text = situacaoOutroDraft.trim();
+    if (!text) return;
+    setSituacaoOutroConfirmed(text);
+    updateAnswer("situacao", "Outro");
+    setSituacaoOutroDialogOpen(false);
+  }
+
   function updateContactField(fieldId: ContactFieldId, value: string) {
-    const formatted = fieldId === "whatsapp" ? formatBrazilianPhone(value) : value;
+    const formatted =
+      fieldId === "whatsapp" ? formatBrazilianPhone(value) : value;
     updateAnswer(fieldId, formatted as Answers[typeof fieldId]);
 
     setFieldErrors((prev) => {
@@ -674,10 +568,6 @@ export function ClosingCtaSection() {
   function finalizeContactField(fieldId: ContactFieldId) {
     if (fieldId === "nome") {
       updateAnswer("nome", formatPersonName(answers.nome));
-      return;
-    }
-    if (fieldId === "cidade") {
-      updateAnswer("cidade", formatCityName(answers.cidade));
     }
   }
 
@@ -730,17 +620,18 @@ export function ClosingCtaSection() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...answers,
+          nome: formatPersonName(answers.nome),
+          whatsapp: formatBrazilianPhone(answers.whatsapp),
           profissao:
             answers.profissao === "Outro" && profissaoOutroConfirmed
               ? profissaoOutroConfirmed
               : answers.profissao,
-          situacoes: answers.situacoes.map((s) =>
-            s === "Outro" && outroConfirmed ? outroConfirmed : s,
-          ),
-          nome: formatPersonName(answers.nome),
-          cidade: formatCityName(answers.cidade),
-          whatsapp: formatBrazilianPhone(answers.whatsapp),
+          situacoes: [
+            answers.situacao === "Outro" && situacaoOutroConfirmed
+              ? situacaoOutroConfirmed
+              : answers.situacao,
+          ],
+          disponibilidade: answers.disponibilidade,
         }),
       });
 
@@ -749,7 +640,9 @@ export function ClosingCtaSection() {
           message?: string;
         } | null;
 
-        throw new Error(data?.message || "Não foi possível enviar suas respostas agora.");
+        throw new Error(
+          data?.message || "Não foi possível enviar suas respostas agora.",
+        );
       }
 
       setSubmitted(true);
@@ -757,6 +650,8 @@ export function ClosingCtaSection() {
       setFieldErrors({});
       setProfissaoError("");
       setProfissaoOutroConfirmed("");
+      setSituacaoError("");
+      setSituacaoOutroConfirmed("");
     } catch (error) {
       setSubmitError(
         error instanceof Error
@@ -788,7 +683,10 @@ export function ClosingCtaSection() {
               </Reveal>
               <AnimatedHeading
                 text="Comece com uma leitura individual do seu momento."
-                className={cn("mt-5 max-w-xl text-balance text-primary-foreground", type.section)}
+                className={cn(
+                  "mt-5 max-w-xl text-balance text-primary-foreground",
+                  type.section,
+                )}
               />
             </div>
 
@@ -798,7 +696,7 @@ export function ClosingCtaSection() {
                 sentido para o seu caso e qual próximo passo deve ser indicado.
               </p>
               <p className="mt-10 text-sm text-primary-foreground/68">
-                03 etapas objetivas · cerca de 2 min para iniciar
+                02 etapas objetivas · cerca de 1 min para iniciar
               </p>
             </div>
           </div>
@@ -821,12 +719,17 @@ export function ClosingCtaSection() {
                 className="overflow-hidden transition-[height] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
                 style={{
                   height:
-                    stepBodyHeight !== undefined ? `${stepBodyHeight}px` : "auto",
+                    stepBodyHeight !== undefined
+                      ? `${stepBodyHeight}px`
+                      : "auto",
                 }}
               >
                 <div
                   ref={stepBodyRef}
-                  className={cn("flex flex-col justify-between", formStepBodyClass)}
+                  className={cn(
+                    "flex flex-col justify-between",
+                    formStepBodyClass,
+                  )}
                   aria-live="polite"
                   aria-atomic="true"
                 >
@@ -852,7 +755,7 @@ export function ClosingCtaSection() {
                 <div className="mb-7 flex items-start justify-between gap-5 border-b border-border pb-6">
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">
-                      {steps[step].eyebrow} / 03
+                      {steps[step].eyebrow} / 02
                     </p>
                     <h3
                       ref={stepHeadingRef}
@@ -891,7 +794,9 @@ export function ClosingCtaSection() {
                   className="overflow-hidden transition-[height] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none motion-reduce:duration-0"
                   style={{
                     height:
-                      stepBodyHeight !== undefined ? `${stepBodyHeight}px` : "auto",
+                      stepBodyHeight !== undefined
+                        ? `${stepBodyHeight}px`
+                        : "auto",
                   }}
                 >
                   <div ref={stepBodyRef} className={formStepBodyClass}>
@@ -915,14 +820,24 @@ export function ClosingCtaSection() {
                                 name={field.id}
                                 type={field.type}
                                 autoComplete={field.autoComplete}
-                                inputMode={field.id === "whatsapp" ? "numeric" : undefined}
-                                maxLength={field.id === "whatsapp" ? 16 : undefined}
-                                list={field.id === "cidade" ? "city-suggestions" : undefined}
+                                inputMode={
+                                  field.id === "whatsapp"
+                                    ? "numeric"
+                                    : undefined
+                                }
+                                maxLength={
+                                  field.id === "whatsapp" ? 16 : undefined
+                                }
                                 value={answers[field.id]}
-                                aria-describedby={hasError ? `${field.id}-error` : undefined}
+                                aria-describedby={
+                                  hasError ? `${field.id}-error` : undefined
+                                }
                                 aria-invalid={hasError}
                                 onChange={(event) =>
-                                  updateContactField(field.id, event.target.value)
+                                  updateContactField(
+                                    field.id,
+                                    event.target.value,
+                                  )
                                 }
                                 onBlur={(event) =>
                                   handleFieldBlur(field.id, event.target.value)
@@ -946,11 +861,6 @@ export function ClosingCtaSection() {
                             </div>
                           );
                         })}
-                        <datalist id="city-suggestions">
-                          {visibleCitySuggestions.map((city) => (
-                            <option key={city.id} value={city.label} />
-                          ))}
-                        </datalist>
 
                         <div className="grid gap-2">
                           <label
@@ -959,7 +869,9 @@ export function ClosingCtaSection() {
                           >
                             Profissão
                           </label>
-                          <ProfissaoSelect
+                          <OptionSelect
+                            options={profissaoOptions}
+                            placeholder="Selecione sua profissão"
                             value={answers.profissao}
                             outroConfirmed={profissaoOutroConfirmed}
                             onSelect={selectProfissao}
@@ -972,85 +884,33 @@ export function ClosingCtaSection() {
 
                     {step === 1 ? (
                       <div className="grid gap-7">
-                        <fieldset>
-                          <legend className="mb-3 text-sm font-medium">
+                        <div className="grid gap-2">
+                          <label
+                            id="situacao-label"
+                            className="text-sm font-medium"
+                          >
                             Qual dessas situações mais impacta sua qualidade de
-                            vida atualmente?
-                          </legend>
-                          <div
-                            className="grid gap-2 sm:grid-cols-2"
-                            role="group"
-                            aria-label="Situações que impactam sua qualidade de vida"
-                          >
-                            {situationOptions.map((option) => (
-                              <OptionButton
-                                key={option}
-                                active={answers.situacoes.includes(option)}
-                                pressed={answers.situacoes.includes(option)}
-                                onClick={() => toggleSituation(option)}
-                              >
-                                {option === "Outro" && outroConfirmed
-                                  ? `Outro: ${outroConfirmed}`
-                                  : option}
-                              </OptionButton>
-                            ))}
-                          </div>
-                        </fieldset>
-
-                        <fieldset>
-                          <legend className="mb-3 text-sm font-medium">
-                            Há quanto tempo convive com essa situação?
-                          </legend>
-                          <div
-                            className="grid gap-2 sm:grid-cols-2"
-                            role="radiogroup"
-                            aria-label="Tempo convivendo com a situação"
-                          >
-                            {durationOptions.map((option) => (
-                              <OptionButton
-                                key={option}
-                                active={answers.tempo === option}
-                                onClick={() => updateAnswer("tempo", option)}
-                              >
-                                {option}
-                              </OptionButton>
-                            ))}
-                          </div>
-                        </fieldset>
-                      </div>
-                    ) : null}
-
-                    {step === 2 ? (
-                      <div className="grid gap-7">
-                        <fieldset>
-                          <legend className="mb-3 text-sm font-medium">
-                            Quando se trata da sua saúde, qual afirmação melhor
-                            representa seu momento atual?
-                          </legend>
-                          <div
-                            className="grid gap-2"
-                            role="radiogroup"
-                            aria-label="Momento atual em relação à saúde"
-                          >
-                            {healthMomentOptions.map((option) => (
-                              <OptionButton
-                                key={option}
-                                active={answers.momento === option}
-                                onClick={() => updateAnswer("momento", option)}
-                              >
-                                {option}
-                              </OptionButton>
-                            ))}
-                          </div>
-                        </fieldset>
+                            vida?
+                          </label>
+                          <OptionSelect
+                            options={situationOptions}
+                            placeholder="Selecione a principal situação"
+                            value={answers.situacao}
+                            outroConfirmed={situacaoOutroConfirmed}
+                            onSelect={selectSituacao}
+                            error={situacaoError}
+                            labelId="situacao-label"
+                          />
+                        </div>
 
                         <fieldset>
                           <legend className="mb-3 text-sm font-medium">
                             Disponibilidade
                           </legend>
                           <p className="mb-3 text-sm leading-6 text-muted-foreground">
-                            Caso seu perfil seja compatível com nossa metodologia,
-                            você teria disponibilidade para uma avaliação estratégica?
+                            Caso seu perfil seja compatível com nossa
+                            metodologia, você teria disponibilidade para uma
+                            avaliação estratégica?
                           </p>
                           <div
                             className="grid gap-2 sm:grid-cols-3"
@@ -1061,28 +921,9 @@ export function ClosingCtaSection() {
                               <OptionButton
                                 key={option}
                                 active={answers.disponibilidade === option}
-                                onClick={() => updateAnswer("disponibilidade", option)}
-                              >
-                                {option}
-                              </OptionButton>
-                            ))}
-                          </div>
-                        </fieldset>
-
-                        <fieldset>
-                          <legend className="mb-3 text-sm font-medium">
-                            Qual é a sua faixa de renda mensal?
-                          </legend>
-                          <div
-                            className="grid gap-2 sm:grid-cols-2"
-                            role="radiogroup"
-                            aria-label="Faixa de renda mensal"
-                          >
-                            {incomeOptions.map((option) => (
-                              <OptionButton
-                                key={option}
-                                active={answers.renda === option}
-                                onClick={() => updateAnswer("renda", option)}
+                                onClick={() =>
+                                  updateAnswer("disponibilidade", option)
+                                }
                               >
                                 {option}
                               </OptionButton>
@@ -1117,7 +958,12 @@ export function ClosingCtaSection() {
                     <ChevronLeft className="size-4" />
                     Voltar
                   </Button>
-                  <Button type="submit" size="lg" className="min-w-36" disabled={submitting}>
+                  <Button
+                    type="submit"
+                    size="lg"
+                    className="min-w-36"
+                    disabled={submitting}
+                  >
                     {submitting
                       ? "Enviando"
                       : isLastStep
@@ -1138,18 +984,6 @@ export function ClosingCtaSection() {
         </div>
       </div>
       <OutroDialog
-        open={outroDialogOpen}
-        title="Qual é sua situação?"
-        description="Descreva o que mais impacta sua qualidade de vida."
-        placeholder="Ex: dores crônicas, problemas de tireoide…"
-        value={outroDraft}
-        onChange={setOutroDraft}
-        onConfirm={confirmOutro}
-        onClose={() => setOutroDialogOpen(false)}
-        inputRef={outroInputRef}
-      />
-
-      <OutroDialog
         open={profissaoOutroDialogOpen}
         title="Qual é a sua profissão?"
         description="Descreva sua profissão ou área de atuação."
@@ -1159,6 +993,18 @@ export function ClosingCtaSection() {
         onConfirm={confirmProfissaoOutro}
         onClose={() => setProfissaoOutroDialogOpen(false)}
         inputRef={profissaoOutroInputRef}
+      />
+
+      <OutroDialog
+        open={situacaoOutroDialogOpen}
+        title="Qual é a sua situação?"
+        description="Descreva o que mais impacta sua qualidade de vida."
+        placeholder="Ex: dores crônicas, problemas de tireoide…"
+        value={situacaoOutroDraft}
+        onChange={setSituacaoOutroDraft}
+        onConfirm={confirmSituacaoOutro}
+        onClose={() => setSituacaoOutroDialogOpen(false)}
+        inputRef={situacaoOutroInputRef}
       />
     </PageSection>
   );
