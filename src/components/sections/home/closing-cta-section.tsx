@@ -646,6 +646,9 @@ export function ClosingCtaSection() {
       }
 
       setSubmitted(true);
+      if (typeof window.fbq === "function") {
+        window.fbq("track", "Lead");
+      }
       setAnswers(initialAnswers);
       setFieldErrors({});
       setProfissaoError("");
