@@ -25,6 +25,7 @@ import { PageSection } from "@/components/sections/section-shell";
 import { Button } from "@/components/ui/button";
 import {
   formatBrazilianPhone,
+  formatCityName,
   formatPersonName,
   isValidBrazilianPhone,
   normalizeSpaces,
@@ -49,7 +50,24 @@ const contactFields = [
     placeholder: "(00) 00000-0000",
     autoComplete: "tel",
   },
+  {
+    id: "cidade",
+    label: "Cidade",
+    type: "text",
+    placeholder: "Onde você mora",
+    autoComplete: "address-level2",
+  },
 ] as const;
+
+const incomeOptions = [
+  "Até R$ 10.000",
+  "R$ 10.000 a R$ 20.000",
+  "R$ 20.000 a R$ 40.000",
+  "R$ 40.000 a R$ 80.000",
+  "Acima de R$ 80.000",
+];
+
+const MAX_SITUACOES = 3;
 
 const situationOptions = [
   "Falta de energia",
@@ -95,27 +113,40 @@ const steps = [
 type Answers = {
   nome: string;
   whatsapp: string;
+  cidade: string;
   profissao: string;
-  situacao: string;
+  situacoes: string[];
   disponibilidade: string;
+  renda: string;
+};
+
+type CitySuggestion = {
+  id: string;
+  label: string;
 };
 
 const initialAnswers: Answers = {
   nome: "",
   whatsapp: "",
+  cidade: "",
   profissao: "",
-  situacao: "",
+  situacoes: [],
   disponibilidade: "",
+  renda: "",
 };
 
 function getStepValidationError(currentStep: number, currentAnswers: Answers) {
   if (currentStep === 1) {
-    if (!currentAnswers.situacao.trim()) {
-      return "Selecione a situação que mais impacta sua qualidade de vida.";
+    if (currentAnswers.situacoes.length === 0) {
+      return "Selecione pelo menos uma situação que impacta sua qualidade de vida.";
     }
 
     if (!currentAnswers.disponibilidade.trim()) {
       return "Informe sua disponibilidade para uma avaliação estratégica.";
+    }
+
+    if (!currentAnswers.renda.trim()) {
+      return "Selecione sua faixa de renda mensal.";
     }
   }
 
@@ -133,6 +164,13 @@ function validateContactField(fieldId: ContactFieldId, value: string): string {
     return isValidBrazilianPhone(value)
       ? ""
       : "Informe um WhatsApp válido com DDD.";
+  }
+  if (fieldId === "cidade") {
+    const v = normalizeSpaces(value);
+    if (!v) return "Informe sua cidade.";
+    if (/\d/.test(v) || !/[a-zA-ZÀ-ÿ]/.test(v))
+      return "Informe um nome de cidade válido.";
+    return "";
   }
   return "";
 }
@@ -371,19 +409,22 @@ function OptionButton({
   children,
   onClick,
   pressed,
+  disabled,
 }: {
   active: boolean;
   children: React.ReactNode;
   onClick: () => void;
   pressed?: boolean;
+  disabled?: boolean;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
+      disabled={disabled}
       aria-pressed={pressed ?? active}
       className={cn(
-        "group flex min-h-12 w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm leading-5 outline-none transition-[background-color,border-color,color] duration-300 focus-visible:border-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring/25",
+        "group flex min-h-12 w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm leading-5 outline-none transition-[background-color,border-color,color] duration-300 focus-visible:border-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring/25 disabled:pointer-events-none disabled:opacity-40",
         active
           ? "border-primary/40 bg-primary text-primary-foreground hover:border-primary/55 hover:bg-primary/92"
           : "border-border bg-background/72 text-foreground hover:border-primary/28 hover:bg-primary/[0.06]",
@@ -411,6 +452,9 @@ export function ClosingCtaSection() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [answers, setAnswers] = useState<Answers>(initialAnswers);
+  const [citySuggestions, setCitySuggestions] = useState<CitySuggestion[]>([]);
+  const visibleCitySuggestions =
+    answers.cidade.trim().length >= 2 ? citySuggestions : [];
   const [stepBodyHeight, setStepBodyHeight] = useState<number>();
   const stepHeadingRef = useRef<HTMLHeadingElement>(null);
   const stepBodyRef = useRef<HTMLDivElement>(null);
@@ -426,7 +470,6 @@ export function ClosingCtaSection() {
   const [profissaoOutroConfirmed, setProfissaoOutroConfirmed] = useState("");
   const profissaoOutroInputRef = useRef<HTMLInputElement>(null);
 
-  const [situacaoError, setSituacaoError] = useState("");
   const [situacaoOutroDialogOpen, setSituacaoOutroDialogOpen] = useState(false);
   const [situacaoOutroDraft, setSituacaoOutroDraft] = useState("");
   const [situacaoOutroConfirmed, setSituacaoOutroConfirmed] = useState("");
@@ -500,6 +543,43 @@ export function ClosingCtaSection() {
     return () => window.cancelAnimationFrame(frame);
   }, [submitError]);
 
+  useEffect(() => {
+    const query = answers.cidade.trim();
+
+    if (query.length < 2) {
+      return;
+    }
+
+    const controller = new AbortController();
+    const timeout = window.setTimeout(async () => {
+      try {
+        const response = await fetch(
+          `/api/cidades?q=${encodeURIComponent(query)}`,
+          { signal: controller.signal },
+        );
+
+        if (!response.ok) return;
+
+        const data = (await response.json()) as {
+          cities?: CitySuggestion[];
+        };
+
+        setCitySuggestions(data.cities ?? []);
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") {
+          return;
+        }
+
+        setCitySuggestions([]);
+      }
+    }, 160);
+
+    return () => {
+      controller.abort();
+      window.clearTimeout(timeout);
+    };
+  }, [answers.cidade]);
+
   function updateAnswer<Key extends keyof Answers>(
     key: Key,
     value: Answers[Key],
@@ -531,26 +611,49 @@ export function ClosingCtaSection() {
     setProfissaoOutroDialogOpen(false);
   }
 
-  function selectSituacao(value: string) {
-    setSituacaoError("");
+  function toggleSituacao(value: string) {
+    setSubmitError("");
+
     if (value === "Outro") {
-      if (answers.situacao === "Outro") {
-        updateAnswer("situacao", "");
+      if (answers.situacoes.includes("Outro")) {
+        setAnswers((current) => ({
+          ...current,
+          situacoes: current.situacoes.filter((item) => item !== "Outro"),
+        }));
         setSituacaoOutroConfirmed("");
-      } else {
+      } else if (answers.situacoes.length < MAX_SITUACOES) {
         setSituacaoOutroDraft(situacaoOutroConfirmed);
         setSituacaoOutroDialogOpen(true);
       }
       return;
     }
-    updateAnswer("situacao", value);
+
+    setAnswers((current) => {
+      const selected = current.situacoes.includes(value);
+      if (!selected && current.situacoes.length >= MAX_SITUACOES) {
+        return current;
+      }
+
+      return {
+        ...current,
+        situacoes: selected
+          ? current.situacoes.filter((item) => item !== value)
+          : [...current.situacoes, value],
+      };
+    });
   }
 
   function confirmSituacaoOutro() {
     const text = situacaoOutroDraft.trim();
     if (!text) return;
     setSituacaoOutroConfirmed(text);
-    updateAnswer("situacao", "Outro");
+    setAnswers((current) => ({
+      ...current,
+      situacoes: [
+        ...current.situacoes.filter((item) => item !== "Outro"),
+        "Outro",
+      ],
+    }));
     setSituacaoOutroDialogOpen(false);
   }
 
@@ -568,6 +671,10 @@ export function ClosingCtaSection() {
   function finalizeContactField(fieldId: ContactFieldId) {
     if (fieldId === "nome") {
       updateAnswer("nome", formatPersonName(answers.nome));
+      return;
+    }
+    if (fieldId === "cidade") {
+      updateAnswer("cidade", formatCityName(answers.cidade));
     }
   }
 
@@ -622,16 +729,16 @@ export function ClosingCtaSection() {
         body: JSON.stringify({
           nome: formatPersonName(answers.nome),
           whatsapp: formatBrazilianPhone(answers.whatsapp),
+          cidade: formatCityName(answers.cidade),
           profissao:
             answers.profissao === "Outro" && profissaoOutroConfirmed
               ? profissaoOutroConfirmed
               : answers.profissao,
-          situacoes: [
-            answers.situacao === "Outro" && situacaoOutroConfirmed
-              ? situacaoOutroConfirmed
-              : answers.situacao,
-          ],
+          situacoes: answers.situacoes.map((s) =>
+            s === "Outro" && situacaoOutroConfirmed ? situacaoOutroConfirmed : s,
+          ),
           disponibilidade: answers.disponibilidade,
+          renda: answers.renda,
         }),
       });
 
@@ -653,7 +760,6 @@ export function ClosingCtaSection() {
       setFieldErrors({});
       setProfissaoError("");
       setProfissaoOutroConfirmed("");
-      setSituacaoError("");
       setSituacaoOutroConfirmed("");
     } catch (error) {
       setSubmitError(
@@ -831,6 +937,11 @@ export function ClosingCtaSection() {
                                 maxLength={
                                   field.id === "whatsapp" ? 16 : undefined
                                 }
+                                list={
+                                  field.id === "cidade"
+                                    ? "city-suggestions"
+                                    : undefined
+                                }
                                 value={answers[field.id]}
                                 aria-describedby={
                                   hasError ? `${field.id}-error` : undefined
@@ -864,6 +975,11 @@ export function ClosingCtaSection() {
                             </div>
                           );
                         })}
+                        <datalist id="city-suggestions">
+                          {visibleCitySuggestions.map((city) => (
+                            <option key={city.id} value={city.label} />
+                          ))}
+                        </datalist>
 
                         <div className="grid gap-2">
                           <label
@@ -887,24 +1003,36 @@ export function ClosingCtaSection() {
 
                     {step === 1 ? (
                       <div className="grid gap-7">
-                        <div className="grid gap-2">
-                          <label
-                            id="situacao-label"
-                            className="text-sm font-medium"
-                          >
+                        <fieldset>
+                          <legend className="mb-3 text-sm font-medium">
                             Qual dessas situações mais impacta sua qualidade de
-                            vida?
-                          </label>
-                          <OptionSelect
-                            options={situationOptions}
-                            placeholder="Selecione a principal situação"
-                            value={answers.situacao}
-                            outroConfirmed={situacaoOutroConfirmed}
-                            onSelect={selectSituacao}
-                            error={situacaoError}
-                            labelId="situacao-label"
-                          />
-                        </div>
+                            vida? <span className="font-normal text-muted-foreground">(até 3)</span>
+                          </legend>
+                          <div
+                            className="grid gap-2 sm:grid-cols-2"
+                            role="group"
+                            aria-label="Situações que impactam sua qualidade de vida"
+                          >
+                            {situationOptions.map((option) => {
+                              const selected = answers.situacoes.includes(option);
+                              const limitReached =
+                                answers.situacoes.length >= MAX_SITUACOES;
+                              return (
+                                <OptionButton
+                                  key={option}
+                                  active={selected}
+                                  pressed={selected}
+                                  disabled={!selected && limitReached}
+                                  onClick={() => toggleSituacao(option)}
+                                >
+                                  {option === "Outro" && situacaoOutroConfirmed
+                                    ? `Outro: ${situacaoOutroConfirmed}`
+                                    : option}
+                                </OptionButton>
+                              );
+                            })}
+                          </div>
+                        </fieldset>
 
                         <fieldset>
                           <legend className="mb-3 text-sm font-medium">
@@ -927,6 +1055,27 @@ export function ClosingCtaSection() {
                                 onClick={() =>
                                   updateAnswer("disponibilidade", option)
                                 }
+                              >
+                                {option}
+                              </OptionButton>
+                            ))}
+                          </div>
+                        </fieldset>
+
+                        <fieldset>
+                          <legend className="mb-3 text-sm font-medium">
+                            Qual é a sua faixa de renda mensal?
+                          </legend>
+                          <div
+                            className="grid gap-2 sm:grid-cols-2"
+                            role="radiogroup"
+                            aria-label="Faixa de renda mensal"
+                          >
+                            {incomeOptions.map((option) => (
+                              <OptionButton
+                                key={option}
+                                active={answers.renda === option}
+                                onClick={() => updateAnswer("renda", option)}
                               >
                                 {option}
                               </OptionButton>
@@ -964,7 +1113,7 @@ export function ClosingCtaSection() {
                   <Button
                     type="submit"
                     size="lg"
-                    className="min-w-36"
+                    className="min-w-36 bg-cta-accent text-cta-accent-foreground hover:bg-cta-accent/90"
                     disabled={submitting}
                   >
                     {submitting

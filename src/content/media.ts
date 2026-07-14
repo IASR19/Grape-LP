@@ -41,6 +41,9 @@ export const clinicPhotos = {
   // retratos (arquivos DSC_* em opt/spaces — não usar na galeria de ambientes)
   founderPortraitStudio: image("spaces", "doutora.jpg"),
 
+  // popup — pop-up de captação de lead (home)
+  popupConsulta: image("popup", "agende-consulta.jpg"),
+
   // sections — fundos editoriais
   carePaths: image("sections", "care-paths.jpg"),
   carePathsAlt: image("sections", "care-paths-alt.jpg"),

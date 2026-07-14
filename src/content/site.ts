@@ -8,10 +8,10 @@ export const siteConfig = {
   city: "Pouso Alegre, MG",
   address:
     "R. Cel. Brito Filho, n°461 - e 469 - Fátima, Pouso Alegre - MG, 37554-246",
-  phone: "+5535991390358",
+  phone: "+553531122929",
   whatsappLabel: "Falar com a equipe",
   whatsappHref:
-    "https://api.whatsapp.com/send?phone=5535991390358&text=Ol%C3%A1%2C%20vim%20pelo%20site%20e%20gostaria%20de%20agendar%20uma%20consulta!",
+    "https://api.whatsapp.com/send?phone=553531122929&text=Ol%C3%A1%2C%20vim%20pelo%20site%20e%20gostaria%20de%20agendar%20uma%20consulta!",
   mapsHref:
     "https://www.google.com/maps/dir//R.+Cel.+Brito+Filho,+n%C2%B0461+-+e+469+-+Fatima,+Pouso+Alegre+-+MG,+37554-246/@-22.2244654,-46.0057998,12z/data=!4m8!4m7!1m0!1m5!1m1!1s0x94cbc749485e24f5:0xef1266625663eac6!2m2!1d-45.9233982!2d-22.2244861?entry=ttu",
   evaluationFormHref: "/#contato",

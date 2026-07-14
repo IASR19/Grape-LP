@@ -59,17 +59,17 @@ function PrimaryPulseFabLink({
     >
       <span
         aria-hidden="true"
-        className="fab-primary-ring absolute inset-0 rounded-full bg-primary"
+        className="fab-primary-ring absolute inset-0 rounded-full bg-cta-accent"
       />
       <span
         aria-hidden="true"
-        className="fab-primary-ring fab-primary-ring-delay absolute inset-0 rounded-full bg-primary"
+        className="fab-primary-ring fab-primary-ring-delay absolute inset-0 rounded-full bg-cta-accent"
       />
 
       <span
         className={cn(
           "fab-primary-btn relative flex size-14 items-center justify-center rounded-full",
-          "bg-primary text-primary-foreground",
+          "bg-cta-accent text-cta-accent-foreground",
           "transition-transform duration-300 ease-out",
           "group-hover:scale-105",
           "group-active:scale-95",

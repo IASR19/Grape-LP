@@ -28,6 +28,9 @@
   --card-foreground: oklch(0.215 0.018 62);
   --primary: oklch(0.43 0.05 65);
   --primary-foreground: oklch(0.975 0.018 84);
+  /* TODO: hex definitivo pendente de confirmação do Rafael — troca de 1 linha. */
+  --cta-accent: #f2b705;
+  --cta-accent-foreground: #241a06;
   --secondary: oklch(0.93 0.025 84);
   --secondary-foreground: oklch(0.25 0.025 62);
   --muted: oklch(0.94 0.011 84);
@@ -108,6 +111,8 @@ body::-webkit-scrollbar {
   --color-card-foreground: var(--card-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-cta-accent: var(--cta-accent);
+  --color-cta-accent-foreground: var(--cta-accent-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
