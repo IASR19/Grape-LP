@@ -250,7 +250,7 @@ function OptionSelect({
             role="listbox"
             aria-labelledby={labelId}
           >
-            <div className="grid grid-cols-2 gap-px bg-border p-px pt-0">
+            <div className="grid grid-cols-1 gap-px bg-border p-px pt-0 sm:grid-cols-2">
               {options.map((option) => {
                 const isSelected = value === option;
                 const label =
@@ -375,7 +375,7 @@ function MultiOptionSelect({
             aria-multiselectable="true"
             aria-labelledby={labelId}
           >
-            <div className="grid grid-cols-2 gap-px bg-border p-px pt-0">
+            <div className="grid grid-cols-1 gap-px bg-border p-px pt-0 sm:grid-cols-2">
               {options.map((option) => {
                 const isSelected = value.includes(option);
                 const isDisabled = !isSelected && limitReached;
