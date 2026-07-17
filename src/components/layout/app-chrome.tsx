@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { FloatingWhatsApp } from "@/components/layout/floating-whatsapp";
 import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
+import { LeadPopup } from "@/components/layout/lead-popup";
 import { RouteViewTransition } from "@/components/layout/route-view-transition";
 import { SkipLink } from "@/components/ui/skip-link";
 import { SITE_FOOTER_ID } from "@/hooks/use-footer-near-viewport";
@@ -67,6 +68,7 @@ export function AppChrome({ children }: AppChromeProps) {
       </main>
       {!isHub ? <Footer id={SITE_FOOTER_ID} /> : null}
       <FloatingWhatsApp />
+      {!isHub ? <LeadPopup /> : null}
     </>
   );
 }

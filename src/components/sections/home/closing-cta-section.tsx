@@ -25,6 +25,7 @@ import { PageSection } from "@/components/sections/section-shell";
 import { Button } from "@/components/ui/button";
 import {
   formatBrazilianPhone,
+  formatCityName,
   formatPersonName,
   isValidBrazilianPhone,
   normalizeSpaces,
@@ -49,7 +50,24 @@ const contactFields = [
     placeholder: "(00) 00000-0000",
     autoComplete: "tel",
   },
+  {
+    id: "cidade",
+    label: "Cidade",
+    type: "text",
+    placeholder: "Onde você mora",
+    autoComplete: "address-level2",
+  },
 ] as const;
+
+const incomeOptions = [
+  "Até R$ 10.000",
+  "R$ 10.000 a R$ 20.000",
+  "R$ 20.000 a R$ 40.000",
+  "R$ 40.000 a R$ 80.000",
+  "Acima de R$ 80.000",
+];
+
+const MAX_SITUACOES = 3;
 
 const situationOptions = [
   "Falta de energia",
@@ -95,27 +113,40 @@ const steps = [
 type Answers = {
   nome: string;
   whatsapp: string;
+  cidade: string;
   profissao: string;
-  situacao: string;
+  situacoes: string[];
   disponibilidade: string;
+  renda: string;
+};
+
+type CitySuggestion = {
+  id: string;
+  label: string;
 };
 
 const initialAnswers: Answers = {
   nome: "",
   whatsapp: "",
+  cidade: "",
   profissao: "",
-  situacao: "",
+  situacoes: [],
   disponibilidade: "",
+  renda: "",
 };
 
 function getStepValidationError(currentStep: number, currentAnswers: Answers) {
   if (currentStep === 1) {
-    if (!currentAnswers.situacao.trim()) {
-      return "Selecione a situação que mais impacta sua qualidade de vida.";
+    if (currentAnswers.situacoes.length === 0) {
+      return "Selecione pelo menos uma situação que impacta sua qualidade de vida.";
     }
 
     if (!currentAnswers.disponibilidade.trim()) {
       return "Informe sua disponibilidade para uma avaliação estratégica.";
+    }
+
+    if (!currentAnswers.renda.trim()) {
+      return "Selecione sua faixa de renda mensal.";
     }
   }
 
@@ -133,6 +164,13 @@ function validateContactField(fieldId: ContactFieldId, value: string): string {
     return isValidBrazilianPhone(value)
       ? ""
       : "Informe um WhatsApp válido com DDD.";
+  }
+  if (fieldId === "cidade") {
+    const v = normalizeSpaces(value);
+    if (!v) return "Informe sua cidade.";
+    if (/\d/.test(v) || !/[a-zA-ZÀ-ÿ]/.test(v))
+      return "Informe um nome de cidade válido.";
+    return "";
   }
   return "";
 }
@@ -212,7 +250,7 @@ function OptionSelect({
             role="listbox"
             aria-labelledby={labelId}
           >
-            <div className="grid grid-cols-2 gap-px bg-border p-px pt-0">
+            <div className="grid grid-cols-1 gap-px bg-border p-px pt-0 sm:grid-cols-2">
               {options.map((option) => {
                 const isSelected = value === option;
                 const label =
@@ -250,6 +288,133 @@ function OptionSelect({
                 );
               })}
             </div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
+      {hasError ? (
+        <p role="alert" className="mt-2 text-xs text-destructive">
+          {error}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+type MultiOptionSelectProps = {
+  options: readonly string[];
+  placeholder: string;
+  value: string[];
+  max: number;
+  outroConfirmed: string;
+  onToggle: (option: string) => void;
+  error?: string;
+  labelId: string;
+};
+
+function MultiOptionSelect({
+  options,
+  placeholder,
+  value,
+  max,
+  outroConfirmed,
+  onToggle,
+  error,
+  labelId,
+}: MultiOptionSelectProps) {
+  const [open, setOpen] = useState(false);
+
+  const displayValue =
+    value.length === 0
+      ? ""
+      : value.length === 1
+        ? value[0] === "Outro" && outroConfirmed
+          ? `Outro: ${outroConfirmed}`
+          : value[0]
+        : `${value.length} selecionadas`;
+  const hasError = !!error;
+  const isValid = value.length > 0 && !hasError;
+  const limitReached = value.length >= max;
+
+  return (
+    <div>
+      <button
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-labelledby={labelId}
+        onClick={() => setOpen((prev) => !prev)}
+        className={cn(
+          formFieldClass,
+          "flex w-full items-center justify-between text-left",
+          !displayValue && "text-muted-foreground",
+          hasError && formFieldErrorClass,
+          isValid && formFieldSuccessClass,
+          open && "rounded-b-none border-b-0",
+        )}
+      >
+        <span className="truncate">{displayValue || placeholder}</span>
+        <ChevronDown
+          className={cn(
+            "ml-2 size-4 shrink-0 opacity-50 transition-transform duration-200",
+            open && "rotate-180",
+          )}
+          aria-hidden
+        />
+      </button>
+
+      <AnimatePresence initial={false}>
+        {open ? (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+            className="overflow-hidden rounded-b-xl border border-t-0 border-border bg-background"
+            role="listbox"
+            aria-multiselectable="true"
+            aria-labelledby={labelId}
+          >
+            <div className="grid grid-cols-1 gap-px bg-border p-px pt-0 sm:grid-cols-2">
+              {options.map((option) => {
+                const isSelected = value.includes(option);
+                const isDisabled = !isSelected && limitReached;
+                const label =
+                  option === "Outro" && outroConfirmed
+                    ? `Outro: ${outroConfirmed}`
+                    : option;
+                return (
+                  <button
+                    type="button"
+                    key={option}
+                    role="option"
+                    aria-selected={isSelected}
+                    disabled={isDisabled}
+                    onClick={() => onToggle(option)}
+                    className={cn(
+                      "flex items-center gap-2.5 bg-background px-3 py-2.5 text-left text-sm transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-40",
+                      isSelected && "bg-primary/5 font-medium",
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "grid size-4 shrink-0 place-items-center rounded border transition-colors",
+                        isSelected
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-border",
+                      )}
+                      aria-hidden
+                    >
+                      {isSelected && <Check className="size-2.5" />}
+                    </span>
+                    <span className="truncate">{label}</span>
+                  </button>
+                );
+              })}
+            </div>
+            <p className="border-t border-border bg-background px-3 py-2 text-xs text-muted-foreground">
+              Selecione até {max} opções.
+            </p>
           </motion.div>
         ) : null}
       </AnimatePresence>
@@ -366,51 +531,15 @@ function OutroDialog({
   );
 }
 
-function OptionButton({
-  active,
-  children,
-  onClick,
-  pressed,
-}: {
-  active: boolean;
-  children: React.ReactNode;
-  onClick: () => void;
-  pressed?: boolean;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={pressed ?? active}
-      className={cn(
-        "group flex min-h-12 w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm leading-5 outline-none transition-[background-color,border-color,color] duration-300 focus-visible:border-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring/25",
-        active
-          ? "border-primary/40 bg-primary text-primary-foreground hover:border-primary/55 hover:bg-primary/92"
-          : "border-border bg-background/72 text-foreground hover:border-primary/28 hover:bg-primary/[0.06]",
-      )}
-    >
-      <span
-        className={cn(
-          "grid size-5 shrink-0 place-items-center rounded-full border transition-colors duration-300",
-          active
-            ? "border-primary-foreground/40 bg-primary-foreground text-primary"
-            : "border-border bg-card text-transparent group-hover:border-primary/30 group-hover:bg-primary/[0.08]",
-        )}
-        aria-hidden
-      >
-        <Check className="size-3" />
-      </span>
-      <span>{children}</span>
-    </button>
-  );
-}
-
 export function ClosingCtaSection() {
   const [step, setStep] = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [answers, setAnswers] = useState<Answers>(initialAnswers);
+  const [citySuggestions, setCitySuggestions] = useState<CitySuggestion[]>([]);
+  const visibleCitySuggestions =
+    answers.cidade.trim().length >= 2 ? citySuggestions : [];
   const [stepBodyHeight, setStepBodyHeight] = useState<number>();
   const stepHeadingRef = useRef<HTMLHeadingElement>(null);
   const stepBodyRef = useRef<HTMLDivElement>(null);
@@ -426,7 +555,6 @@ export function ClosingCtaSection() {
   const [profissaoOutroConfirmed, setProfissaoOutroConfirmed] = useState("");
   const profissaoOutroInputRef = useRef<HTMLInputElement>(null);
 
-  const [situacaoError, setSituacaoError] = useState("");
   const [situacaoOutroDialogOpen, setSituacaoOutroDialogOpen] = useState(false);
   const [situacaoOutroDraft, setSituacaoOutroDraft] = useState("");
   const [situacaoOutroConfirmed, setSituacaoOutroConfirmed] = useState("");
@@ -500,6 +628,43 @@ export function ClosingCtaSection() {
     return () => window.cancelAnimationFrame(frame);
   }, [submitError]);
 
+  useEffect(() => {
+    const query = answers.cidade.trim();
+
+    if (query.length < 2) {
+      return;
+    }
+
+    const controller = new AbortController();
+    const timeout = window.setTimeout(async () => {
+      try {
+        const response = await fetch(
+          `/api/cidades?q=${encodeURIComponent(query)}`,
+          { signal: controller.signal },
+        );
+
+        if (!response.ok) return;
+
+        const data = (await response.json()) as {
+          cities?: CitySuggestion[];
+        };
+
+        setCitySuggestions(data.cities ?? []);
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") {
+          return;
+        }
+
+        setCitySuggestions([]);
+      }
+    }, 160);
+
+    return () => {
+      controller.abort();
+      window.clearTimeout(timeout);
+    };
+  }, [answers.cidade]);
+
   function updateAnswer<Key extends keyof Answers>(
     key: Key,
     value: Answers[Key],
@@ -531,26 +696,49 @@ export function ClosingCtaSection() {
     setProfissaoOutroDialogOpen(false);
   }
 
-  function selectSituacao(value: string) {
-    setSituacaoError("");
+  function toggleSituacao(value: string) {
+    setSubmitError("");
+
     if (value === "Outro") {
-      if (answers.situacao === "Outro") {
-        updateAnswer("situacao", "");
+      if (answers.situacoes.includes("Outro")) {
+        setAnswers((current) => ({
+          ...current,
+          situacoes: current.situacoes.filter((item) => item !== "Outro"),
+        }));
         setSituacaoOutroConfirmed("");
-      } else {
+      } else if (answers.situacoes.length < MAX_SITUACOES) {
         setSituacaoOutroDraft(situacaoOutroConfirmed);
         setSituacaoOutroDialogOpen(true);
       }
       return;
     }
-    updateAnswer("situacao", value);
+
+    setAnswers((current) => {
+      const selected = current.situacoes.includes(value);
+      if (!selected && current.situacoes.length >= MAX_SITUACOES) {
+        return current;
+      }
+
+      return {
+        ...current,
+        situacoes: selected
+          ? current.situacoes.filter((item) => item !== value)
+          : [...current.situacoes, value],
+      };
+    });
   }
 
   function confirmSituacaoOutro() {
     const text = situacaoOutroDraft.trim();
     if (!text) return;
     setSituacaoOutroConfirmed(text);
-    updateAnswer("situacao", "Outro");
+    setAnswers((current) => ({
+      ...current,
+      situacoes: [
+        ...current.situacoes.filter((item) => item !== "Outro"),
+        "Outro",
+      ],
+    }));
     setSituacaoOutroDialogOpen(false);
   }
 
@@ -568,6 +756,10 @@ export function ClosingCtaSection() {
   function finalizeContactField(fieldId: ContactFieldId) {
     if (fieldId === "nome") {
       updateAnswer("nome", formatPersonName(answers.nome));
+      return;
+    }
+    if (fieldId === "cidade") {
+      updateAnswer("cidade", formatCityName(answers.cidade));
     }
   }
 
@@ -622,16 +814,16 @@ export function ClosingCtaSection() {
         body: JSON.stringify({
           nome: formatPersonName(answers.nome),
           whatsapp: formatBrazilianPhone(answers.whatsapp),
+          cidade: formatCityName(answers.cidade),
           profissao:
             answers.profissao === "Outro" && profissaoOutroConfirmed
               ? profissaoOutroConfirmed
               : answers.profissao,
-          situacoes: [
-            answers.situacao === "Outro" && situacaoOutroConfirmed
-              ? situacaoOutroConfirmed
-              : answers.situacao,
-          ],
+          situacoes: answers.situacoes.map((s) =>
+            s === "Outro" && situacaoOutroConfirmed ? situacaoOutroConfirmed : s,
+          ),
           disponibilidade: answers.disponibilidade,
+          renda: answers.renda,
         }),
       });
 
@@ -653,7 +845,6 @@ export function ClosingCtaSection() {
       setFieldErrors({});
       setProfissaoError("");
       setProfissaoOutroConfirmed("");
-      setSituacaoError("");
       setSituacaoOutroConfirmed("");
     } catch (error) {
       setSubmitError(
@@ -831,6 +1022,11 @@ export function ClosingCtaSection() {
                                 maxLength={
                                   field.id === "whatsapp" ? 16 : undefined
                                 }
+                                list={
+                                  field.id === "cidade"
+                                    ? "city-suggestions"
+                                    : undefined
+                                }
                                 value={answers[field.id]}
                                 aria-describedby={
                                   hasError ? `${field.id}-error` : undefined
@@ -864,6 +1060,11 @@ export function ClosingCtaSection() {
                             </div>
                           );
                         })}
+                        <datalist id="city-suggestions">
+                          {visibleCitySuggestions.map((city) => (
+                            <option key={city.id} value={city.label} />
+                          ))}
+                        </datalist>
 
                         <div className="grid gap-2">
                           <label
@@ -886,53 +1087,71 @@ export function ClosingCtaSection() {
                     ) : null}
 
                     {step === 1 ? (
-                      <div className="grid gap-7">
+                      <div className="grid gap-4">
                         <div className="grid gap-2">
                           <label
                             id="situacao-label"
                             className="text-sm font-medium"
                           >
                             Qual dessas situações mais impacta sua qualidade de
-                            vida?
+                            vida?{" "}
+                            <span className="font-normal text-muted-foreground">
+                              (até 3)
+                            </span>
                           </label>
-                          <OptionSelect
+                          <MultiOptionSelect
                             options={situationOptions}
-                            placeholder="Selecione a principal situação"
-                            value={answers.situacao}
+                            placeholder="Selecione as situações"
+                            value={answers.situacoes}
+                            max={MAX_SITUACOES}
                             outroConfirmed={situacaoOutroConfirmed}
-                            onSelect={selectSituacao}
-                            error={situacaoError}
+                            onToggle={toggleSituacao}
                             labelId="situacao-label"
                           />
                         </div>
 
-                        <fieldset>
-                          <legend className="mb-3 text-sm font-medium">
+                        <div className="grid gap-2">
+                          <label
+                            id="disponibilidade-label"
+                            className="text-sm font-medium"
+                          >
                             Disponibilidade
-                          </legend>
-                          <p className="mb-3 text-sm leading-6 text-muted-foreground">
+                          </label>
+                          <p className="text-sm leading-6 text-muted-foreground">
                             Caso seu perfil seja compatível com nossa
                             metodologia, você teria disponibilidade para uma
                             avaliação estratégica?
                           </p>
-                          <div
-                            className="grid gap-2 sm:grid-cols-3"
-                            role="radiogroup"
-                            aria-label="Disponibilidade para avaliação estratégica"
+                          <OptionSelect
+                            options={availabilityOptions}
+                            placeholder="Selecione sua disponibilidade"
+                            value={answers.disponibilidade}
+                            outroConfirmed=""
+                            onSelect={(value) =>
+                              updateAnswer("disponibilidade", value)
+                            }
+                            labelId="disponibilidade-label"
+                          />
+                        </div>
+
+                        <div className="grid gap-2">
+                          <label
+                            id="renda-label"
+                            className="text-sm font-medium"
                           >
-                            {availabilityOptions.map((option) => (
-                              <OptionButton
-                                key={option}
-                                active={answers.disponibilidade === option}
-                                onClick={() =>
-                                  updateAnswer("disponibilidade", option)
-                                }
-                              >
-                                {option}
-                              </OptionButton>
-                            ))}
-                          </div>
-                        </fieldset>
+                            Pensando na sua saúde e qualidade de vida, qual
+                            faixa de investimento faz sentido para você neste
+                            momento?
+                          </label>
+                          <OptionSelect
+                            options={incomeOptions}
+                            placeholder="Selecione a faixa de investimento"
+                            value={answers.renda}
+                            outroConfirmed=""
+                            onSelect={(value) => updateAnswer("renda", value)}
+                            labelId="renda-label"
+                          />
+                        </div>
                       </div>
                     ) : null}
                   </div>
@@ -964,7 +1183,7 @@ export function ClosingCtaSection() {
                   <Button
                     type="submit"
                     size="lg"
-                    className="min-w-36"
+                    className="min-w-36 bg-cta-accent text-cta-accent-foreground hover:bg-cta-accent/90"
                     disabled={submitting}
                   >
                     {submitting

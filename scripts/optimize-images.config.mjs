@@ -101,6 +101,9 @@ export const images = [
   { src: src("journey", "monitoramento.png"), profile: "journey", out: out("journey", "monitoramento.jpg") },
   { src: src("journey", "consolidacao.png"), profile: "journey", out: out("journey", "consolidacao.jpg") },
 
+  // popup — pop-up de captação de lead (home)
+  { src: src("popup", "agende-consulta.png"), profile: "section", out: out("popup", "agende-consulta.jpg") },
+
   // method
   { src: src("method", "hormone-balance-wellness.jpg"), profile: "card", out: out("method", "hormone-balance-wellness.jpg") },
   { src: src("method", "anti-inflammatory-nutrition.jpg"), profile: "card", out: out("method", "anti-inflammatory-nutrition.jpg") },

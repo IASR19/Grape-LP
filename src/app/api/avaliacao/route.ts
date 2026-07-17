@@ -9,12 +9,16 @@ type EvaluationLeadPayload = {
   profissao?: unknown;
   renda?: unknown;
   situacoes?: unknown;
-  tempo?: unknown;
-  momento?: unknown;
   disponibilidade?: unknown;
 };
 
-const requiredStringFields = ["nome", "whatsapp", "disponibilidade"] as const;
+const requiredStringFields = [
+  "nome",
+  "whatsapp",
+  "cidade",
+  "disponibilidade",
+  "renda",
+] as const;
 
 function isFilledString(value: unknown) {
   return typeof value === "string" && value.trim().length > 0;
@@ -79,8 +83,10 @@ export async function POST(request: Request) {
   const grapegestPayload: Record<string, string> = {
     name: payload.nome as string,
     phone: payload.whatsapp as string,
+    localizacao: payload.cidade as string,
     dor_principal: situacoes.join(", "),
     disponibilidade: payload.disponibilidade as string,
+    valor_disposto: payload.renda as string,
     source: "link-bio",
   };
 
