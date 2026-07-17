@@ -301,6 +301,133 @@ function OptionSelect({
   );
 }
 
+type MultiOptionSelectProps = {
+  options: readonly string[];
+  placeholder: string;
+  value: string[];
+  max: number;
+  outroConfirmed: string;
+  onToggle: (option: string) => void;
+  error?: string;
+  labelId: string;
+};
+
+function MultiOptionSelect({
+  options,
+  placeholder,
+  value,
+  max,
+  outroConfirmed,
+  onToggle,
+  error,
+  labelId,
+}: MultiOptionSelectProps) {
+  const [open, setOpen] = useState(false);
+
+  const displayValue =
+    value.length === 0
+      ? ""
+      : value.length === 1
+        ? value[0] === "Outro" && outroConfirmed
+          ? `Outro: ${outroConfirmed}`
+          : value[0]
+        : `${value.length} selecionadas`;
+  const hasError = !!error;
+  const isValid = value.length > 0 && !hasError;
+  const limitReached = value.length >= max;
+
+  return (
+    <div>
+      <button
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-labelledby={labelId}
+        onClick={() => setOpen((prev) => !prev)}
+        className={cn(
+          formFieldClass,
+          "flex w-full items-center justify-between text-left",
+          !displayValue && "text-muted-foreground",
+          hasError && formFieldErrorClass,
+          isValid && formFieldSuccessClass,
+          open && "rounded-b-none border-b-0",
+        )}
+      >
+        <span className="truncate">{displayValue || placeholder}</span>
+        <ChevronDown
+          className={cn(
+            "ml-2 size-4 shrink-0 opacity-50 transition-transform duration-200",
+            open && "rotate-180",
+          )}
+          aria-hidden
+        />
+      </button>
+
+      <AnimatePresence initial={false}>
+        {open ? (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+            className="overflow-hidden rounded-b-xl border border-t-0 border-border bg-background"
+            role="listbox"
+            aria-multiselectable="true"
+            aria-labelledby={labelId}
+          >
+            <div className="grid grid-cols-2 gap-px bg-border p-px pt-0">
+              {options.map((option) => {
+                const isSelected = value.includes(option);
+                const isDisabled = !isSelected && limitReached;
+                const label =
+                  option === "Outro" && outroConfirmed
+                    ? `Outro: ${outroConfirmed}`
+                    : option;
+                return (
+                  <button
+                    type="button"
+                    key={option}
+                    role="option"
+                    aria-selected={isSelected}
+                    disabled={isDisabled}
+                    onClick={() => onToggle(option)}
+                    className={cn(
+                      "flex items-center gap-2.5 bg-background px-3 py-2.5 text-left text-sm transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-40",
+                      isSelected && "bg-primary/5 font-medium",
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "grid size-4 shrink-0 place-items-center rounded border transition-colors",
+                        isSelected
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-border",
+                      )}
+                      aria-hidden
+                    >
+                      {isSelected && <Check className="size-2.5" />}
+                    </span>
+                    <span className="truncate">{label}</span>
+                  </button>
+                );
+              })}
+            </div>
+            <p className="border-t border-border bg-background px-3 py-2 text-xs text-muted-foreground">
+              Selecione até {max} opções.
+            </p>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
+      {hasError ? (
+        <p role="alert" className="mt-2 text-xs text-destructive">
+          {error}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
 type OutroDialogProps = {
   open: boolean;
   title: string;
@@ -401,48 +528,6 @@ function OutroDialog({
         </motion.div>
       ) : null}
     </AnimatePresence>
-  );
-}
-
-function OptionButton({
-  active,
-  children,
-  onClick,
-  pressed,
-  disabled,
-}: {
-  active: boolean;
-  children: React.ReactNode;
-  onClick: () => void;
-  pressed?: boolean;
-  disabled?: boolean;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      aria-pressed={pressed ?? active}
-      className={cn(
-        "group flex min-h-12 w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm leading-5 outline-none transition-[background-color,border-color,color] duration-300 focus-visible:border-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring/25 disabled:pointer-events-none disabled:opacity-40",
-        active
-          ? "border-primary/40 bg-primary text-primary-foreground hover:border-primary/55 hover:bg-primary/92"
-          : "border-border bg-background/72 text-foreground hover:border-primary/28 hover:bg-primary/[0.06]",
-      )}
-    >
-      <span
-        className={cn(
-          "grid size-5 shrink-0 place-items-center rounded-full border transition-colors duration-300",
-          active
-            ? "border-primary-foreground/40 bg-primary-foreground text-primary"
-            : "border-border bg-card text-transparent group-hover:border-primary/30 group-hover:bg-primary/[0.08]",
-        )}
-        aria-hidden
-      >
-        <Check className="size-3" />
-      </span>
-      <span>{children}</span>
-    </button>
   );
 }
 
@@ -1002,86 +1087,71 @@ export function ClosingCtaSection() {
                     ) : null}
 
                     {step === 1 ? (
-                      <div className="grid gap-7">
-                        <fieldset>
-                          <legend className="mb-3 text-sm font-medium">
-                            Qual dessas situações mais impacta sua qualidade de
-                            vida? <span className="font-normal text-muted-foreground">(até 3)</span>
-                          </legend>
-                          <div
-                            className="grid gap-2 sm:grid-cols-2"
-                            role="group"
-                            aria-label="Situações que impactam sua qualidade de vida"
+                      <div className="grid gap-4">
+                        <div className="grid gap-2">
+                          <label
+                            id="situacao-label"
+                            className="text-sm font-medium"
                           >
-                            {situationOptions.map((option) => {
-                              const selected = answers.situacoes.includes(option);
-                              const limitReached =
-                                answers.situacoes.length >= MAX_SITUACOES;
-                              return (
-                                <OptionButton
-                                  key={option}
-                                  active={selected}
-                                  pressed={selected}
-                                  disabled={!selected && limitReached}
-                                  onClick={() => toggleSituacao(option)}
-                                >
-                                  {option === "Outro" && situacaoOutroConfirmed
-                                    ? `Outro: ${situacaoOutroConfirmed}`
-                                    : option}
-                                </OptionButton>
-                              );
-                            })}
-                          </div>
-                        </fieldset>
+                            Qual dessas situações mais impacta sua qualidade de
+                            vida?{" "}
+                            <span className="font-normal text-muted-foreground">
+                              (até 3)
+                            </span>
+                          </label>
+                          <MultiOptionSelect
+                            options={situationOptions}
+                            placeholder="Selecione as situações"
+                            value={answers.situacoes}
+                            max={MAX_SITUACOES}
+                            outroConfirmed={situacaoOutroConfirmed}
+                            onToggle={toggleSituacao}
+                            labelId="situacao-label"
+                          />
+                        </div>
 
-                        <fieldset>
-                          <legend className="mb-3 text-sm font-medium">
+                        <div className="grid gap-2">
+                          <label
+                            id="disponibilidade-label"
+                            className="text-sm font-medium"
+                          >
                             Disponibilidade
-                          </legend>
-                          <p className="mb-3 text-sm leading-6 text-muted-foreground">
+                          </label>
+                          <p className="text-sm leading-6 text-muted-foreground">
                             Caso seu perfil seja compatível com nossa
                             metodologia, você teria disponibilidade para uma
                             avaliação estratégica?
                           </p>
-                          <div
-                            className="grid gap-2 sm:grid-cols-3"
-                            role="radiogroup"
-                            aria-label="Disponibilidade para avaliação estratégica"
-                          >
-                            {availabilityOptions.map((option) => (
-                              <OptionButton
-                                key={option}
-                                active={answers.disponibilidade === option}
-                                onClick={() =>
-                                  updateAnswer("disponibilidade", option)
-                                }
-                              >
-                                {option}
-                              </OptionButton>
-                            ))}
-                          </div>
-                        </fieldset>
+                          <OptionSelect
+                            options={availabilityOptions}
+                            placeholder="Selecione sua disponibilidade"
+                            value={answers.disponibilidade}
+                            outroConfirmed=""
+                            onSelect={(value) =>
+                              updateAnswer("disponibilidade", value)
+                            }
+                            labelId="disponibilidade-label"
+                          />
+                        </div>
 
-                        <fieldset>
-                          <legend className="mb-3 text-sm font-medium">
-                            Qual é a sua faixa de renda mensal?
-                          </legend>
-                          <div
-                            className="grid gap-2 sm:grid-cols-2"
-                            role="radiogroup"
-                            aria-label="Faixa de renda mensal"
+                        <div className="grid gap-2">
+                          <label
+                            id="renda-label"
+                            className="text-sm font-medium"
                           >
-                            {incomeOptions.map((option) => (
-                              <OptionButton
-                                key={option}
-                                active={answers.renda === option}
-                                onClick={() => updateAnswer("renda", option)}
-                              >
-                                {option}
-                              </OptionButton>
-                            ))}
-                          </div>
-                        </fieldset>
+                            Pensando na sua saúde e qualidade de vida, qual
+                            faixa de investimento faz sentido para você neste
+                            momento?
+                          </label>
+                          <OptionSelect
+                            options={incomeOptions}
+                            placeholder="Selecione a faixa de investimento"
+                            value={answers.renda}
+                            outroConfirmed=""
+                            onSelect={(value) => updateAnswer("renda", value)}
+                            labelId="renda-label"
+                          />
+                        </div>
                       </div>
                     ) : null}
                   </div>
