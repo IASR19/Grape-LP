@@ -1,6 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Vercel Node lambdas (Next 16.2.x) can resolve @swc/helpers via the ESM
+  // path even when NFT only traces the CJS build — include both so /api/*
+  // functions do not crash with FUNCTION_INVOCATION_FAILED.
+  outputFileTracingIncludes: {
+    "/api/*": ["./node_modules/@swc/helpers/**/*"],
+  },
   experimental: {
     viewTransition: true,
   },
