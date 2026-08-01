@@ -98,7 +98,7 @@ function JourneyStepMedia({
               fill
               sizes={sizes}
               className="object-cover object-center"
-              priority={index === 0}
+              loading="lazy"
             />
           </motion.div>
         );

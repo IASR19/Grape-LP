@@ -2,7 +2,7 @@
 
 Site institucional e hub de conversão da **Grape Clinic** — clínica premium de estética, emagrecimento médico e cuidado corporal em Pouso Alegre (MG).
 
-**Stack:** Next.js 16 · React 19 · TypeScript · Tailwind CSS 4 · motion/react · GSAP · Lenis
+**Stack:** Next.js 16 · React 19 · TypeScript · Tailwind CSS 4 · motion/react · GSAP
 
 ---
 
@@ -159,7 +159,7 @@ Detalhes completos: [`docs/MEDIA.md`](docs/MEDIA.md).
 
 - **UI motion:** `motion/react` via [`src/components/motion/reveal.tsx`](src/components/motion/reveal.tsx)
 - **Scroll storytelling:** GSAP + ScrollTrigger (parallax, pin)
-- **Scroll suave:** Lenis (desligado com `prefers-reduced-motion`)
+- **Scroll:** nativo + GSAP ScrollTrigger
 - **Tema:** next-themes + View Transitions API
 
 Guia completo: [`src/lib/motion/MOTION.md`](src/lib/motion/MOTION.md).

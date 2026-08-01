@@ -10,7 +10,6 @@ import { LeadPopup } from "@/components/layout/lead-popup";
 import { RouteViewTransition } from "@/components/layout/route-view-transition";
 import { SkipLink } from "@/components/ui/skip-link";
 import { SITE_FOOTER_ID } from "@/hooks/use-footer-near-viewport";
-import { getLenis } from "@/lib/lenis";
 import { cn } from "@/lib/utils";
 
 type AppChromeProps = {
@@ -27,21 +26,6 @@ export function AppChrome({ children }: AppChromeProps) {
     if (!isHub) return;
 
     window.scrollTo(0, 0);
-
-    function stopLenis() {
-      getLenis()?.stop();
-    }
-
-    stopLenis();
-    const retryId = window.setInterval(() => {
-      stopLenis();
-      if (getLenis()) window.clearInterval(retryId);
-    }, 100);
-
-    return () => {
-      window.clearInterval(retryId);
-      getLenis()?.start();
-    };
   }, [isHub]);
 
   return (

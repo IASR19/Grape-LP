@@ -14,7 +14,6 @@ type GalleryPhoto = {
   src: string;
   alt: string;
   objectPosition: string;
-  priority?: boolean;
 };
 
 /** Ambientes reais da clínica — apenas fotos de espaço em `public/images/opt/spaces/`. */
@@ -23,7 +22,6 @@ const galleryPhotos = [
     src: clinicPhotos.receptionWide,
     alt: "Recepção ampla da Grape Clinic com balcão curvo e iluminação integrada",
     objectPosition: "50% 50%",
-    priority: true,
   },
   {
     src: clinicPhotos.ambiance,
@@ -55,8 +53,8 @@ function GalleryTile({
         src={photo.src}
         alt={photo.alt}
         fill
-        priority={photo.priority}
         sizes="(min-width: 1024px) 40vw, 50vw"
+        loading="lazy"
         className="object-cover motion-safe:transition-transform motion-safe:duration-500 motion-safe:hover:scale-[1.015]"
         style={{ objectPosition: photo.objectPosition }}
       />

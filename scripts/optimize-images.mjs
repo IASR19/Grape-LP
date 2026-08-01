@@ -21,7 +21,7 @@ const args = new Set(process.argv.slice(2));
 const force = args.has("--force");
 const scan = args.has("--scan");
 
-const IMAGE_EXT = new Set([".jpg", ".jpeg", ".png", ".webp", ".tif", ".tiff"]);
+const IMAGE_EXT = new Set([".jpg", ".jpeg", ".png", ".webp", ".tif", ".tiff", ".avif"]);
 
 function formatBytes(bytes) {
   if (bytes < 1024) return `${bytes} B`;
@@ -58,36 +58,41 @@ async function isUpToDate(sourcePath, outputPath) {
   }
 }
 
-async function encodeToJpeg(sourcePath, outputPath, profile) {
-  const minQuality = 58;
+function buildResizePipeline(sourcePath, profile) {
+  let pipeline = sharp(sourcePath).rotate();
+
+  if (profile.aspectRatio) {
+    const width = profile.maxWidth;
+    const height = Math.round(width / profile.aspectRatio);
+    pipeline = pipeline.resize({
+      width,
+      height,
+      fit: profile.fit ?? "cover",
+      position: profile.position ?? "centre",
+    });
+  } else {
+    pipeline = pipeline.resize({
+      width: profile.maxWidth,
+      withoutEnlargement: true,
+      fit: "inside",
+    });
+  }
+
+  return pipeline;
+}
+
+/** WebP moderno — ~30–70% menor que JPEG equivalente. */
+async function encodeToWebp(sourcePath, outputPath, profile) {
+  const minQuality = 55;
   let quality = profile.quality;
   let buffer = null;
 
   while (quality >= minQuality) {
-    let pipeline = sharp(sourcePath).rotate();
-
-    if (profile.aspectRatio) {
-      const width = profile.maxWidth;
-      const height = Math.round(width / profile.aspectRatio);
-      pipeline = pipeline.resize({
-        width,
-        height,
-        fit: profile.fit ?? "cover",
-        position: profile.position ?? "centre",
-      });
-    } else {
-      pipeline = pipeline.resize({
-        width: profile.maxWidth,
-        withoutEnlargement: true,
-        fit: "inside",
-      });
-    }
-
-    buffer = await pipeline
-      .jpeg({
+    buffer = await buildResizePipeline(sourcePath, profile)
+      .webp({
         quality,
-        mozjpeg: true,
-        chromaSubsampling: "4:2:0",
+        effort: 5,
+        smartSubsample: true,
       })
       .toBuffer();
 
@@ -104,11 +109,55 @@ async function encodeToJpeg(sourcePath, outputPath, profile) {
   return { bytesAfter: buffer.length, qualityUsed: quality };
 }
 
+/**
+ * AVIF ainda menor — usado como fonte estática quando o browser/Next preferir.
+ * Geramos ao lado do WebP; o site aponta para .webp e o Next pode servir AVIF via optimizer.
+ */
+async function encodeToAvif(sourcePath, outputPath, profile, webpBytes) {
+  const targetBytes = profile.maxBytes
+    ? Math.min(profile.maxBytes, Math.round(webpBytes * 0.85))
+    : undefined;
+  const minQuality = 40;
+  let quality = Math.max(48, profile.quality - 10);
+  let buffer = null;
+
+  while (quality >= minQuality) {
+    buffer = await buildResizePipeline(sourcePath, profile)
+      .avif({
+        quality,
+        effort: 4,
+      })
+      .toBuffer();
+
+    if (!targetBytes || buffer.length <= targetBytes) {
+      break;
+    }
+
+    quality -= 4;
+  }
+
+  await mkdir(path.dirname(outputPath), { recursive: true });
+  await sharp(buffer).toFile(outputPath);
+
+  return { bytesAfter: buffer.length, qualityUsed: quality };
+}
+
+function toWebpOutName(outName) {
+  return outName.replace(/\.(jpe?g|png|webp|avif)$/i, ".webp");
+}
+
+function toAvifOutName(outName) {
+  return outName.replace(/\.(jpe?g|png|webp|avif)$/i, ".avif");
+}
+
 async function optimizeOne(entry) {
   const sourcePath = path.resolve(ROOT, entry.src);
   const outDir = path.resolve(ROOT, entry.outDir ?? defaultOutputDir);
-  const outName = entry.out ?? `${slugify(path.basename(entry.src))}.jpg`;
-  const outputPath = path.join(outDir, outName);
+  const rawOut = entry.out ?? `${slugify(path.basename(entry.src))}.webp`;
+  const webpName = toWebpOutName(rawOut);
+  const avifName = toAvifOutName(rawOut);
+  const webpPath = path.join(outDir, webpName);
+  const avifPath = path.join(outDir, avifName);
   const profile = profiles[entry.profile ?? scanDefaultProfile];
 
   if (!profile) {
@@ -130,12 +179,18 @@ async function optimizeOne(entry) {
     return null;
   }
 
-  if (await isUpToDate(sourcePath, outputPath)) {
-    const size = await fileSize(outputPath);
-    console.log(`  ↷ ${entry.src} → ${path.relative(ROOT, outputPath)} (${formatBytes(size)}, sem alterações)`);
+  const webpFresh = await isUpToDate(sourcePath, webpPath);
+  const avifFresh = await isUpToDate(sourcePath, avifPath);
+
+  if (webpFresh && avifFresh) {
+    const size = await fileSize(webpPath);
+    console.log(
+      `  ↷ ${entry.src} → ${path.relative(ROOT, webpPath)} (+avif) (${formatBytes(size)}, sem alterações)`,
+    );
     return {
       src: entry.src,
-      out: path.relative(ROOT, outputPath),
+      out: path.relative(ROOT, webpPath),
+      avif: path.relative(ROOT, avifPath),
       profile: entry.profile ?? scanDefaultProfile,
       skipped: true,
       bytes: size,
@@ -143,25 +198,27 @@ async function optimizeOne(entry) {
   }
 
   const before = await fileSize(sourcePath);
-  const { bytesAfter, qualityUsed } = await encodeToJpeg(sourcePath, outputPath, profile);
-  const after = bytesAfter;
-  const saved = before - after;
+  const webp = await encodeToWebp(sourcePath, webpPath, profile);
+  const avif = await encodeToAvif(sourcePath, avifPath, profile, webp.bytesAfter);
+  const saved = before - webp.bytesAfter;
   const pct = before > 0 ? ((saved / before) * 100).toFixed(0) : 0;
 
   console.log(
-    `  ✓ ${entry.src} → ${path.relative(ROOT, outputPath)} (${formatBytes(before)} → ${formatBytes(after)}, -${pct}%, ${meta.width}×${meta.height}, q${qualityUsed}${profile.maxBytes && after > profile.maxBytes ? ", acima do maxBytes" : ""})`,
+    `  ✓ ${entry.src} → ${path.relative(ROOT, webpPath)} (${formatBytes(before)} → ${formatBytes(webp.bytesAfter)} webp / ${formatBytes(avif.bytesAfter)} avif, -${pct}%, q${webp.qualityUsed}${profile.maxBytes && webp.bytesAfter > profile.maxBytes ? ", acima do maxBytes" : ""})`,
   );
 
   return {
     src: entry.src,
-    out: path.relative(ROOT, outputPath),
+    out: path.relative(ROOT, webpPath),
+    avif: path.relative(ROOT, avifPath),
     profile: entry.profile ?? scanDefaultProfile,
     skipped: false,
     bytesBefore: before,
-    bytesAfter: after,
+    bytesAfter: webp.bytesAfter,
+    bytesAvif: avif.bytesAfter,
     width: meta.width,
     height: meta.height,
-    qualityUsed,
+    qualityUsed: webp.qualityUsed,
   };
 }
 
@@ -209,8 +266,8 @@ async function collectScanEntries(existingSources) {
       const category = path.dirname(relFromRoot);
       const outName =
         category === "."
-          ? `${slugify(path.basename(relSrc))}.jpg`
-          : `${category}/${slugify(path.basename(relSrc))}.jpg`;
+          ? `${slugify(path.basename(relSrc))}.webp`
+          : `${category}/${slugify(path.basename(relSrc))}.webp`;
 
       discovered.push({
         src: relSrc,
@@ -224,7 +281,7 @@ async function collectScanEntries(existingSources) {
 }
 
 async function main() {
-  console.log("Otimizando imagens…\n");
+  console.log("Otimizando imagens → WebP + AVIF…\n");
 
   const queue = [...configuredImages];
   const configuredSources = new Set(configuredImages.map((item) => item.src));
@@ -251,6 +308,7 @@ async function main() {
     `${JSON.stringify(
       {
         generatedAt: new Date().toISOString(),
+        formats: ["webp", "avif"],
         profiles,
         results,
       },

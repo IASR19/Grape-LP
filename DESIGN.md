@@ -131,14 +131,14 @@ Para paginas institucionais:
 
 Motion e parte central da experiencia.
 
-- Lenis cria a base de scroll fluido.
+- Scroll nativo + GSAP ScrollTrigger para storytelling.
 - Framer Motion conduz entradas, transicoes, hover, pressed states, menu mobile e cards.
 - GSAP deve ser reservado para scroll storytelling, pinned sections, progress visual e parallax em momentos especiais.
 - Animacoes precisam ser suaves, precisas e curtas.
 - O conteudo nunca deve depender de animacao para aparecer.
 - Sempre respeitar `prefers-reduced-motion`.
 
-Implementação: tokens e presets em `src/lib/motion/` (documentação em `MOTION.md`). GSAP registrado uma vez em `providers.tsx`; ScrollTrigger usa `scrollTriggerScroller()` para Lenis.
+Implementação: tokens e presets em `src/lib/motion/` (documentação em `MOTION.md`). GSAP registrado uma vez em `providers.tsx`; ScrollTrigger usa `scrollTriggerScroller()` no document nativo.
 
 Padrao de movimento:
 

@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from "react";
 
-import { getLenis } from "@/lib/lenis";
-
 const HERO_SELECTOR = "[data-site-hero]";
 const HEADER_HEIGHT_PX = 80;
 
@@ -20,7 +18,6 @@ export function useHeroInView() {
 
   useEffect(() => {
     let frame = 0;
-    let lenisAttached = false;
 
     function update() {
       frame = 0;
@@ -32,29 +29,13 @@ export function useHeroInView() {
       frame = window.requestAnimationFrame(update);
     }
 
-    function attachLenis() {
-      if (lenisAttached) return;
-      const lenis = getLenis();
-      if (!lenis) return;
-      lenis.on("scroll", scheduleUpdate);
-      lenisAttached = true;
-    }
-
     update();
     window.addEventListener("scroll", scheduleUpdate, { passive: true });
     window.addEventListener("resize", scheduleUpdate);
-    attachLenis();
-
-    const retryId = window.setInterval(() => {
-      attachLenis();
-      if (lenisAttached) window.clearInterval(retryId);
-    }, 100);
 
     return () => {
       window.removeEventListener("scroll", scheduleUpdate);
       window.removeEventListener("resize", scheduleUpdate);
-      window.clearInterval(retryId);
-      getLenis()?.off("scroll", scheduleUpdate);
       if (frame) window.cancelAnimationFrame(frame);
     };
   }, []);

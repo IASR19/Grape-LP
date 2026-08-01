@@ -161,6 +161,7 @@ export function ParallaxImage({
           alt={alt}
           fill
           priority={priority}
+          loading={priority ? "eager" : "lazy"}
           sizes={sizes}
           className={cn(
             "object-cover object-center min-h-full min-w-full",
@@ -168,6 +169,7 @@ export function ParallaxImage({
             imageClassName,
           )}
         />
+
       ) : (
         <MockImage
           label={alt}

@@ -14,8 +14,8 @@ import {
 } from "@/lib/intro/run-intro-circle-reveal";
 import {
   preloadCriticalAssets,
-  warmDeferredAssets,
   warmHeroOnReturnVisit,
+  warmHeroVideoInBackground,
 } from "@/lib/intro/preload-critical-assets";
 import { MOTION } from "@/lib/motion";
 import { THEME_VT_DURATION } from "@/lib/motion/theme";
@@ -123,9 +123,11 @@ export function SiteIntro() {
         clearIntroPending();
         setIntroRevealing(true);
         setPhase("reveal");
-        warmDeferredAssets();
+        warmHeroVideoInBackground();
 
         await waitForPaint();
+
+
 
         if (!isActive()) return;
 

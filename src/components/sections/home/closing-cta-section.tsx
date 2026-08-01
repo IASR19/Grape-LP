@@ -30,7 +30,6 @@ import {
   isValidBrazilianPhone,
   normalizeSpaces,
 } from "@/lib/form/formatters";
-import { getLenis } from "@/lib/lenis";
 import { layout } from "@/lib/layout";
 import { type } from "@/lib/typography";
 import { cn } from "@/lib/utils";
@@ -602,7 +601,6 @@ export function ClosingCtaSection() {
 
     const measure = () => {
       setStepBodyHeight(node.scrollHeight);
-      getLenis()?.resize();
     };
 
     measure();
@@ -616,8 +614,6 @@ export function ClosingCtaSection() {
   useEffect(() => {
     if (!submitError) return;
 
-    getLenis()?.resize();
-
     const frame = window.requestAnimationFrame(() => {
       submitErrorRef.current?.scrollIntoView({
         block: "nearest",
@@ -627,6 +623,7 @@ export function ClosingCtaSection() {
 
     return () => window.cancelAnimationFrame(frame);
   }, [submitError]);
+
 
   useEffect(() => {
     const query = answers.cidade.trim();

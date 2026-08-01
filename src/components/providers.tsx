@@ -1,7 +1,6 @@
 "use client";
 
 import { ThemeProvider } from "next-themes";
-import Lenis from "lenis";
 import { MotionConfig } from "motion/react";
 import { useEffect, useLayoutEffect } from "react";
 
@@ -10,7 +9,6 @@ import { HashScrollHandler } from "@/components/layout/hash-scroll-handler";
 import { MetaPixel } from "@/components/seo/meta-pixel";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import { SITE_INTRO_READY_EVENT } from "@/hooks/use-site-intro-ready";
-import { setLenis } from "@/lib/lenis";
 import {
   initHashNavigation,
   initScrollRestoration,
@@ -66,67 +64,16 @@ export function Providers({ children }: { children: React.ReactNode }) {
       window.scrollTo(0, 0);
     }
 
-    if (prefersReducedMotion) {
-      scrollToInitialHash();
-      const removeHashNav = initHashNavigation();
-      return () => {
-        removeHashNav();
-      };
-    }
-
-    const lenis = new Lenis({
-      duration: 1,
-      smoothWheel: true,
-      allowNestedScroll: true,
-    });
-
-    setLenis(lenis);
-    lenis.on("scroll", ScrollTrigger.update);
-
-    if (!window.location.hash) {
-      lenis.scrollTo(0, { immediate: true });
-      window.scrollTo(0, 0);
-    }
-
-    ScrollTrigger.scrollerProxy(document.documentElement, {
-      scrollTop(value) {
-        if (arguments.length && value !== undefined) {
-          lenis.scrollTo(value, { immediate: true });
-        }
-        return lenis.scroll;
-      },
-      getBoundingClientRect() {
-        return {
-          top: 0,
-          left: 0,
-          width: window.innerWidth,
-          height: window.innerHeight,
-        };
-      },
-    });
-
-    let frame = 0;
-
-    function raf(time: number) {
-      lenis.raf(time);
-      frame = requestAnimationFrame(raf);
-    }
-
-    frame = requestAnimationFrame(raf);
-
-    const onRefresh = () => lenis.resize();
-    ScrollTrigger.addEventListener("refresh", onRefresh);
+    const onScroll = () => ScrollTrigger.update();
+    window.addEventListener("scroll", onScroll, { passive: true });
     ScrollTrigger.refresh();
 
     const removeHashNav = initHashNavigation();
     scrollToInitialHash();
 
     return () => {
-      ScrollTrigger.removeEventListener("refresh", onRefresh);
-      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScroll);
       removeHashNav();
-      lenis.destroy();
-      setLenis(null);
     };
   }, [prefersReducedMotion]);
 

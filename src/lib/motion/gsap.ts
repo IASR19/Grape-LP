@@ -15,7 +15,7 @@ export function gsapDuration(prefersReducedMotion: boolean, seconds: number) {
   return prefersReducedMotion ? 0 : seconds;
 }
 
-/** Shared ScrollTrigger scroller config — keep Lenis proxy in sync. */
+/** Shared ScrollTrigger scroller — document nativo (sem smooth-scroll proxy). */
 export function scrollTriggerScroller() {
   return document.documentElement;
 }

@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import { Geist_Mono, Montserrat } from "next/font/google";
 
 import { AppChrome } from "@/components/layout/app-chrome";
-import { CustomCursor } from "@/components/layout/custom-cursor";
+import { CustomCursorLoader } from "@/components/layout/custom-cursor-loader";
 import { Providers } from "@/components/providers";
-import { mediaAssets } from "@/content/media";
 import { doctorProfile, siteConfig } from "@/content/site";
 import { defaultOgImage, siteKeywords, siteUrl } from "@/lib/seo";
 
@@ -87,19 +86,6 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <link
-          rel="preload"
-          href={defaultOgImage.url}
-          as="image"
-          fetchPriority="high"
-        />
-        <link
-          rel="preload"
-          href={mediaAssets.heroClinicVideo.src!}
-          as="fetch"
-          crossOrigin="anonymous"
-          fetchPriority="high"
-        />
         <style
           dangerouslySetInnerHTML={{
             __html: `html[data-site-intro-pending]{overflow:hidden}html[data-site-intro-pending]::before{content:"";position:fixed;inset:0;z-index:79;background:oklch(0.985 0.006 84)}html[data-site-intro-pending] [data-app-shell]{visibility:hidden!important}`,
@@ -114,7 +100,7 @@ export default function RootLayout({
       <body className="flex min-h-full flex-col font-sans">
         <Providers>
           <AppChrome>{children}</AppChrome>
-          <CustomCursor />
+          <CustomCursorLoader />
         </Providers>
       </body>
     </html>

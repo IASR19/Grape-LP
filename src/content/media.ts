@@ -8,14 +8,15 @@ export type MediaAsset = {
   poster?: string;
 };
 
-/** Versões web otimizadas — geradas por `npm run optimize:images`. */
+/** Versões web otimizadas (WebP) — geradas por `npm run optimize:images` (+ AVIF ao lado). */
 const OPT = "/images/opt";
 const VIDEO = "/videos";
 /** Incremente ao trocar o arquivo de vídeo da hero (evita cache do navegador). */
 const HERO_VIDEO_VERSION = "5";
 
 function image(category: string, file: string) {
-  return `${OPT}/${category}/${file}`;
+  const base = file.replace(/\.(jpe?g|png|webp|avif)$/i, "");
+  return `${OPT}/${category}/${base}.webp`;
 }
 
 /** Fotos da clínica por categoria em `public/images/opt/`. */
@@ -221,7 +222,7 @@ function reelVideo(file: string) {
 }
 
 function reelPoster(fileBase: string) {
-  return `${OPT}/reels/${fileBase}.jpg`;
+  return `${OPT}/reels/${fileBase}.webp`;
 }
 
 function localReel(

@@ -23,7 +23,7 @@ import {
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import { useScrollLock } from "@/hooks/use-scroll-lock";
 import { useHeroInView } from "@/hooks/use-hero-in-view";
-import { getScrollY } from "@/lib/lenis";
+import { getScrollY } from "@/lib/scroll";
 import { layout } from "@/lib/layout";
 import {
   animateMobileMenuClose,

@@ -11,7 +11,6 @@ Documentação técnica do frontend. Para produto e tom de marca, ver [`PRODUCT.
 | Estilo | Tailwind CSS 4, tokens em `globals.css` |
 | Motion UI | `motion/react` |
 | Scroll storytelling | GSAP 3 + ScrollTrigger |
-| Scroll suave | Lenis (desligado com `prefers-reduced-motion`) |
 | Tema | next-themes + View Transitions API |
 
 ## Estrutura de pastas
@@ -35,9 +34,9 @@ src/
 │   ├── motion/               # Tokens, presets, GSAP — ver MOTION.md
 │   ├── layout.ts             # Ritmo de seção + gutters
 │   ├── typography.ts         # Escalas tipográficas
-│   ├── navigation/           # Hash scroll + Lenis offset
+│   ├── navigation/           # Hash scroll nativo
 │   ├── intro/                # Site intro, preload de assets críticos
-│   ├── lenis.ts              # Singleton Lenis
+│   ├── scroll.ts             # getScrollY (scroll nativo)
 │   ├── z-index.ts            # Escala semântica de camadas
 │   ├── a11y/                 # focus-trap
 │   └── theme/                # View transition do theme toggle
@@ -50,14 +49,11 @@ src/
 ```mermaid
 flowchart LR
   Providers[providers.tsx]
-  Lenis[Lenis smooth scroll]
   GSAP[GSAP ScrollTrigger]
   Framer[motion/react presets]
   VT[View Transitions API]
 
-  Providers --> Lenis
   Providers --> GSAP
-  Lenis --> GSAP
   Framer --> HomeSections[sections/home]
   Framer --> Hub[link-bio-bento]
   GSAP --> Parallax[parallax-image]
@@ -74,7 +70,6 @@ flowchart LR
 | Entrada, hover, accordion, menu | `motion/react` + `Reveal` / `StaggerReveal` |
 | Parallax de imagem | GSAP ScrollTrigger em `ParallaxImage` |
 | Pin / scroll storytelling | GSAP ScrollTrigger + `scrollTriggerScroller()` |
-| Scroll suave | Lenis (global) |
 | Troca de rota | React `ViewTransition` + CSS em `route-view-transition.css` |
 | Troca de tema | View Transitions API em `run-theme-view-transition.ts` |
 | Hash cross-page (`/hub` → `/#contato`) | `HashScrollHandler` + retry em `scroll-to-hash.ts` |
@@ -87,7 +82,7 @@ flowchart LR
 
 [`app-chrome.tsx`](src/components/layout/app-chrome.tsx): Header, `<main>`, Footer, FAB WhatsApp. Layout especial para `/hub` (viewport fixo).
 
-[`providers.tsx`](src/components/providers.tsx): ThemeProvider, Lenis + scrollerProxy, MotionConfig, SiteIntro, HashScrollHandler.
+[`providers.tsx`](src/components/providers.tsx): ThemeProvider, ScrollTrigger no scroll nativo, MotionConfig, SiteIntro, HashScrollHandler.
 
 ## Home premium
 
