@@ -1,30 +1,34 @@
 {
-  "generatedAt": "2026-06-24T01:52:58.685Z",
+  "generatedAt": "2026-08-01T21:07:11.243Z",
+  "formats": [
+    "webp",
+    "avif"
+  ],
   "profiles": {
     "hero": {
       "maxWidth": 1920,
-      "quality": 78,
-      "maxBytes": 204800
+      "quality": 74,
+      "maxBytes": 122880
     },
     "section": {
       "maxWidth": 1600,
-      "quality": 76,
-      "maxBytes": 256000
+      "quality": 72,
+      "maxBytes": 143360
     },
     "card": {
       "maxWidth": 1200,
-      "quality": 74,
-      "maxBytes": 184320
+      "quality": 70,
+      "maxBytes": 102400
     },
     "thumb": {
       "maxWidth": 640,
-      "quality": 72,
-      "maxBytes": 81920
+      "quality": 68,
+      "maxBytes": 49152
     },
     "journey": {
       "maxWidth": 1200,
-      "quality": 74,
-      "maxBytes": 184320,
+      "quality": 70,
+      "maxBytes": 102400,
       "aspectRatio": 1.25,
       "fit": "cover",
       "position": "centre"
@@ -33,267 +37,328 @@
   "results": [
     {
       "src": "public/images/sources/hero/foto-da-clinica.png",
-      "out": "public/images/opt/hero/foto-da-clinica.jpg",
+      "out": "public\\images\\opt\\hero\\foto-da-clinica.webp",
+      "avif": "public\\images\\opt\\hero\\foto-da-clinica.avif",
       "profile": "hero",
       "skipped": false,
       "bytesBefore": 50603346,
-      "bytesAfter": 70233,
+      "bytesAfter": 40888,
+      "bytesAvif": 33020,
       "width": 10752,
       "height": 6192,
-      "qualityUsed": 78
+      "qualityUsed": 74
     },
     {
       "src": "public/images/sources/hero/banner.jpg",
-      "out": "public/images/opt/hero/banner.jpg",
+      "out": "public\\images\\opt\\hero\\banner.webp",
+      "avif": "public\\images\\opt\\hero\\banner.avif",
       "profile": "hero",
       "skipped": false,
       "bytesBefore": 30671128,
-      "bytesAfter": 126320,
+      "bytesAfter": 65486,
+      "bytesAvif": 41002,
       "width": 7008,
       "height": 4672,
-      "qualityUsed": 78
+      "qualityUsed": 74
     },
     {
       "src": "public/images/sources/spaces/foto clinica retrato.jpg",
-      "out": "public/images/opt/spaces/foto-clinica-retrato.jpg",
+      "out": "public\\images\\opt\\spaces\\foto-clinica-retrato.webp",
+      "avif": "public\\images\\opt\\spaces\\foto-clinica-retrato.avif",
       "profile": "card",
       "skipped": false,
       "bytesBefore": 12591597,
-      "bytesAfter": 87778,
+      "bytesAfter": 54280,
+      "bytesAvif": 41060,
       "width": 3953,
       "height": 5930,
-      "qualityUsed": 74
+      "qualityUsed": 70
     },
     {
       "src": "public/images/sources/sections/DSC04462-2.jpg",
-      "out": "public/images/opt/spaces/dsc-04462.jpg",
+      "out": "public\\images\\opt\\spaces\\dsc-04462.webp",
+      "avif": "public\\images\\opt\\spaces\\dsc-04462.avif",
       "profile": "card",
       "skipped": false,
       "bytesBefore": 27069004,
-      "bytesAfter": 121837,
+      "bytesAfter": 77728,
+      "bytesAvif": 62659,
       "width": 4571,
       "height": 6856,
-      "qualityUsed": 74
+      "qualityUsed": 70
     },
     {
       "src": "public/images/sources/spaces/doutora.png",
-      "out": "public/images/opt/spaces/doutora.jpg",
+      "out": "public\\images\\opt\\spaces\\doutora.webp",
+      "avif": "public\\images\\opt\\spaces\\doutora.avif",
       "profile": "section",
       "skipped": false,
       "bytesBefore": 92020099,
-      "bytesAfter": 97863,
+      "bytesAfter": 60120,
+      "bytesAvif": 50577,
       "width": 8411,
       "height": 9319,
-      "qualityUsed": 76
+      "qualityUsed": 72
     },
     {
       "src": "public/images/sources/sections/DSC04504.jpg",
-      "out": "public/images/opt/spaces/dsc-04504.jpg",
+      "out": "public\\images\\opt\\spaces\\dsc-04504.webp",
+      "avif": "public\\images\\opt\\spaces\\dsc-04504.avif",
       "profile": "card",
       "skipped": false,
       "bytesBefore": 24161163,
-      "bytesAfter": 137374,
+      "bytesAfter": 100926,
+      "bytesAvif": 74899,
       "width": 4672,
       "height": 7008,
-      "qualityUsed": 74
+      "qualityUsed": 70
     },
     {
       "src": "public/images/sources/sections/DSC04537.jpg",
-      "out": "public/images/opt/spaces/dsc-04537.jpg",
+      "out": "public\\images\\opt\\spaces\\dsc-04537.webp",
+      "avif": "public\\images\\opt\\spaces\\dsc-04537.avif",
       "profile": "card",
       "skipped": false,
       "bytesBefore": 25088488,
-      "bytesAfter": 127594,
+      "bytesAfter": 97504,
+      "bytesAvif": 64899,
       "width": 4672,
       "height": 7008,
-      "qualityUsed": 74
+      "qualityUsed": 70
     },
     {
       "src": "public/images/sources/sections/DSC04644.jpg",
-      "out": "public/images/opt/spaces/dsc-04644.jpg",
+      "out": "public\\images\\opt\\spaces\\dsc-04644.webp",
+      "avif": "public\\images\\opt\\spaces\\dsc-04644.avif",
       "profile": "card",
       "skipped": false,
       "bytesBefore": 26121289,
-      "bytesAfter": 110571,
+      "bytesAfter": 63490,
+      "bytesAvif": 51027,
       "width": 4171,
       "height": 6257,
-      "qualityUsed": 74
+      "qualityUsed": 70
     },
     {
       "src": "public/images/sources/sections/DSC04710.jpg",
-      "out": "public/images/opt/spaces/dsc-04710.jpg",
+      "out": "public\\images\\opt\\spaces\\dsc-04710.webp",
+      "avif": "public\\images\\opt\\spaces\\dsc-04710.avif",
       "profile": "section",
       "skipped": false,
       "bytesBefore": 19223285,
-      "bytesAfter": 147494,
+      "bytesAfter": 116240,
+      "bytesAvif": 89523,
       "width": 4423,
       "height": 6635,
-      "qualityUsed": 76
+      "qualityUsed": 72
     },
     {
       "src": "public/images/sources/sections/DSC05176-2.jpg",
-      "out": "public/images/opt/spaces/dsc-05176.jpg",
+      "out": "public\\images\\opt\\spaces\\dsc-05176.webp",
+      "avif": "public\\images\\opt\\spaces\\dsc-05176.avif",
       "profile": "card",
       "skipped": false,
       "bytesBefore": 19077840,
-      "bytesAfter": 76359,
+      "bytesAfter": 46668,
+      "bytesAvif": 33374,
       "width": 4148,
       "height": 6222,
-      "qualityUsed": 74
+      "qualityUsed": 70
     },
     {
       "src": "public/images/sources/spaces/FX_00024.jpg",
-      "out": "public/images/opt/spaces/fx-00024.jpg",
+      "out": "public\\images\\opt\\spaces\\fx-00024.webp",
+      "avif": "public\\images\\opt\\spaces\\fx-00024.avif",
       "profile": "card",
       "skipped": false,
       "bytesBefore": 15998497,
-      "bytesAfter": 63502,
+      "bytesAfter": 39644,
+      "bytesAvif": 31604,
       "width": 6192,
       "height": 4128,
-      "qualityUsed": 74
+      "qualityUsed": 70
     },
     {
       "src": "public/images/sources/spaces/FX_00047-2.jpg",
-      "out": "public/images/opt/spaces/fx-00047.jpg",
+      "out": "public\\images\\opt\\spaces\\fx-00047.webp",
+      "avif": "public\\images\\opt\\spaces\\fx-00047.avif",
       "profile": "card",
       "skipped": false,
       "bytesBefore": 16139127,
-      "bytesAfter": 107224,
+      "bytesAfter": 60086,
+      "bytesAvif": 49658,
       "width": 4128,
       "height": 6192,
-      "qualityUsed": 74
+      "qualityUsed": 70
     },
     {
       "src": "public/images/sources/spaces/FX_00052.jpg",
-      "out": "public/images/opt/spaces/fx-00052.jpg",
+      "out": "public\\images\\opt\\spaces\\fx-00052.webp",
+      "avif": "public\\images\\opt\\spaces\\fx-00052.avif",
       "profile": "section",
       "skipped": false,
       "bytesBefore": 16601422,
-      "bytesAfter": 113402,
+      "bytesAfter": 54506,
+      "bytesAvif": 41449,
       "width": 4128,
       "height": 6192,
-      "qualityUsed": 76
+      "qualityUsed": 72
     },
     {
       "src": "public/images/sources/spaces/FX_00090.jpg",
-      "out": "public/images/opt/spaces/fx-00090.jpg",
+      "out": "public\\images\\opt\\spaces\\fx-00090.webp",
+      "avif": "public\\images\\opt\\spaces\\fx-00090.avif",
       "profile": "section",
       "skipped": false,
       "bytesBefore": 18145552,
-      "bytesAfter": 138557,
+      "bytesAfter": 66190,
+      "bytesAvif": 50934,
       "width": 4128,
       "height": 6192,
-      "qualityUsed": 76
+      "qualityUsed": 72
     },
     {
       "src": "public/images/sources/sections/care-paths.jpg",
-      "out": "public/images/opt/sections/care-paths.jpg",
+      "out": "public\\images\\opt\\sections\\care-paths.webp",
+      "avif": "public\\images\\opt\\sections\\care-paths.avif",
       "profile": "section",
       "skipped": false,
       "bytesBefore": 24233769,
-      "bytesAfter": 174289,
+      "bytesAfter": 127574,
+      "bytesAvif": 82560,
       "width": 4413,
       "height": 6620,
-      "qualityUsed": 76
+      "qualityUsed": 72
     },
     {
       "src": "public/images/sources/sections/care-paths-alt.jpg",
-      "out": "public/images/opt/sections/care-paths-alt.jpg",
+      "out": "public\\images\\opt\\sections\\care-paths-alt.webp",
+      "avif": "public\\images\\opt\\sections\\care-paths-alt.avif",
       "profile": "section",
       "skipped": false,
       "bytesBefore": 19073612,
-      "bytesAfter": 249151,
+      "bytesAfter": 144008,
+      "bytesAvif": 108219,
       "width": 4413,
       "height": 6620,
-      "qualityUsed": 76
+      "qualityUsed": 52
     },
     {
       "src": "public/images/sources/sections/clinical-reading.jpg",
-      "out": "public/images/opt/sections/clinical-reading.jpg",
+      "out": "public\\images\\opt\\sections\\clinical-reading.webp",
+      "avif": "public\\images\\opt\\sections\\clinical-reading.avif",
       "profile": "section",
       "skipped": false,
       "bytesBefore": 29349744,
-      "bytesAfter": 47827,
+      "bytesAfter": 31524,
+      "bytesAvif": 26183,
       "width": 7008,
       "height": 4672,
-      "qualityUsed": 76
+      "qualityUsed": 72
     },
     {
       "src": "public/images/sources/sections/historias-background.jpg",
-      "out": "public/images/opt/sections/historias-background.jpg",
+      "out": "public\\images\\opt\\sections\\historias-background.webp",
+      "avif": "public\\images\\opt\\sections\\historias-background.avif",
       "profile": "section",
       "skipped": false,
       "bytesBefore": 15998497,
-      "bytesAfter": 101720,
+      "bytesAfter": 61604,
+      "bytesAvif": 51979,
       "width": 6192,
       "height": 4128,
-      "qualityUsed": 76
+      "qualityUsed": 72
     },
     {
       "src": "public/images/sources/sections/DSC04740.jpg",
-      "out": "public/images/opt/sections/dsc-04740.jpg",
+      "out": "public\\images\\opt\\sections\\dsc-04740.webp",
+      "avif": "public\\images\\opt\\sections\\dsc-04740.avif",
       "profile": "section",
       "skipped": false,
       "bytesBefore": 14132037,
-      "bytesAfter": 46795,
+      "bytesAfter": 31462,
+      "bytesAvif": 24856,
       "width": 7008,
       "height": 4672,
-      "qualityUsed": 76
+      "qualityUsed": 72
     },
     {
       "src": "public/images/sources/sections/DSC05115-2.jpg",
-      "out": "public/images/opt/sections/dsc-05115.jpg",
+      "out": "public\\images\\opt\\sections\\dsc-05115.webp",
+      "avif": "public\\images\\opt\\sections\\dsc-05115.avif",
       "profile": "section",
       "skipped": false,
       "bytesBefore": 22986439,
-      "bytesAfter": 56212,
+      "bytesAfter": 35248,
+      "bytesAvif": 25681,
       "width": 7008,
       "height": 4672,
-      "qualityUsed": 76
+      "qualityUsed": 72
     },
     {
       "src": "public/images/sources/journey/diagnostico.png",
-      "out": "public/images/opt/journey/diagnostico.jpg",
+      "out": "public\\images\\opt\\journey\\diagnostico.webp",
+      "avif": "public\\images\\opt\\journey\\diagnostico.avif",
       "profile": "journey",
       "skipped": false,
       "bytesBefore": 1925303,
-      "bytesAfter": 61938,
+      "bytesAfter": 35340,
+      "bytesAvif": 26217,
       "width": 1536,
       "height": 1024,
-      "qualityUsed": 74
+      "qualityUsed": 70
     },
     {
       "src": "public/images/sources/journey/implementacao.png",
-      "out": "public/images/opt/journey/implementacao.jpg",
+      "out": "public\\images\\opt\\journey\\implementacao.webp",
+      "avif": "public\\images\\opt\\journey\\implementacao.avif",
       "profile": "journey",
       "skipped": false,
       "bytesBefore": 1847076,
-      "bytesAfter": 60271,
+      "bytesAfter": 30874,
+      "bytesAvif": 23527,
       "width": 1411,
       "height": 1114,
-      "qualityUsed": 74
+      "qualityUsed": 70
     },
     {
       "src": "public/images/sources/journey/monitoramento.png",
-      "out": "public/images/opt/journey/monitoramento.jpg",
+      "out": "public\\images\\opt\\journey\\monitoramento.webp",
+      "avif": "public\\images\\opt\\journey\\monitoramento.avif",
       "profile": "journey",
       "skipped": false,
       "bytesBefore": 1999551,
-      "bytesAfter": 78843,
+      "bytesAfter": 43734,
+      "bytesAvif": 33258,
       "width": 1370,
       "height": 1148,
-      "qualityUsed": 74
+      "qualityUsed": 70
     },
     {
       "src": "public/images/sources/journey/consolidacao.png",
-      "out": "public/images/opt/journey/consolidacao.jpg",
+      "out": "public\\images\\opt\\journey\\consolidacao.webp",
+      "avif": "public\\images\\opt\\journey\\consolidacao.avif",
       "profile": "journey",
       "skipped": false,
       "bytesBefore": 1966736,
-      "bytesAfter": 79843,
+      "bytesAfter": 46202,
+      "bytesAvif": 36679,
       "width": 1514,
       "height": 1039,
-      "qualityUsed": 74
+      "qualityUsed": 70
+    },
+    {
+      "src": "public/images/sources/popup/agende-consulta.png",
+      "out": "public\\images\\opt\\popup\\agende-consulta.webp",
+      "avif": "public\\images\\opt\\popup\\agende-consulta.avif",
+      "profile": "section",
+      "skipped": false,
+      "bytesBefore": 2731282,
+      "bytesAfter": 107612,
+      "bytesAvif": 90416,
+      "width": 1080,
+      "height": 1920,
+      "qualityUsed": 72
     }
   ]
 }
