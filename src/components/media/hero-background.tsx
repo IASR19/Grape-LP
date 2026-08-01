@@ -2,18 +2,13 @@
 
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import { useSiteIntroReady } from "@/hooks/use-site-intro-ready";
 import { resolveHeroVideoSrc } from "@/lib/intro/media-cache";
 import { isAutomationClient } from "@/lib/intro/should-play-intro";
 import { MOTION } from "@/lib/motion";
-import { registerGsapPlugins, scrollTriggerScroller } from "@/lib/motion/gsap";
 import { cn } from "@/lib/utils";
-
-registerGsapPlugins();
 
 const MAX_PLAY_ATTEMPTS = 6;
 
@@ -160,74 +155,89 @@ export function HeroBackground({
     };
   }, [introReady, prefersReducedMotion, videoSrc]);
 
+  /** GSAP/parallax só no desktop — no mobile o poster fica estático e o bundle GSAP nem baixa. */
   useEffect(() => {
     if (prefersReducedMotion) return;
+
+    const isTouchLayout =
+      window.matchMedia("(max-width: 1023px), (hover: none) and (pointer: coarse)")
+        .matches;
+    if (isTouchLayout) return;
 
     const trigger = triggerRef.current;
     const fixedBg = fixedBgRef.current;
     const layer = layerRef.current;
-
     if (!trigger || !fixedBg || !layer) return;
 
-    const isTouchLayout =
-      window.matchMedia("(max-width: 1023px), (hover: none) and (pointer: coarse)").matches;
+    let cancelled = false;
+    let revert: (() => void) | undefined;
 
-    const ctx = gsap.context(() => {
-      const scrollConfig = {
-        trigger,
-        scroller: scrollTriggerScroller(),
-        start: "top top",
-        end: "bottom top",
-        scrub: 0.55,
-      };
+    void import("@/lib/motion/gsap").then(({ registerGsapPlugins, scrollTriggerScroller }) => {
+      if (cancelled) return;
 
-      // Parallax só no desktop — no mobile custa main-thread sem ganho visual.
-      if (!isTouchLayout) {
-        gsap.fromTo(
-          layer,
-          {
-            scale: 1,
-            scaleX: 1,
-            yPercent: 0,
-          },
-          {
-            scale: 1 + speed * 1.55,
-            scaleX: 1 + speed * 2.05,
-            yPercent: -10,
-            ease: "none",
-            scrollTrigger: scrollConfig,
-          },
-        );
+      return Promise.all([import("gsap"), import("gsap/ScrollTrigger")]).then(
+        ([{ default: gsap }, { ScrollTrigger }]) => {
+          if (cancelled) return;
 
-        if (whiteFadeRef.current) {
-          gsap.fromTo(
-            whiteFadeRef.current,
-            { opacity: 0 },
-            {
-              opacity: 1,
-              ease: "none",
-              scrollTrigger: scrollConfig,
-            },
-          );
-        }
-      }
+          registerGsapPlugins();
 
-      ScrollTrigger.create({
-        trigger,
-        scroller: scrollTriggerScroller(),
-        start: "bottom top",
-        onLeave: () => {
-          fixedBg.style.visibility = "hidden";
-          videoRef.current?.pause();
+          const ctx = gsap.context(() => {
+            const scrollConfig = {
+              trigger,
+              scroller: scrollTriggerScroller(),
+              start: "top top",
+              end: "bottom top",
+              scrub: 0.55,
+            };
+
+            gsap.fromTo(
+              layer,
+              { scale: 1, scaleX: 1, yPercent: 0 },
+              {
+                scale: 1 + speed * 1.55,
+                scaleX: 1 + speed * 2.05,
+                yPercent: -10,
+                ease: "none",
+                scrollTrigger: scrollConfig,
+              },
+            );
+
+            if (whiteFadeRef.current) {
+              gsap.fromTo(
+                whiteFadeRef.current,
+                { opacity: 0 },
+                {
+                  opacity: 1,
+                  ease: "none",
+                  scrollTrigger: scrollConfig,
+                },
+              );
+            }
+
+            ScrollTrigger.create({
+              trigger,
+              scroller: scrollTriggerScroller(),
+              start: "bottom top",
+              onLeave: () => {
+                fixedBg.style.visibility = "hidden";
+                videoRef.current?.pause();
+              },
+              onEnterBack: () => {
+                fixedBg.style.visibility = "visible";
+                tryPlay();
+              },
+            });
+          }, trigger);
+
+          revert = () => ctx.revert();
         },
-        onEnterBack: () => {
-          fixedBg.style.visibility = "visible";
-          tryPlay();
-        },
-      });
-    }, trigger);
+      );
+    });
 
-    return () => ctx.revert();
+    return () => {
+      cancelled = true;
+      revert?.();
+    };
   }, [prefersReducedMotion, speed, triggerRef, tryPlay]);
 
   useEffect(() => {

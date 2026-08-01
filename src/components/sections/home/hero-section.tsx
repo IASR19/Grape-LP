@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
 import { ExternalArrow } from "@/components/ui/external-arrow";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { HeroBackground } from "@/components/media/hero-background";
 import { AnimatedHeading } from "@/components/motion/animated-heading";
@@ -33,14 +33,33 @@ function readFastEntrance() {
   return !html.hasAttribute("data-site-intro-pending");
 }
 
+function useDesktopSplitHeading() {
+  const [enabled, setEnabled] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia(
+      "(min-width: 1024px) and (hover: hover) and (pointer: fine)",
+    );
+    const sync = () => setEnabled(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  return enabled;
+}
+
 export function HeroSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const prefersReducedMotion = useReducedMotion();
   const introReady = useSiteIntroReady();
+  const desktopSplitHeading = useDesktopSplitHeading();
   const [fastEntrance] = useState(() => readFastEntrance());
 
   const containerVariants = fastEntrance ? heroStaggerReturn : heroStagger;
   const animateState = introReady && !prefersReducedMotion ? "show" : "hidden";
+  const useSplitHeading =
+    introReady && !prefersReducedMotion && desktopSplitHeading;
 
   return (
     <section
@@ -80,7 +99,7 @@ export function HeroSection() {
             </motion.p>
 
             <div className="mt-3.5 sm:mt-6 lg:mt-7">
-              {introReady && !prefersReducedMotion ? (
+              {useSplitHeading ? (
                 <AnimatedHeading
                   as="h1"
                   mode="intro"
