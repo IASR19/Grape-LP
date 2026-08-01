@@ -48,7 +48,7 @@ export function MetaPixel() {
     <>
       <Script
         id="meta-pixel-init"
-        strategy="afterInteractive"
+        strategy="lazyOnload"
         dangerouslySetInnerHTML={{ __html: initScript }}
       />
       {META_PIXEL_IDS.map((id) => (

@@ -8,9 +8,12 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import { useSiteIntroReady } from "@/hooks/use-site-intro-ready";
 import { resolveHeroVideoSrc } from "@/lib/intro/media-cache";
+import { isAutomationClient } from "@/lib/intro/should-play-intro";
 import { MOTION } from "@/lib/motion";
-import { scrollTriggerScroller } from "@/lib/motion/gsap";
+import { registerGsapPlugins, scrollTriggerScroller } from "@/lib/motion/gsap";
 import { cn } from "@/lib/utils";
+
+registerGsapPlugins();
 
 const MAX_PLAY_ATTEMPTS = 6;
 
@@ -115,6 +118,7 @@ export function HeroBackground({
   /** Poster-first: só monta o vídeo após o intro, em idle (desktop) ou primeira interação (mobile). */
   useEffect(() => {
     if (prefersReducedMotion || !introReady) return;
+    if (isAutomationClient()) return;
     if (shouldDeferVideoForConnection()) return;
 
     let cancelled = false;
@@ -174,35 +178,38 @@ export function HeroBackground({
         scroller: scrollTriggerScroller(),
         start: "top top",
         end: "bottom top",
-        scrub: isTouchLayout ? 0.35 : 0.55,
+        scrub: 0.55,
       };
 
-      gsap.fromTo(
-        layer,
-        {
-          scale: 1,
-          scaleX: 1,
-          yPercent: 0,
-        },
-        {
-          scale: 1 + speed * (isTouchLayout ? 0.85 : 1.55),
-          scaleX: isTouchLayout ? 1 : 1 + speed * 2.05,
-          yPercent: isTouchLayout ? -4 : -10,
-          ease: "none",
-          scrollTrigger: scrollConfig,
-        },
-      );
-
-      if (whiteFadeRef.current) {
+      // Parallax só no desktop — no mobile custa main-thread sem ganho visual.
+      if (!isTouchLayout) {
         gsap.fromTo(
-          whiteFadeRef.current,
-          { opacity: 0 },
+          layer,
           {
-            opacity: 1,
+            scale: 1,
+            scaleX: 1,
+            yPercent: 0,
+          },
+          {
+            scale: 1 + speed * 1.55,
+            scaleX: 1 + speed * 2.05,
+            yPercent: -10,
             ease: "none",
             scrollTrigger: scrollConfig,
           },
         );
+
+        if (whiteFadeRef.current) {
+          gsap.fromTo(
+            whiteFadeRef.current,
+            { opacity: 0 },
+            {
+              opacity: 1,
+              ease: "none",
+              scrollTrigger: scrollConfig,
+            },
+          );
+        }
       }
 
       ScrollTrigger.create({

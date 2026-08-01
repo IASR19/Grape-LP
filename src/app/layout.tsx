@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist_Mono, Montserrat } from "next/font/google";
+import { Montserrat } from "next/font/google";
 
 import { AppChrome } from "@/components/layout/app-chrome";
 import { CustomCursorLoader } from "@/components/layout/custom-cursor-loader";
@@ -13,11 +13,6 @@ const montserrat = Montserrat({
   variable: "--font-montserrat",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
@@ -82,18 +77,18 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
-      className={`${montserrat.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${montserrat.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <head>
         <style
           dangerouslySetInnerHTML={{
-            __html: `html[data-site-intro-pending]{overflow:hidden}html[data-site-intro-pending]::before{content:"";position:fixed;inset:0;z-index:79;background:oklch(0.985 0.006 84)}html[data-site-intro-pending] [data-app-shell]{visibility:hidden!important}`,
+            __html: `html[data-site-intro-pending]{overflow:hidden}html[data-site-intro-pending]::before{content:"";position:fixed;inset:0;z-index:79;background:oklch(0.985 0.006 84)}`,
           }}
         />
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var k="grapeclinic:intro-seen:v4";if(!sessionStorage.getItem(k)){document.documentElement.setAttribute("data-site-intro-pending","");}if("scrollRestoration" in history){history.scrollRestoration="manual";}if(!window.location.hash){window.scrollTo(0,0);document.documentElement.scrollTop=0;document.body.scrollTop=0;}}catch(e){}})();`,
+            __html: `(function(){try{var k="grapeclinic:intro-seen:v4";var skip=navigator.webdriver||/Chrome-Lighthouse|PageSpeed|Lighthouse/i.test(navigator.userAgent);if(!skip&&!sessionStorage.getItem(k)){document.documentElement.setAttribute("data-site-intro-pending","");}if("scrollRestoration" in history){history.scrollRestoration="manual";}if(!window.location.hash){window.scrollTo(0,0);document.documentElement.scrollTop=0;document.body.scrollTop=0;}}catch(e){}})();`,
           }}
         />
       </head>

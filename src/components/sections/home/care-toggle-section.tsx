@@ -11,11 +11,14 @@ import {
   GSAP_EASE,
   gsapDuration,
   MOTION,
+  registerGsapPlugins,
   scrollTriggerScroller,
 } from "@/lib/motion";
 import { layout } from "@/lib/layout";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "motion/react";
+
+registerGsapPlugins();
 
 const careModes = {
   comum: {

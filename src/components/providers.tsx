@@ -15,10 +15,6 @@ import {
   scrollToInitialHash,
   scrollToTop,
 } from "@/lib/navigation/scroll-to-hash";
-import { registerGsapPlugins } from "@/lib/motion/gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-registerGsapPlugins();
 
 function isIntroBlocking() {
   if (typeof document === "undefined") return false;
@@ -64,15 +60,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
       window.scrollTo(0, 0);
     }
 
-    const onScroll = () => ScrollTrigger.update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    ScrollTrigger.refresh();
-
     const removeHashNav = initHashNavigation();
     scrollToInitialHash();
 
     return () => {
-      window.removeEventListener("scroll", onScroll);
       removeHashNav();
     };
   }, [prefersReducedMotion]);

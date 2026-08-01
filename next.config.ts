@@ -32,7 +32,24 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async headers() {
+    const immutable = "public, max-age=31536000, immutable";
 
+    return [
+      {
+        source: "/images/:path*",
+        headers: [{ key: "Cache-Control", value: immutable }],
+      },
+      {
+        source: "/brand/:path*",
+        headers: [{ key: "Cache-Control", value: immutable }],
+      },
+      {
+        source: "/videos/:path*",
+        headers: [{ key: "Cache-Control", value: immutable }],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

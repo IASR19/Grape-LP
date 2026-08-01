@@ -17,5 +17,6 @@ export function gsapDuration(prefersReducedMotion: boolean, seconds: number) {
 
 /** Shared ScrollTrigger scroller — document nativo (sem smooth-scroll proxy). */
 export function scrollTriggerScroller() {
+  registerGsapPlugins();
   return document.documentElement;
 }

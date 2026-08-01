@@ -122,7 +122,7 @@ body::-webkit-scrollbar {
   --color-ring: var(--ring);
   --font-sans: var(--font-montserrat);
   --font-serif: var(--font-montserrat);
-  --font-mono: var(--font-geist-mono);
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 .dark {

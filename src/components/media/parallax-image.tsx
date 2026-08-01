@@ -11,8 +11,10 @@ import {
 } from "@/components/media/mock-image";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import { MOTION } from "@/lib/motion";
-import { scrollTriggerScroller } from "@/lib/motion/gsap";
+import { registerGsapPlugins, scrollTriggerScroller } from "@/lib/motion/gsap";
 import { cn } from "@/lib/utils";
+
+registerGsapPlugins();
 
 type ParallaxImageProps = {
   alt: string;
