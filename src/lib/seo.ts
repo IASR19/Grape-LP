@@ -7,7 +7,7 @@ export const siteUrl =
   "https://grapeclinic.vercel.app";
 
 export const defaultOgImage = {
-  url: "/images/opt/hero/foto-da-clinica.jpg",
+  url: "/images/opt/hero/foto-da-clinica.webp",
   width: 1200,
   height: 630,
   alt: "Ambiente da Grape Clinic em Pouso Alegre, MG",

@@ -11,8 +11,10 @@ import {
 } from "@/components/media/mock-image";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import { MOTION } from "@/lib/motion";
-import { scrollTriggerScroller } from "@/lib/motion/gsap";
+import { registerGsapPlugins, scrollTriggerScroller } from "@/lib/motion/gsap";
 import { cn } from "@/lib/utils";
+
+registerGsapPlugins();
 
 type ParallaxImageProps = {
   alt: string;
@@ -161,6 +163,7 @@ export function ParallaxImage({
           alt={alt}
           fill
           priority={priority}
+          loading={priority ? "eager" : "lazy"}
           sizes={sizes}
           className={cn(
             "object-cover object-center min-h-full min-w-full",
@@ -168,6 +171,7 @@ export function ParallaxImage({
             imageClassName,
           )}
         />
+
       ) : (
         <MockImage
           label={alt}

@@ -36,7 +36,7 @@ export const reels = [
     id: "ivan-isabela",
     title: "Recuperamos a nossa autoestima — Ivan & Isabela",
     out: "ivan-isabela.mp4",
-    poster: "ivan-isabela.jpg",
+    poster: "ivan-isabela.webp",
     cover: "Capa - Ivan e Isabela.png",
   },
   {
@@ -44,7 +44,7 @@ export const reels = [
     id: "junior-leticia-01",
     title: "A nossa vida mudou completamente — Junior & Letícia",
     out: "junior-leticia-01.mp4",
-    poster: "junior-leticia-01.jpg",
+    poster: "junior-leticia-01.webp",
     cover: "Capa  - Junior e Letícia.png",
   },
   {
@@ -52,7 +52,7 @@ export const reels = [
     id: "junior-leticia-02",
     title: "A nossa vida mudou completamente — Junior & Letícia",
     out: "junior-leticia-02.mp4",
-    poster: "junior-leticia-02.jpg",
+    poster: "junior-leticia-02.webp",
     cover: "Capa  - Junior e Letícia.png",
   },
   {
@@ -60,7 +60,7 @@ export const reels = [
     id: "lucio-marcela",
     title: "Nós fomos os primeiros pacientes — Lúcio & Marcela",
     out: "lucio-marcela.mp4",
-    poster: "lucio-marcela.jpg",
+    poster: "lucio-marcela.webp",
     cover: "Capa - Lucio e Marcela.png",
   },
   {
@@ -68,7 +68,7 @@ export const reels = [
     id: "marcelo-marianne-01",
     title: "Nós somos outro casal, vivemos melhor — Marcelo & Marianne",
     out: "marcelo-marianne-01.mp4",
-    poster: "marcelo-marianne-01.jpg",
+    poster: "marcelo-marianne-01.webp",
     cover: "Capa - Marcelo a Mari.png",
   },
   {
@@ -76,7 +76,7 @@ export const reels = [
     id: "marcelo-marianne-02",
     title: "Nós somos outro casal, vivemos melhor — Marcelo & Marianne",
     out: "marcelo-marianne-02.mp4",
-    poster: "marcelo-marianne-02.jpg",
+    poster: "marcelo-marianne-02.webp",
     cover: "Capa - Marcelo a Mari.png",
   },
   {
@@ -84,7 +84,7 @@ export const reels = [
     id: "marcos-dani",
     title: "O nosso corpo é a base dos nossos sonhos — Marcos & Dani",
     out: "marcos-dani.mp4",
-    poster: "marcos-dani.jpg",
+    poster: "marcos-dani.webp",
     cover: "Capa - Marcos e Dani.png",
   },
 ];

@@ -21,6 +21,9 @@ const nextConfig: NextConfig = {
   },
   images: {
     formats: ["image/avif", "image/webp"],
+    minimumCacheTTL: 60 * 60 * 24 * 30,
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    imageSizes: [64, 96, 128, 256, 384],
     remotePatterns: [
       {
         protocol: "https",
@@ -28,6 +31,24 @@ const nextConfig: NextConfig = {
         pathname: "/vi/**",
       },
     ],
+  },
+  async headers() {
+    const immutable = "public, max-age=31536000, immutable";
+
+    return [
+      {
+        source: "/images/:path*",
+        headers: [{ key: "Cache-Control", value: immutable }],
+      },
+      {
+        source: "/brand/:path*",
+        headers: [{ key: "Cache-Control", value: immutable }],
+      },
+      {
+        source: "/videos/:path*",
+        headers: [{ key: "Cache-Control", value: immutable }],
+      },
+    ];
   },
 };
 

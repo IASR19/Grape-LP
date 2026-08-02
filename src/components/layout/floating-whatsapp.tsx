@@ -5,8 +5,8 @@ import { useEffect, useState, type ReactNode } from "react";
 
 import { HomeSectionLink } from "@/components/navigation/home-section-link";
 import { siteConfig } from "@/content/site";
-import { getLenis, getScrollY } from "@/lib/lenis";
 import { scrollToTop } from "@/lib/navigation/scroll-to-hash";
+import { getScrollY } from "@/lib/scroll";
 import { zIndex } from "@/lib/z-index";
 import { cn } from "@/lib/utils";
 
@@ -109,16 +109,10 @@ export function FloatingWhatsApp() {
     }
 
     updateBackToTopVisibility();
-
-    const lenis = getLenis();
-    if (lenis) {
-      lenis.on("scroll", updateBackToTopVisibility);
-      return () => lenis.off("scroll", updateBackToTopVisibility);
-    }
-
     window.addEventListener("scroll", updateBackToTopVisibility, { passive: true });
     return () => window.removeEventListener("scroll", updateBackToTopVisibility);
   }, []);
+
 
   const hidden = hideNearContact;
 

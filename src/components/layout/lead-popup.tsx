@@ -13,7 +13,7 @@ import {
   isValidBrazilianPhone,
   normalizeSpaces,
 } from "@/lib/form/formatters";
-import { getScrollY } from "@/lib/lenis";
+import { getScrollY } from "@/lib/scroll";
 import { zIndex } from "@/lib/z-index";
 import { cn } from "@/lib/utils";
 
@@ -290,9 +290,11 @@ export function LeadPopup() {
                 src={clinicPhotos.popupConsulta}
                 alt="Dra. Marcela Ferreira de Oliveira"
                 fill
+                loading="lazy"
                 sizes="(min-width: 640px) 50vw, 0vw"
                 className="object-cover object-[center_75%]"
               />
+
             </div>
 
             <div className="relative isolate overflow-hidden bg-[#483328] px-6 py-6 text-[#f6ead9] sm:px-7 sm:pb-6 sm:pt-10">

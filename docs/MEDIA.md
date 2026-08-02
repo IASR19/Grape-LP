@@ -1,6 +1,6 @@
 # Mídia — Grape Clinic
 
-Pipeline de imagens e vídeo do site. Masters **não** são servidos diretamente; apenas as versões em `public/images/opt/` e `public/videos/*.web.mp4`.
+Pipeline de imagens e vídeo do site. Masters **não** são servidos diretamente; apenas as versões em `public/images/opt/` (WebP + AVIF) e `public/videos/`.
 
 ---
 
@@ -19,11 +19,13 @@ public/images/
 │   ├── evaluation/
 │   ├── method/
 │   └── reels/
-└── opt/              # Versões web (servidas pelo site)
+└── opt/              # Versões web (WebP servido + AVIF ao lado)
     ├── hero/
     ├── spaces/
     └── ...
 ```
+
+O site aponta para `.webp` via [`src/content/media.ts`](../src/content/media.ts). O `next/image` ainda pode servir AVIF em runtime (`formats: avif, webp`). Imagens below-the-fold usam `loading="lazy"` — **não** pré-aquecer a home inteira no intro.
 
 ### Categorias
 
@@ -36,15 +38,13 @@ public/images/
 | `journey` | Etapas da Jornada — `diagnostico`, `implementacao`, `monitoramento`, `consolidacao` (`#cuidado`) |
 | `evaluation` | Passos legados da avaliação (formulário antigo) |
 | `method` | Pilares do Método Grape (`#experiencia`) |
-| `reels` | Posters dos depoimentos em vídeo (`#reels`) — substituir `placeholder.jpg` quando houver foto dedicada por reel |
+| `reels` | Posters dos depoimentos em vídeo (`#reels`) — `.webp` gerados por `optimize:reels` |
 
 ### Posters de reels
 
-1. Adicionar o master em `public/images/sources/reels/{nome}.jpg` (ou apontar entrada em `optimize-images.config.mjs`).
-2. Rodar `npm run optimize:images`.
-3. Atualizar o terceiro argumento de `youtubeTestimonial()` em [`src/content/media.ts`](../src/content/media.ts).
-
-Enquanto as fotos finais não chegam, todos os reels usam `reels/placeholder.jpg`.
+1. Adicionar capa em `public/images/sources/reels/`.
+2. Rodar `npm run optimize:reels`.
+3. Confirmar `poster` em [`src/content/media.ts`](../src/content/media.ts) (`reelPoster` → `.webp`).
 
 ### Perfis de compressão
 

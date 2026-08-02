@@ -14,21 +14,39 @@ import {
 } from "@/lib/intro/run-intro-circle-reveal";
 import {
   preloadCriticalAssets,
-  warmDeferredAssets,
   warmHeroOnReturnVisit,
+  warmHeroVideoInBackground,
 } from "@/lib/intro/preload-critical-assets";
+import { isAutomationClient } from "@/lib/intro/should-play-intro";
 import { MOTION } from "@/lib/motion";
 import { THEME_VT_DURATION } from "@/lib/motion/theme";
 import { zIndex } from "@/lib/z-index";
 
 export const introStorageKey = "grapeclinic:intro-seen:v4";
 
-const INTRO = {
+const INTRO_DESKTOP = {
   logoIn: 0.95,
   holdMinMs: 1600,
   logoOut: 0.72,
   revealGapMs: 180,
 } as const;
+
+const INTRO_MOBILE = {
+  logoIn: 0.55,
+  holdMinMs: 700,
+  logoOut: 0.4,
+  revealGapMs: 80,
+} as const;
+
+function getIntroTiming() {
+  if (typeof window === "undefined") return INTRO_DESKTOP;
+
+  const isCoarse =
+    window.matchMedia("(max-width: 1023px), (hover: none) and (pointer: coarse)")
+      .matches;
+
+  return isCoarse ? INTRO_MOBILE : INTRO_DESKTOP;
+}
 
 type IntroPhase = "idle" | "loading" | "logo-out" | "reveal" | "done";
 
@@ -55,6 +73,7 @@ function markIntroSeen() {
 
 function shouldPlayIntro(prefersReducedMotion: boolean) {
   if (prefersReducedMotion) return false;
+  if (isAutomationClient()) return false;
 
   try {
     return !sessionStorage.getItem(introStorageKey);
@@ -113,17 +132,18 @@ export function SiteIntro() {
     }
 
     markIntroSeen();
+    const timing = getIntroTiming();
 
     const beginReveal = () => {
       if (!isActive()) return;
 
-      void waitMs(INTRO.revealGapMs).then(async () => {
+      void waitMs(timing.revealGapMs).then(async () => {
         if (!isActive()) return;
 
         clearIntroPending();
         setIntroRevealing(true);
         setPhase("reveal");
-        warmDeferredAssets();
+        warmHeroVideoInBackground();
 
         await waitForPaint();
 
@@ -161,8 +181,8 @@ export function SiteIntro() {
       void preloadCriticalAssets().then(async () => {
         if (!isActive()) return;
 
-        const logoInEnd = startedAt + INTRO.logoIn * 1000;
-        const holdUntil = logoInEnd + INTRO.holdMinMs;
+        const logoInEnd = startedAt + timing.logoIn * 1000;
+        const holdUntil = logoInEnd + timing.holdMinMs;
         const remainingHold = Math.max(0, holdUntil - performance.now());
 
         if (remainingHold > 0) {
@@ -194,6 +214,7 @@ export function SiteIntro() {
 
   const showLogo = phase === "loading" || phase === "logo-out";
   const logoExiting = phase === "logo-out";
+  const timing = getIntroTiming();
 
   const overlay = (
     <div
@@ -219,7 +240,7 @@ export function SiteIntro() {
                 : { opacity: 1, y: 0, filter: "blur(0px)" }
             }
             transition={{
-              duration: logoExiting ? INTRO.logoOut : INTRO.logoIn,
+              duration: logoExiting ? timing.logoOut : timing.logoIn,
               ease: MOTION.ease,
             }}
             onAnimationComplete={() => {

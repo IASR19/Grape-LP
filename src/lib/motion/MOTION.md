@@ -34,8 +34,7 @@ import { useSiteIntroReady } from "@/hooks/use-site-intro-ready";
 | Entrances, scroll reveals | `Reveal*` components + presets | Home sections, link-bio, FAQ |
 | Hero mount (pós-intro) | Framer variants + `useSiteIntroReady` | `hero-section.tsx` |
 | Image parallax | GSAP ScrollTrigger | `parallax-image.tsx`, `hero-background.tsx` |
-| Scroll storytelling | GSAP + Lenis proxy | care-toggle, process pinned |
-| Smooth scroll | Lenis | `providers.tsx` |
+| Scroll storytelling | GSAP ScrollTrigger | care-toggle, process pinned |
 
 ## Presets (`reveal.ts`)
 
@@ -66,7 +65,6 @@ Aliases legados: `reveal` → `fadeUpSoft`, `revealWide` → `fadeUp`.
 
 ## Reduced motion
 
-- Lenis disabled
 - GSAP durations via `gsapDuration()` → 0
 - `Reveal*` renderizam `<div>` estático
 - MotionConfig `reducedMotion="always"`

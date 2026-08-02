@@ -1,6 +1,7 @@
 /*
- * Preloader — oculta o shell da app ate a sequencia terminar.
- * SiteIntro e renderizado via portal em document.body.
+ * Preloader — cortina cobre a UI, mas o shell permanece no DOM para
+ * decodificar a hero (LCP) enquanto o intro roda.
+ * SiteIntro é renderizado via portal em document.body.
  */
 
 html[data-site-intro-pending] {
@@ -13,10 +14,6 @@ html[data-site-intro-pending]::before {
   inset: 0;
   z-index: 79;
   background: var(--background);
-}
-
-html[data-site-intro-pending] [data-app-shell] {
-  visibility: hidden !important;
 }
 
 html[data-site-intro-pending] [data-custom-cursor] {
@@ -42,9 +39,5 @@ html[data-site-intro-revealing] [data-site-intro-curtain] {
 @media (prefers-reduced-motion: reduce) {
   html[data-site-intro-pending]::before {
     display: none;
-  }
-
-  html[data-site-intro-pending] [data-app-shell] {
-    visibility: visible !important;
   }
 }

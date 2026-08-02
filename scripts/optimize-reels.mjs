@@ -62,12 +62,13 @@ async function posterFromCover(coverPath, posterPath) {
         width: posterEncode.maxWidth,
         withoutEnlargement: true,
       })
-      .jpeg({ quality: posterEncode.quality, mozjpeg: true })
+      .webp({ quality: posterEncode.quality, effort: 5, smartSubsample: true })
       .toFile(posterPath);
   } catch (error) {
     throw new Error(`${coverPath}: ${error.message}`);
   }
 }
+
 
 function runFfmpeg(args) {
   const result = spawnSync(ffmpegStatic, args, { stdio: "inherit" });

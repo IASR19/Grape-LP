@@ -1,16 +1,8 @@
-import { getLenis, getScrollY } from "@/lib/lenis";
+import { getScrollY } from "@/lib/scroll";
 
 const HEADER_OFFSET_PX = 80;
 /** Respiro abaixo do header fixo ao ancorar no formulário. */
 const FORM_ANCHOR_OFFSET_PX = 96;
-
-function easeOutCubic(t: number) {
-  return 1 - Math.pow(1 - t, 3);
-}
-
-function anchorScrollDuration(distance: number) {
-  return Math.min(2.2, Math.max(0.9, distance / 1800));
-}
 
 function resolveScrollTarget(hash: string): HTMLElement | null {
   if (hash === "#contato") {
@@ -38,13 +30,6 @@ export function initScrollRestoration() {
 }
 
 export function scrollToTop(immediate = true) {
-  const lenis = getLenis();
-
-  if (lenis) {
-    lenis.scrollTo(0, { immediate });
-    return;
-  }
-
   window.scrollTo({ top: 0, behavior: immediate ? "auto" : "smooth" });
 }
 
@@ -55,25 +40,7 @@ export function scrollToHash(hash: string, immediate = false) {
   if (!target) return false;
 
   const offset = getScrollOffset(hash);
-  const lenis = getLenis();
-
-  if (lenis) {
-    const targetTop =
-      target.getBoundingClientRect().top + getScrollY() - offset;
-    const distance = Math.abs(targetTop - getScrollY());
-
-    lenis.scrollTo(target, {
-      offset: -offset,
-      immediate,
-      duration: immediate ? undefined : anchorScrollDuration(distance),
-      easing: immediate ? undefined : easeOutCubic,
-      lock: !immediate,
-    });
-    return true;
-  }
-
-  const top =
-    target.getBoundingClientRect().top + window.scrollY - offset;
+  const top = target.getBoundingClientRect().top + getScrollY() - offset;
   window.scrollTo({ top, behavior: immediate ? "auto" : "smooth" });
   return true;
 }

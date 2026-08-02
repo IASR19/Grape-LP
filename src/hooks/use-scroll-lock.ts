@@ -2,8 +2,6 @@
 
 import { useEffect } from "react";
 
-import { getLenis } from "@/lib/lenis";
-
 let lockCount = 0;
 let previousOverflow = "";
 
@@ -13,7 +11,6 @@ function lockScroll() {
   if (lockCount === 1) {
     previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    getLenis()?.stop();
   }
 }
 
@@ -22,7 +19,6 @@ function unlockScroll() {
 
   if (lockCount === 0) {
     document.body.style.overflow = previousOverflow;
-    getLenis()?.start();
   }
 }
 

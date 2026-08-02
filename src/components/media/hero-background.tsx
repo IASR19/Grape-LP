@@ -1,15 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type RefObject } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
 
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import { useSiteIntroReady } from "@/hooks/use-site-intro-ready";
 import { resolveHeroVideoSrc } from "@/lib/intro/media-cache";
+import { isAutomationClient } from "@/lib/intro/should-play-intro";
 import { MOTION } from "@/lib/motion";
-import { scrollTriggerScroller } from "@/lib/motion/gsap";
 import { cn } from "@/lib/utils";
 
 const MAX_PLAY_ATTEMPTS = 6;
@@ -22,6 +20,21 @@ type HeroBackgroundProps = {
   speed?: number;
   overlayClassName?: string;
 };
+
+function shouldDeferVideoForConnection() {
+  const connection = (
+    navigator as Navigator & {
+      connection?: { saveData?: boolean; effectiveType?: string };
+    }
+  ).connection;
+
+  if (connection?.saveData) return true;
+  return connection?.effectiveType === "slow-2g" || connection?.effectiveType === "2g";
+}
+
+function isDesktopPointer() {
+  return window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+}
 
 export function HeroBackground({
   videoSrc,
@@ -37,20 +50,14 @@ export function HeroBackground({
   const videoRef = useRef<HTMLVideoElement>(null);
   const playAttemptsRef = useRef(0);
   const tryPlayRef = useRef<() => void>(() => {});
-  const srcLockedRef = useRef(false);
 
+  const [mountVideo, setMountVideo] = useState(false);
+  const [resolvedSrc, setResolvedSrc] = useState<string | null>(null);
   const [videoReady, setVideoReady] = useState(false);
-  const [resolvedSrc, setResolvedSrc] = useState(videoSrc);
   const prefersReducedMotion = usePrefersReducedMotion();
   const introReady = useSiteIntroReady();
 
-  const canAutoplay = introReady && !prefersReducedMotion;
-
-  useLayoutEffect(() => {
-    if (prefersReducedMotion || srcLockedRef.current) return;
-    srcLockedRef.current = true;
-    setResolvedSrc(resolveHeroVideoSrc(videoSrc));
-  }, [prefersReducedMotion, videoSrc]);
+  const canAutoplay = introReady && !prefersReducedMotion && mountVideo && Boolean(resolvedSrc);
 
   const markVideoReady = useCallback(() => {
     setVideoReady(true);
@@ -84,7 +91,7 @@ export function HeroBackground({
   }, [markVideoReady]);
 
   const tryPlay = useCallback(() => {
-    if (!introReady || prefersReducedMotion) return;
+    if (!introReady || prefersReducedMotion || !mountVideo) return;
 
     const video = videoRef.current;
     if (!video) return;
@@ -97,77 +104,140 @@ export function HeroBackground({
         }, 300 * playAttemptsRef.current);
       }
     });
-  }, [introReady, prefersReducedMotion]);
+  }, [introReady, mountVideo, prefersReducedMotion]);
 
   useEffect(() => {
     tryPlayRef.current = tryPlay;
   }, [tryPlay]);
 
+  /** Poster-first: só monta o vídeo após o intro, em idle (desktop) ou primeira interação (mobile). */
+  useEffect(() => {
+    if (prefersReducedMotion || !introReady) return;
+    if (isAutomationClient()) return;
+    if (shouldDeferVideoForConnection()) return;
+
+    let cancelled = false;
+    let idleId: number | undefined;
+    let timeoutId: number | undefined;
+
+    const startVideo = () => {
+      if (cancelled) return;
+      setResolvedSrc(resolveHeroVideoSrc(videoSrc));
+      setMountVideo(true);
+    };
+
+    const onFirstInteraction = () => {
+      startVideo();
+      window.removeEventListener("pointerdown", onFirstInteraction);
+      window.removeEventListener("scroll", onFirstInteraction);
+    };
+
+    if (isDesktopPointer()) {
+      if (typeof window.requestIdleCallback === "function") {
+        idleId = window.requestIdleCallback(startVideo, { timeout: 2200 });
+      } else {
+        timeoutId = window.setTimeout(startVideo, 900);
+      }
+    } else {
+      window.addEventListener("pointerdown", onFirstInteraction, { passive: true });
+      window.addEventListener("scroll", onFirstInteraction, { passive: true });
+      timeoutId = window.setTimeout(startVideo, 4000);
+    }
+
+    return () => {
+      cancelled = true;
+      if (idleId !== undefined && typeof window.cancelIdleCallback === "function") {
+        window.cancelIdleCallback(idleId);
+      }
+      if (timeoutId !== undefined) window.clearTimeout(timeoutId);
+      window.removeEventListener("pointerdown", onFirstInteraction);
+      window.removeEventListener("scroll", onFirstInteraction);
+    };
+  }, [introReady, prefersReducedMotion, videoSrc]);
+
+  /** GSAP/parallax só no desktop — no mobile o poster fica estático e o bundle GSAP nem baixa. */
   useEffect(() => {
     if (prefersReducedMotion) return;
+
+    const isTouchLayout =
+      window.matchMedia("(max-width: 1023px), (hover: none) and (pointer: coarse)")
+        .matches;
+    if (isTouchLayout) return;
 
     const trigger = triggerRef.current;
     const fixedBg = fixedBgRef.current;
     const layer = layerRef.current;
-
     if (!trigger || !fixedBg || !layer) return;
 
-    const isTouchLayout =
-      window.matchMedia("(max-width: 1023px), (hover: none) and (pointer: coarse)").matches;
+    let cancelled = false;
+    let revert: (() => void) | undefined;
 
-    const ctx = gsap.context(() => {
-      const scrollConfig = {
-        trigger,
-        scroller: scrollTriggerScroller(),
-        start: "top top",
-        end: "bottom top",
-        scrub: isTouchLayout ? 0.35 : 0.55,
-      };
+    void import("@/lib/motion/gsap").then(({ registerGsapPlugins, scrollTriggerScroller }) => {
+      if (cancelled) return;
 
-      gsap.fromTo(
-        layer,
-        {
-          scale: 1,
-          scaleX: 1,
-          yPercent: 0,
-        },
-        {
-          scale: 1 + speed * (isTouchLayout ? 0.85 : 1.55),
-          scaleX: isTouchLayout ? 1 : 1 + speed * 2.05,
-          yPercent: isTouchLayout ? -4 : -10,
-          ease: "none",
-          scrollTrigger: scrollConfig,
+      return Promise.all([import("gsap"), import("gsap/ScrollTrigger")]).then(
+        ([{ default: gsap }, { ScrollTrigger }]) => {
+          if (cancelled) return;
+
+          registerGsapPlugins();
+
+          const ctx = gsap.context(() => {
+            const scrollConfig = {
+              trigger,
+              scroller: scrollTriggerScroller(),
+              start: "top top",
+              end: "bottom top",
+              scrub: 0.55,
+            };
+
+            gsap.fromTo(
+              layer,
+              { scale: 1, scaleX: 1, yPercent: 0 },
+              {
+                scale: 1 + speed * 1.55,
+                scaleX: 1 + speed * 2.05,
+                yPercent: -10,
+                ease: "none",
+                scrollTrigger: scrollConfig,
+              },
+            );
+
+            if (whiteFadeRef.current) {
+              gsap.fromTo(
+                whiteFadeRef.current,
+                { opacity: 0 },
+                {
+                  opacity: 1,
+                  ease: "none",
+                  scrollTrigger: scrollConfig,
+                },
+              );
+            }
+
+            ScrollTrigger.create({
+              trigger,
+              scroller: scrollTriggerScroller(),
+              start: "bottom top",
+              onLeave: () => {
+                fixedBg.style.visibility = "hidden";
+                videoRef.current?.pause();
+              },
+              onEnterBack: () => {
+                fixedBg.style.visibility = "visible";
+                tryPlay();
+              },
+            });
+          }, trigger);
+
+          revert = () => ctx.revert();
         },
       );
+    });
 
-      if (whiteFadeRef.current) {
-        gsap.fromTo(
-          whiteFadeRef.current,
-          { opacity: 0 },
-          {
-            opacity: 1,
-            ease: "none",
-            scrollTrigger: scrollConfig,
-          },
-        );
-      }
-
-      ScrollTrigger.create({
-        trigger,
-        scroller: scrollTriggerScroller(),
-        start: "bottom top",
-        onLeave: () => {
-          fixedBg.style.visibility = "hidden";
-          videoRef.current?.pause();
-        },
-        onEnterBack: () => {
-          fixedBg.style.visibility = "visible";
-          tryPlay();
-        },
-      });
-    }, trigger);
-
-    return () => ctx.revert();
+    return () => {
+      cancelled = true;
+      revert?.();
+    };
   }, [prefersReducedMotion, speed, triggerRef, tryPlay]);
 
   useEffect(() => {
@@ -212,35 +282,41 @@ export function HeroBackground({
     };
   }, [canAutoplay, resolvedSrc, tryPlay, markVideoReady, scheduleReadyAfterFirstFrame]);
 
-  const mediaLayer = prefersReducedMotion ? (
+  const poster = (
     <Image
       src={posterSrc}
-      alt={alt}
+      alt={prefersReducedMotion ? alt : ""}
       fill
       priority
       sizes="100vw"
       className="object-cover"
     />
+  );
+
+  const mediaLayer = prefersReducedMotion ? (
+    poster
   ) : (
     <>
-      <video
-        ref={videoRef}
-        data-hero-video
-        src={resolvedSrc}
-        loop
-        muted
-        playsInline
-        preload="metadata"
-        tabIndex={-1}
-        disablePictureInPicture
-        controls={false}
-        className={cn(
-          "absolute inset-0 z-0 h-full w-full object-cover",
-          "transition-opacity duration-500 ease-out",
-          videoReady ? "opacity-100" : "opacity-0",
-        )}
-        aria-hidden
-      />
+      {mountVideo && resolvedSrc ? (
+        <video
+          ref={videoRef}
+          data-hero-video
+          src={resolvedSrc}
+          loop
+          muted
+          playsInline
+          preload="none"
+          tabIndex={-1}
+          disablePictureInPicture
+          controls={false}
+          className={cn(
+            "absolute inset-0 z-0 h-full w-full object-cover",
+            "transition-opacity duration-500 ease-out",
+            videoReady ? "opacity-100" : "opacity-0",
+          )}
+          aria-hidden
+        />
+      ) : null}
       <div
         className={cn(
           "absolute inset-0 z-[1] transition-opacity duration-500 ease-out",
@@ -248,14 +324,7 @@ export function HeroBackground({
         )}
         aria-hidden
       >
-        <Image
-          src={posterSrc}
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover"
-        />
+        {poster}
       </div>
     </>
   );
@@ -305,4 +374,4 @@ export function HeroBackground({
       {whiteFade}
     </div>
   );
-};
+}

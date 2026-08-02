@@ -38,9 +38,11 @@ export function MockImage({
           src={src}
           alt={label}
           fill
+          loading="lazy"
           sizes={sizes}
           className="object-cover"
         />
+
       </div>
     );
   }

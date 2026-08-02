@@ -1,82 +1,67 @@
-import { clinicPhotos, mediaAssets } from "@/content/media";
+import { mediaAssets } from "@/content/media";
 import {
   preloadAssetsWithConcurrency,
   preloadVideo,
-  warmAssetsInBackground,
 } from "@/lib/intro/media-cache";
 
-function collectMediaSrc(value: unknown, urls: Set<string>) {
-  if (!value || typeof value !== "object") return;
-
-  if ("src" in value && typeof value.src === "string" && value.src.startsWith("/")) {
-    urls.add(value.src.split("?")[0]!);
-  }
-
-  if ("poster" in value && typeof value.poster === "string" && value.poster.startsWith("/")) {
-    urls.add(value.poster);
-  }
-
-  for (const nested of Object.values(value)) {
-    collectMediaSrc(nested, urls);
-  }
-}
-
-function uniqueUrls(urls: Iterable<string>) {
-  return [...new Set(urls)];
-}
-
 const heroVideoSrc = mediaAssets.heroClinicVideo.src!;
-const heroPosterSrc = mediaAssets.heroClinicVideo.poster!;
 
-/** Tier 1: vídeo primeiro, depois poster e logos. */
+/**
+ * Tier 1 — só logos do intro.
+ * Poster da hero fica com `priority` no next/image (evita fetch duplicado
+ * do arquivo estático competindo com `/_next/image`).
+ */
 export function getCriticalIntroAssets() {
   return [
-    heroVideoSrc,
-    heroPosterSrc,
     "/brand/grapeclinic-logo-dark.svg",
     "/brand/grapeclinic-logo-light.svg",
   ] as const;
 }
 
-/** Tier 2: restante da home, carregado após reveal sem bloquear. */
-export function getDeferredHomeAssets() {
-  const urls = new Set<string>([clinicPhotos.grapeMethod]);
-  collectMediaSrc(mediaAssets, urls);
-
-  for (const critical of getCriticalIntroAssets()) {
-    urls.delete(critical.split("?")[0]!);
-  }
-
-  return uniqueUrls(urls);
-}
-
 export const criticalIntroAssets = getCriticalIntroAssets();
-export const deferredHomeAssets = getDeferredHomeAssets();
 
 export function preloadCriticalAssets(timeoutMs = 8_000) {
-  const [, ...restAfterVideo] = criticalIntroAssets;
-
   return Promise.race([
-    (async () => {
-      await preloadVideo(heroVideoSrc);
-      await preloadAssetsWithConcurrency(restAfterVideo, 2);
-    })(),
+    preloadAssetsWithConcurrency(criticalIntroAssets, 2),
     new Promise<void>((resolve) => window.setTimeout(resolve, timeoutMs)),
   ]);
 }
 
-export function warmDeferredAssets() {
-  warmAssetsInBackground(deferredHomeAssets);
+function canWarmHeroVideoInBackground() {
+  if (typeof window === "undefined") return false;
+  if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return false;
+
+  const connection = (
+    navigator as Navigator & {
+      connection?: { saveData?: boolean; effectiveType?: string };
+    }
+  ).connection;
+
+  if (connection?.saveData) return false;
+  if (connection?.effectiveType === "slow-2g" || connection?.effectiveType === "2g") {
+    return false;
+  }
+
+  return true;
 }
 
-/** Aquecimento leve quando o intro é pulado (mesma sessão). */
+/** Aquecimento do MP4 da hero só em desktop, em idle — nunca no critical path. */
+export function warmHeroVideoInBackground() {
+  if (!canWarmHeroVideoInBackground()) return;
+
+  const run = () => {
+    void preloadVideo(heroVideoSrc);
+  };
+
+  if (typeof window.requestIdleCallback === "function") {
+    window.requestIdleCallback(run, { timeout: 3500 });
+  } else {
+    window.setTimeout(run, 1500);
+  }
+}
+
+/** Aquecimento leve quando o intro é pulado (mesma sessão). Sem pré-baixar o poster. */
 export function warmHeroOnReturnVisit() {
-  void (async () => {
-    await preloadVideo(heroVideoSrc);
-    await preloadAssetsWithConcurrency(
-      [heroPosterSrc, "/brand/grapeclinic-logo-dark.svg", "/brand/grapeclinic-logo-light.svg"],
-      2,
-    );
-  })();
-  warmDeferredAssets();
+  void preloadAssetsWithConcurrency([...criticalIntroAssets], 2);
+  warmHeroVideoInBackground();
 }

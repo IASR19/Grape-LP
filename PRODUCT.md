@@ -88,7 +88,7 @@ A home é uma página longa com scroll coreografado. Cada seção tem papel edit
 | Hero coreography | Variants `heroStagger` / `heroLine` gated por `useSiteIntroReady` |
 | Parallax | `ParallaxImage`, `HeroBackground` (scale, blur, fade branco no scroll) |
 | Scroll storytelling | GSAP ScrollTrigger em `#metodo`; pilares em `#experiencia` |
-| Scroll suave | Lenis (desligado com `prefers-reduced-motion`) |
+| Scroll | Nativo + GSAP ScrollTrigger |
 
 ## Brand Personality
 
@@ -112,7 +112,7 @@ Stack moderna como parte do produto:
 
 - **Framer Motion** (`motion/react`) — transições, entradas, hover, hero, reveals.
 - **GSAP + ScrollTrigger** — parallax, pin, toggle de método, hero scroll.
-- **Lenis** — scroll suave sincronizado com GSAP.
+- **Scroll nativo** — sincronizado com GSAP ScrollTrigger.
 - **ParallaxImage / HeroBackground** — mídia imersiva reutilizável.
 - **next-themes** — light/dark sem flicker.
 - **shadcn/ui + Tailwind CSS 4** — base consistente e refinada.
@@ -169,7 +169,7 @@ Referências de ambição: Apple (scroll e narrativa), Aesop (silêncio e materi
 
 ## Accessibility & Inclusion
 
-Mirar WCAG AA para contraste, foco visível, navegação por teclado e estrutura semântica. Respeitar `prefers-reduced-motion` em Framer Motion, GSAP, parallax e Lenis — parallax desativado quando reduzido. Conteúdo evita linguagem excludente, culpabilizante ou promessas que gerem insegurança corporal.
+Mirar WCAG AA para contraste, foco visível, navegação por teclado e estrutura semântica. Respeitar `prefers-reduced-motion` em motion/react, GSAP e parallax — parallax desativado quando reduzido. Conteúdo evita linguagem excludente, culpabilizante ou promessas que gerem insegurança corporal.
 
 Movimento, contraste, dark mode e interações fazem parte da experiência premium. Uma experiência elegante também precisa ser legível, confortável e previsível.
 
@@ -181,7 +181,7 @@ Movimento, contraste, dark mode e interações fazem parte da experiência premi
 | UI | React 19, TypeScript |
 | Estilo | Tailwind CSS 4, tokens OKLCH em `globals.css` |
 | Tipografia | Alice (display) + Montserrat (corpo) |
-| Motion | `motion/react`, GSAP 3, Lenis |
+| Motion | `motion/react`, GSAP 3 |
 | Tema | next-themes + View Transitions API |
 | Conteúdo | `src/content/site.ts`, `src/content/media.ts` |
 | Componentes home | `src/components/sections/home/*` |

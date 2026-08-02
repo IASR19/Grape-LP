@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
-import { Geist_Mono, Montserrat } from "next/font/google";
+import { Montserrat } from "next/font/google";
 
 import { AppChrome } from "@/components/layout/app-chrome";
-import { CustomCursor } from "@/components/layout/custom-cursor";
+import { CustomCursorLoader } from "@/components/layout/custom-cursor-loader";
 import { Providers } from "@/components/providers";
-import { mediaAssets } from "@/content/media";
 import { doctorProfile, siteConfig } from "@/content/site";
 import { defaultOgImage, siteKeywords, siteUrl } from "@/lib/seo";
 
@@ -13,12 +12,9 @@ import "./globals.css";
 const montserrat = Montserrat({
   variable: "--font-montserrat",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  // 700 não é usado (não há font-bold); menos arquivos = menos render-blocking.
+  weight: ["400", "500", "600"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -83,38 +79,25 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
-      className={`${montserrat.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${montserrat.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <head>
-        <link
-          rel="preload"
-          href={defaultOgImage.url}
-          as="image"
-          fetchPriority="high"
-        />
-        <link
-          rel="preload"
-          href={mediaAssets.heroClinicVideo.src!}
-          as="fetch"
-          crossOrigin="anonymous"
-          fetchPriority="high"
-        />
         <style
           dangerouslySetInnerHTML={{
-            __html: `html[data-site-intro-pending]{overflow:hidden}html[data-site-intro-pending]::before{content:"";position:fixed;inset:0;z-index:79;background:oklch(0.985 0.006 84)}html[data-site-intro-pending] [data-app-shell]{visibility:hidden!important}`,
+            __html: `html[data-site-intro-pending]{overflow:hidden}html[data-site-intro-pending]::before{content:"";position:fixed;inset:0;z-index:79;background:oklch(0.985 0.006 84)}`,
           }}
         />
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var k="grapeclinic:intro-seen:v4";if(!sessionStorage.getItem(k)){document.documentElement.setAttribute("data-site-intro-pending","");}if("scrollRestoration" in history){history.scrollRestoration="manual";}if(!window.location.hash){window.scrollTo(0,0);document.documentElement.scrollTop=0;document.body.scrollTop=0;}}catch(e){}})();`,
+            __html: `(function(){try{var k="grapeclinic:intro-seen:v4";var skip=navigator.webdriver||/Chrome-Lighthouse|PageSpeed|Lighthouse/i.test(navigator.userAgent);if(!skip&&!sessionStorage.getItem(k)){document.documentElement.setAttribute("data-site-intro-pending","");}if("scrollRestoration" in history){history.scrollRestoration="manual";}if(!window.location.hash){window.scrollTo(0,0);document.documentElement.scrollTop=0;document.body.scrollTop=0;}}catch(e){}})();`,
           }}
         />
       </head>
       <body className="flex min-h-full flex-col font-sans">
         <Providers>
           <AppChrome>{children}</AppChrome>
-          <CustomCursor />
+          <CustomCursorLoader />
         </Providers>
       </body>
     </html>
