@@ -5,12 +5,14 @@ import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
 import { FormEvent, useEffect, useRef, useState } from "react";
 
+import { PhoneInput } from "@/components/form/phone-input";
 import { clinicPhotos } from "@/content/media";
 import {
+  BRAZIL_PHONE_PLACEHOLDER,
+  brazilianPhoneValidationError,
   formatBrazilianPhone,
   formatCityName,
   formatPersonName,
-  isValidBrazilianPhone,
   normalizeSpaces,
 } from "@/lib/form/formatters";
 import { getScrollY } from "@/lib/scroll";
@@ -36,9 +38,9 @@ const fields = [
   {
     id: "whatsapp",
     label: "WhatsApp",
-    placeholder: "(00) 0000-0000",
+    placeholder: BRAZIL_PHONE_PLACEHOLDER,
     type: "tel",
-    autoComplete: "tel",
+    autoComplete: "tel-national",
   },
   {
     id: "cidade",
@@ -89,9 +91,7 @@ function validateField(fieldId: keyof PopupAnswers, value: string): string {
     return normalizeSpaces(value) ? "" : "Informe seu nome.";
   }
   if (fieldId === "whatsapp") {
-    return isValidBrazilianPhone(value)
-      ? ""
-      : "Informe um WhatsApp válido com DDD.";
+    return brazilianPhoneValidationError(value) ?? "";
   }
   const v = normalizeSpaces(value);
   if (!v) return "Informe sua cidade.";
@@ -347,33 +347,54 @@ export function LeadPopup() {
                           >
                             {field.label}
                           </label>
-                          <input
-                            ref={index === 0 ? firstFieldRef : undefined}
-                            id={`popup-${field.id}`}
-                            name={field.id}
-                            type={field.type}
-                            autoComplete={field.autoComplete}
-                            inputMode={
-                              field.id === "whatsapp" ? "numeric" : undefined
-                            }
-                            maxLength={field.id === "whatsapp" ? 16 : undefined}
-                            value={answers[field.id]}
-                            placeholder={field.placeholder}
-                            aria-invalid={!!error}
-                            aria-describedby={
-                              error ? `popup-${field.id}-error` : undefined
-                            }
-                            onChange={(event) =>
-                              updateField(field.id, event.target.value)
-                            }
-                            onBlur={(event) =>
-                              handleBlur(field.id, event.target.value)
-                            }
-                            className={cn(
-                              "h-9 w-full rounded border border-transparent bg-[#f9f1de] px-3.5 text-[13px] text-[#3a2416] outline-none placeholder:text-[#3a2416]/70 focus-visible:border-[#f6ead9]",
-                              error && "border-red-400",
-                            )}
-                          />
+                          {field.id === "whatsapp" ? (
+                            <PhoneInput
+                              id={`popup-${field.id}`}
+                              name={field.id}
+                              value={answers.whatsapp}
+                              placeholder={field.placeholder}
+                              autoComplete={field.autoComplete}
+                              aria-invalid={!!error}
+                              aria-describedby={
+                                error ? `popup-${field.id}-error` : undefined
+                              }
+                              onChange={(value) =>
+                                updateField("whatsapp", value)
+                              }
+                              onBlur={(event) =>
+                                handleBlur("whatsapp", event.target.value)
+                              }
+                              className={cn(
+                                "h-9 w-full rounded border border-transparent bg-[#f9f1de] focus-within:border-[#f6ead9]",
+                                error && "border-red-400",
+                              )}
+                              inputClassName="px-3.5 text-[13px] text-[#3a2416] placeholder:text-[#3a2416]/70"
+                            />
+                          ) : (
+                            <input
+                              ref={index === 0 ? firstFieldRef : undefined}
+                              id={`popup-${field.id}`}
+                              name={field.id}
+                              type={field.type}
+                              autoComplete={field.autoComplete}
+                              value={answers[field.id]}
+                              placeholder={field.placeholder}
+                              aria-invalid={!!error}
+                              aria-describedby={
+                                error ? `popup-${field.id}-error` : undefined
+                              }
+                              onChange={(event) =>
+                                updateField(field.id, event.target.value)
+                              }
+                              onBlur={(event) =>
+                                handleBlur(field.id, event.target.value)
+                              }
+                              className={cn(
+                                "h-9 w-full rounded border border-transparent bg-[#f9f1de] px-3.5 text-[13px] text-[#3a2416] outline-none placeholder:text-[#3a2416]/70 focus-visible:border-[#f6ead9]",
+                                error && "border-red-400",
+                              )}
+                            />
+                          )}
                           {error ? (
                             <p
                               id={`popup-${field.id}-error`}

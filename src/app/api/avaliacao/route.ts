@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
 
+import {
+  isValidBrazilianPhone,
+  nationalPhoneDigits,
+} from "@/lib/form/formatters";
+
 const GRAPEGEST_URL = "https://www.grapegest.com.br/api/webhooks/leads";
 
 type EvaluationLeadPayload = {
@@ -63,6 +68,16 @@ export async function POST(request: Request) {
     );
   }
 
+  if (!isValidBrazilianPhone(payload.whatsapp as string)) {
+    return NextResponse.json(
+      {
+        message: "Informe um WhatsApp válido com DDD e 9 dígitos.",
+        missing: ["whatsapp"],
+      },
+      { status: 400 },
+    );
+  }
+
   const token = process.env.GRAPEGEST_TOKEN;
 
   if (!token) {
@@ -82,7 +97,7 @@ export async function POST(request: Request) {
 
   const grapegestPayload: Record<string, string> = {
     name: payload.nome as string,
-    phone: payload.whatsapp as string,
+    phone: nationalPhoneDigits((payload.whatsapp as string).trim()),
     localizacao: payload.cidade as string,
     dor_principal: situacoes.join(", "),
     disponibilidade: payload.disponibilidade as string,

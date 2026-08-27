@@ -19,15 +19,17 @@ import {
   useState,
 } from "react";
 
+import { PhoneInput } from "@/components/form/phone-input";
 import { AnimatedHeading } from "@/components/motion/animated-heading";
 import { Reveal } from "@/components/motion/reveal";
 import { PageSection } from "@/components/sections/section-shell";
 import { Button } from "@/components/ui/button";
 import {
+  BRAZIL_PHONE_PLACEHOLDER,
+  brazilianPhoneValidationError,
   formatBrazilianPhone,
   formatCityName,
   formatPersonName,
-  isValidBrazilianPhone,
   normalizeSpaces,
 } from "@/lib/form/formatters";
 import { layout } from "@/lib/layout";
@@ -46,8 +48,8 @@ const contactFields = [
     id: "whatsapp",
     label: "WhatsApp",
     type: "tel",
-    placeholder: "(00) 00000-0000",
-    autoComplete: "tel",
+    placeholder: BRAZIL_PHONE_PLACEHOLDER,
+    autoComplete: "tel-national",
   },
   {
     id: "cidade",
@@ -160,9 +162,7 @@ function validateContactField(fieldId: ContactFieldId, value: string): string {
     return normalizeSpaces(value) ? "" : "Informe seu nome.";
   }
   if (fieldId === "whatsapp") {
-    return isValidBrazilianPhone(value)
-      ? ""
-      : "Informe um WhatsApp válido com DDD.";
+    return brazilianPhoneValidationError(value) ?? "";
   }
   if (fieldId === "cidade") {
     const v = normalizeSpaces(value);
@@ -1005,46 +1005,78 @@ export function ClosingCtaSection() {
                                 className="text-sm font-medium"
                               >
                                 {field.label}
+                                {field.id === "whatsapp" ? (
+                                  <span className="ml-1.5 font-normal text-muted-foreground">
+                                    · Brasil +55 já selecionado
+                                  </span>
+                                ) : null}
                               </label>
-                              <input
-                                id={field.id}
-                                name={field.id}
-                                type={field.type}
-                                autoComplete={field.autoComplete}
-                                inputMode={
-                                  field.id === "whatsapp"
-                                    ? "numeric"
-                                    : undefined
-                                }
-                                maxLength={
-                                  field.id === "whatsapp" ? 16 : undefined
-                                }
-                                list={
-                                  field.id === "cidade"
-                                    ? "city-suggestions"
-                                    : undefined
-                                }
-                                value={answers[field.id]}
-                                aria-describedby={
-                                  hasError ? `${field.id}-error` : undefined
-                                }
-                                aria-invalid={hasError}
-                                onChange={(event) =>
-                                  updateContactField(
-                                    field.id,
-                                    event.target.value,
-                                  )
-                                }
-                                onBlur={(event) =>
-                                  handleFieldBlur(field.id, event.target.value)
-                                }
-                                placeholder={field.placeholder}
-                                className={cn(
-                                  formFieldClass,
-                                  hasError && formFieldErrorClass,
-                                  isValid && formFieldSuccessClass,
-                                )}
-                              />
+                              {field.id === "whatsapp" ? (
+                                <PhoneInput
+                                  id={field.id}
+                                  name={field.id}
+                                  value={answers.whatsapp}
+                                  autoComplete={field.autoComplete}
+                                  placeholder={field.placeholder}
+                                  aria-invalid={hasError}
+                                  aria-describedby={
+                                    hasError ? `${field.id}-error` : undefined
+                                  }
+                                  onChange={(value) =>
+                                    updateContactField("whatsapp", value)
+                                  }
+                                  onBlur={(event) =>
+                                    handleFieldBlur(
+                                      "whatsapp",
+                                      event.target.value,
+                                    )
+                                  }
+                                  className={cn(
+                                    formFieldClass,
+                                    "px-0 focus-within:border-ring focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ring/25",
+                                    hasError &&
+                                      "border-destructive focus-within:border-destructive focus-within:outline-destructive/25",
+                                    isValid &&
+                                      "border-emerald-500/70 focus-within:border-emerald-500 focus-within:outline-emerald-500/20",
+                                  )}
+                                  inputClassName="placeholder:text-muted-foreground text-sm font-normal"
+                                />
+                              ) : (
+                                <input
+                                  id={field.id}
+                                  name={field.id}
+                                  type={field.type}
+                                  autoComplete={field.autoComplete}
+                                  list={
+                                    field.id === "cidade"
+                                      ? "city-suggestions"
+                                      : undefined
+                                  }
+                                  value={answers[field.id]}
+                                  aria-describedby={
+                                    hasError ? `${field.id}-error` : undefined
+                                  }
+                                  aria-invalid={hasError}
+                                  onChange={(event) =>
+                                    updateContactField(
+                                      field.id,
+                                      event.target.value,
+                                    )
+                                  }
+                                  onBlur={(event) =>
+                                    handleFieldBlur(
+                                      field.id,
+                                      event.target.value,
+                                    )
+                                  }
+                                  placeholder={field.placeholder}
+                                  className={cn(
+                                    formFieldClass,
+                                    hasError && formFieldErrorClass,
+                                    isValid && formFieldSuccessClass,
+                                  )}
+                                />
+                              )}
                               {hasError ? (
                                 <p
                                   id={`${field.id}-error`}
